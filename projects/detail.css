@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "Noto Sans SC";
+  src: url("../assets/fonts/noto-sans-sc-subset.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 :root {
   --black: #101010;
   --black-soft: #1a1a18;
@@ -8,8 +16,8 @@
   --grid: rgba(126, 126, 120, .17);
   --orange: #ff5a2f;
   --orange-dark: #b72d0b;
-  --display: "Segoe UI Variable Display", "Aptos Display", "Helvetica Neue", sans-serif;
-  --body: "Segoe UI Variable Text", "Microsoft YaHei", "PingFang SC", sans-serif;
+  --display: "Segoe UI Variable Display", "Aptos Display", "Noto Sans SC", "Helvetica Neue", sans-serif;
+  --body: "Segoe UI Variable Text", "Noto Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif;
   --mono: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
   --ease: cubic-bezier(.2, .75, .2, 1);
   --radius: 5px;
@@ -78,7 +86,7 @@ h1 .cn { display: block; margin-top: 20px; font-size: .37em; letter-spacing: -.0
 .story-grid { display: grid; grid-template-columns: 1fr 3fr; gap: 40px; }
 .section-index { margin: 3px 0 0; color: var(--gray); }
 .story-copy { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(260px, .8fr); gap: 70px; }
-.story h2, .chapter h2, .reflection h2 { margin: 0; font-family: var(--display); font-size: clamp(42px, 6vw, 86px); font-weight: 600; letter-spacing: -.06em; line-height: .92; }
+.story h2, .chapter h2, .reflection h2 { margin: 0; font-family: var(--display); font-size: clamp(42px, 6vw, 86px); font-weight: 600; letter-spacing: -.06em; line-height: .98; }
 .story-text p { max-width: 700px; margin: 0; font-size: clamp(18px, 1.65vw, 24px); line-height: 1.65; }
 .project-note { align-self: end; margin: 26px 0 0; color: var(--gray); }
 .contribution { align-self: start; border-top: 1px solid var(--line); }
@@ -127,7 +135,7 @@ figcaption { display: flex; justify-content: space-between; gap: 20px; margin-to
 .project-nav a { display: flex; flex-direction: column; justify-content: space-between; padding: 28px 0 34px; }
 .project-nav a + a { padding-left: 34px; border-left: 1px solid rgba(16,16,16,.22); }
 .project-nav a:first-child { padding-right: 34px; }
-.project-nav strong { font-family: var(--display); font-size: clamp(32px, 5vw, 70px); font-weight: 620; letter-spacing: -.06em; line-height: .92; transition: transform .35s var(--ease); }
+.project-nav strong { font-family: var(--display); font-size: clamp(32px, 5vw, 70px); font-weight: 620; letter-spacing: -.06em; line-height: .98; transition: transform .35s var(--ease); }
 .project-nav a:hover strong, .project-nav a:focus-visible strong { transform: translateX(10px); }
 .project-nav a:first-child:hover strong, .project-nav a:first-child:focus-visible strong { transform: translateX(-10px); }
 .project-nav a:last-child { text-align: right; }
