@@ -8,6 +8,14 @@
   <title>温一帆 / Brand Visual · 3D · AIGC</title>
   <script>document.documentElement.classList.add('js', 'intro-pending');</script>
   <style>
+    @font-face {
+      font-family: "Noto Sans SC";
+      src: url("assets/fonts/noto-sans-sc-subset.woff2") format("woff2");
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+    }
+
     :root {
       --black: #101010;
       --black-soft: #1a1a18;
@@ -19,8 +27,8 @@
       --grid-line: rgba(126, 126, 120, .18);
       --orange: #ff5a2f;
       --orange-dark: #b72d0b;
-      --display: "Segoe UI Variable Display", "Aptos Display", "Helvetica Neue", sans-serif;
-      --body: "Segoe UI Variable Text", "Microsoft YaHei", "PingFang SC", sans-serif;
+      --display: "Segoe UI Variable Display", "Aptos Display", "Noto Sans SC", "Helvetica Neue", sans-serif;
+      --body: "Segoe UI Variable Text", "Noto Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif;
       --mono: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
       --ease: cubic-bezier(.2, .75, .2, 1);
       --radius-control: 3px;
@@ -172,15 +180,28 @@
     .hero-cta span { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid rgba(244,243,239,.34); border-radius: 50%; }
     .hero-cta:hover { color: var(--black); background: var(--orange); }
 
-    .marquee { overflow: hidden; color: var(--white); background: var(--orange); border-top: 1px solid var(--orange); border-bottom: 1px solid var(--orange); }
-    .marquee-track { display: flex; width: max-content; animation: marquee 20s linear infinite; }
-    .marquee-track span { padding: 12px 24px 15px 0; font-family: var(--display); font-size: clamp(56px, 8vw, 116px); font-weight: 500; letter-spacing: -.07em; line-height: .9; white-space: nowrap; }
+    .signal-strip { overflow: hidden; color: var(--black); background: var(--orange); border-top: 1px solid var(--orange); border-bottom: 1px solid var(--orange); }
+    .signal-strip .shell { min-height: 132px; display: grid; grid-template-columns: .7fr 2.3fr; gap: 32px; align-items: stretch; }
+    .signal-label { display: flex; align-items: center; margin: 0; font-family: var(--mono); font-size: 9px; letter-spacing: .08em; line-height: 1.35; text-transform: uppercase; }
+    .signal-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-left: 1px solid rgba(17,17,17,.32); }
+    .signal-item { min-height: 92px; display: flex; flex-direction: column; justify-content: center; gap: 7px; padding: 16px clamp(12px, 1.8vw, 26px); border-right: 1px solid rgba(17,17,17,.32); color: var(--black); transition: color .22s ease, background .22s ease, transform .36s var(--ease), opacity .36s ease; }
+    .signal-item small { font-family: var(--mono); font-size: 8px; letter-spacing: .08em; opacity: .7; }
+    .signal-item strong { font-family: var(--display); font-size: clamp(24px, 2.2vw, 34px); font-weight: 560; letter-spacing: -.055em; line-height: .9; }
+    .signal-list:hover .signal-item { opacity: .48; }
+    .signal-list:hover .signal-item:hover { color: var(--white); background: var(--black); opacity: 1; transform: translateY(-4px); }
+    .js .signal-strip[data-reveal] .signal-item { opacity: 0; transform: translateY(16px); }
+    .js .signal-strip[data-reveal].visible .signal-item { opacity: 1; transform: translateY(0); }
+    .js .signal-strip[data-reveal].visible .signal-item:nth-child(2) { transition-delay: .1s; }
+    .js .signal-strip[data-reveal].visible .signal-item:nth-child(3) { transition-delay: .2s; }
+    .footer-marquee { overflow: hidden; color: var(--white); background: var(--orange); border-top: 1px solid var(--orange); border-bottom: 1px solid var(--orange); }
+    .footer-marquee .marquee-track { display: flex; width: max-content; animation: marquee 20s linear infinite; }
+    .footer-marquee .marquee-track span { padding: 12px 24px 15px 0; font-family: var(--display); font-size: clamp(56px, 8vw, 116px); font-weight: 500; letter-spacing: -.07em; line-height: .9; white-space: nowrap; }
     @keyframes marquee { to { transform: translateX(-50%); } }
 
     .section { padding: 120px 0; }
     .section-head { display: grid; grid-template-columns: .75fr 1.8fr; gap: 70px; align-items: start; margin-bottom: 72px; }
     .section-number { padding-top: 9px; color: var(--orange); font-family: var(--mono); font-size: 10px; letter-spacing: .08em; }
-    .section-title { margin: 0; font-family: var(--display); font-size: clamp(56px, 7vw, 106px); font-weight: 600; letter-spacing: -.07em; line-height: .88; }
+    .section-title { margin: 0; font-family: var(--display); font-size: clamp(56px, 7vw, 106px); font-weight: 600; letter-spacing: -.07em; line-height: .95; }
 
     .work-index { color: var(--black); background: var(--paper); }
     .work-index .section-number { color: var(--orange-dark); }
@@ -280,7 +301,7 @@
     .showcase-fallback { display: grid; place-items: center; opacity: .18; transition: opacity .5s ease; }
     .showcase-fallback img { width: min(560px, 66vw); filter: grayscale(1) contrast(1.08); }
     .showcase.model-ready .showcase-fallback { opacity: 0; }
-    .showcase-statement { position: absolute; z-index: 3; top: 104px; left: 40px; width: min(560px, 44vw); margin: 0; font-family: var(--display); font-size: clamp(25px, 2.25vw, 36px); font-weight: 560; letter-spacing: -.045em; line-height: 1.08; }
+    .showcase-statement { position: absolute; z-index: 3; top: 104px; left: 40px; width: min(560px, 44vw); margin: 0; font-family: var(--display); font-size: clamp(25px, 2.25vw, 36px); font-weight: 560; letter-spacing: -.045em; line-height: 1.14; }
     .showcase-side, .showcase-year { position: absolute; z-index: 3; top: 56%; color: rgba(244,243,239,.36); transform: translateY(-50%); }
     .showcase-side { left: 40px; }
     .showcase-year { right: 40px; }
@@ -296,6 +317,10 @@
     .case-copy { display: flex; flex-direction: column; justify-content: space-between; min-height: 460px; }
     .case-copy h3 { margin: 0; font-family: var(--display); font-size: clamp(46px, 5vw, 76px); font-weight: 580; letter-spacing: -.07em; line-height: .86; }
     .case-copy h3 span { display: block; margin-top: 16px; color: var(--orange-dark); font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+    .case--packaging .case-copy h3 { line-height: 1.02; }
+    .case--packaging .case-copy h3 span { margin-top: 20px; }
+    #keep .case-copy h3, #runes .case-copy h3, #jiangkou .case-copy h3 { line-height: .98; }
+    #keep .case-copy h3 span, #runes .case-copy h3 span, #jiangkou .case-copy h3 span { margin-top: 20px; }
     .case-copy p { max-width: 370px; margin: 0; color: #575753; font-size: 14px; text-wrap: pretty; }
     .case--expanded .case-copy { position: sticky; top: 92px; align-self: start; }
     .case-meta { display: grid; gap: 8px; margin-top: 28px; }
@@ -440,7 +465,13 @@
       .hero-meta > span { max-width: 100px; }
       .hero-cta { min-height: 38px; padding-left: 12px; }
       .hero-cta span { width: 27px; height: 27px; }
-      .marquee-track span { padding-top: 9px; padding-bottom: 12px; font-size: 56px; }
+      .signal-strip .shell { min-height: 0; grid-template-columns: 1fr; gap: 0; padding: 16px 0 0; }
+      .signal-label { padding-bottom: 14px; }
+      .signal-list { grid-template-columns: 1fr; border-top: 1px solid rgba(17,17,17,.32); border-left: 0; }
+      .signal-item { min-height: 62px; flex-direction: row; justify-content: flex-start; align-items: baseline; gap: 12px; padding: 13px 0; border-right: 0; border-bottom: 1px solid rgba(17,17,17,.32); }
+      .signal-item:last-child { border-bottom: 0; }
+      .signal-item strong { font-size: 27px; }
+      .footer-marquee .marquee-track span { padding-top: 9px; padding-bottom: 12px; font-size: 56px; }
       .section-title { font-size: 54px; }
       .section-head { margin-bottom: 44px; }
       .preview { min-height: 270px; }
@@ -571,11 +602,16 @@
       </div>
     </section>
 
-    <div class="marquee" aria-hidden="true">
-      <div class="marquee-track">
-        <span>BRAND VISUAL © 3D / AIGC © WEN YIFAN · </span><span>BRAND VISUAL © 3D / AIGC © WEN YIFAN · </span>
+    <section class="signal-strip" aria-label="创作领域" data-reveal>
+      <div class="shell">
+        <p class="signal-label">(01) / Working<br>across disciplines</p>
+        <div class="signal-list" role="list">
+          <div class="signal-item" role="listitem"><small>01 / BRAND</small><strong>品牌系统</strong></div>
+          <div class="signal-item" role="listitem"><small>02 / EVENT</small><strong>活动体验</strong></div>
+          <div class="signal-item" role="listitem"><small>03 / DIGITAL</small><strong>3D 与 AIGC</strong></div>
+        </div>
       </div>
-    </div>
+    </section>
 
     <section class="section work-index" id="work" aria-labelledby="works-title" data-nav-theme="light">
       <div class="shell">
@@ -595,10 +631,10 @@
           </figure>
           <div class="project-list" data-reveal>
             <a class="project-row active" href="#dad" data-image="assets/dad-cover.jpg" data-alt="ROKU IKITION D&AD入围项目户外视觉预览" data-name="ROKU IKITION / D&AD" data-year="2025"><span>(01)</span><strong>ROKU IKITION</strong><span>D&AD / Brand / 3D</span><span>2025</span></a>
-            <a class="project-row" href="#packaging" data-image="assets/packaging-cover.jpg" data-alt="外贸家纺包装设计项目预览" data-name="EXPORT PACKAGING / INTERNSHIP" data-year="2026"><span>(02)</span><strong>外贸包装实习</strong><span>Packaging / Production</span><span>2026</span></a>
-            <a class="project-row" href="#keep" data-image="assets/keep-cover.jpg" data-alt="KEEP绿源守护活动预览" data-name="KEEP / ORIGIN GUARDIAN" data-year="2025"><span>(03)</span><strong>KEEP绿源守护</strong><span>Campaign / UI visual</span><span>2025</span></a>
+            <a class="project-row" href="#packaging" data-image="assets/packaging-cover.jpg" data-alt="外贸家纺包装设计项目预览" data-name="PACKAGING DESIGN / INTERNSHIP" data-year="2026"><span>(02)</span><strong>包装设计</strong><span>Packaging / Production</span><span>2026</span></a>
+            <a class="project-row" href="#keep" data-image="assets/keep-cover-v2.png" data-alt="KEEP绿源守护活动中心主视觉预览" data-name="KEEP / ORIGIN GUARDIAN" data-year="2025"><span>(03)</span><strong>KEEP绿源守护</strong><span>Campaign / UI visual</span><span>2025</span></a>
             <a class="project-row" href="#runes" data-image="assets/thesis-cover.jpg" data-alt="符文攻防战电竞活动视觉系统预览" data-name="RUNES ATTACK AND DEFENSE" data-year="2026"><span>(04)</span><strong>符文攻防战</strong><span>Esports / Visual system</span><span>2026</span></a>
-            <a class="project-row" href="#jiangkou" data-image="assets/jiangkou-cover.jpg" data-alt="江口沉银文创视觉预览" data-name="JIANGKOU SUNKEN SILVER" data-year="2024"><span>(05)</span><strong>江口沉银</strong><span>Cultural / 3D visual</span><span>2024</span></a>
+            <a class="project-row" href="#jiangkou" data-image="assets/jiangkou-cover-v2.jpg" data-alt="江口沉银香炉侧视图预览" data-name="JIANGKOU SUNKEN SILVER" data-year="2024"><span>(05)</span><strong>江口沉银</strong><span>Cultural / 3D visual</span><span>2024</span></a>
             <a class="project-row" href="#vitrolume" data-image="assets/vitrolume-cover.jpg" data-alt="VitroLume品牌设计预览" data-name="VITROLUME" data-year="2025"><span>(06)</span><strong>VitroLume</strong><span>Brand identity</span><span>2025</span></a>
             <a class="project-row" href="#spatial" data-image="assets/digital-scene.jpg" data-alt="数字空间场景渲染预览" data-name="SCENE RENDERING" data-year="2025"><span>(07)</span><strong>场景渲染</strong><span>3D / Atmosphere</span><span>2025</span></a>
             <a class="project-row" href="#reverie" data-image="assets/reverie-cover.jpg" data-alt="REVERIE沉浸式艺术机构网页预览" data-name="REVERIE / NOMADIC ART" data-year="2026"><span>(08)</span><strong>REVERIE</strong><span>Web / WebGL / Interaction</span><span>2026</span></a>
@@ -736,9 +772,9 @@
           </div>
         </article>
 
-        <article class="case case--expanded" id="packaging">
+        <article class="case case--expanded case--packaging" id="packaging">
           <div class="case-copy" data-reveal>
-            <div><p class="section-number">CASE / 02</p><h3>EXPORT<br>PACKAGING<span>Commercial packaging / Internship work</span></h3></div>
+            <div><p class="section-number">CASE / 02</p><h3>包装<br>设计<span>Commercial packaging / Internship work</span></h3></div>
             <div>
               <p>在外贸家居用品厂商实习期间，参与家纺、宠物用品与卫浴产品的海外零售包装设计，完成场景图、腰封、吊牌、洗标及多规格印前文件，并根据客户反馈持续适配不同颜色、尺寸和SKU。</p>
               <div class="case-meta"><div><span>Role</span><span>Packaging / Production artwork</span></div><div><span>Scope</span><span>Home textile / Pet / Bath</span></div><div><span>Output</span><span>Sleeve / Hang tag / Care label</span></div><div><span>Year</span><span>2026</span></div></div>
@@ -762,8 +798,8 @@
             <div><p>围绕运动用户与环保议题，建立从主题海报到移动端任务机制的完整活动视觉语言。</p><div class="case-meta"><div><span>Role</span><span>Concept / UI visual</span></div><div><span>Output</span><span>Poster / Mobile UI</span></div><div><span>Year</span><span>2025</span></div></div></div>
           </div>
           <div class="case-media" data-reveal>
-            <button type="button" data-lightbox="assets/keep-cover.jpg" data-label="KEEP / Campaign cover"><img src="assets/keep-cover.jpg" alt="KEEP绿源守护活动主视觉" loading="lazy"></button>
-            <button type="button" data-lightbox="assets/keep-poster.jpg" data-label="KEEP / Theme poster"><img src="assets/keep-poster.jpg" alt="KEEP绿源守护主题海报" loading="lazy"></button>
+            <button type="button" data-lightbox="assets/keep-cover-v2.png" data-label="KEEP / Origin Guardian campaign cover"><img src="assets/keep-cover-v2.png" alt="KEEP绿源守护活动中心主视觉海报" loading="lazy"></button>
+            <button type="button" data-lightbox="assets/keep-poster-v2.jpg" data-label="KEEP / Origin Guardian theme poster"><img src="assets/keep-poster-v2.jpg" alt="KEEP绿源守护盆景主题海报" loading="lazy"></button>
             <button type="button" data-lightbox="assets/keep-ui.jpg" data-label="KEEP / Mobile UI"><img src="assets/keep-ui.jpg" alt="KEEP活动移动端视觉与图标" loading="lazy"></button>
           </div>
         </article>
@@ -794,9 +830,9 @@
             <div><p>从“沉没、发现、重见”提炼叙事，结合文物建模、材质灯光与包装延展，建立有历史重量的文创视觉。</p><div class="case-meta"><div><span>Role</span><span>Concept / 3D / Packaging</span></div><div><span>Tools</span><span>Blender / SD / PS</span></div><div><span>Year</span><span>2024</span></div></div></div>
           </div>
           <div class="case-media" data-reveal>
-            <button type="button" data-lightbox="assets/jiangkou-cover.jpg" data-label="Jiangkou / Cover"><img src="assets/jiangkou-cover.jpg" alt="江口沉银项目封面" loading="lazy"></button>
-            <button type="button" data-lightbox="assets/jiangkou-process.jpg" data-label="Jiangkou / Process"><img src="assets/jiangkou-process.jpg" alt="江口沉银创作过程" loading="lazy"></button>
-            <button type="button" data-lightbox="assets/jiangkou-renders.jpg" data-label="Jiangkou / Render"><img src="assets/jiangkou-renders.jpg" alt="江口沉银文创三维渲染" loading="lazy"></button>
+            <button type="button" data-lightbox="assets/jiangkou-cover-v2.jpg" data-label="Jiangkou / Side view"><img src="assets/jiangkou-cover-v2.jpg" alt="江口沉银香炉侧视图" loading="lazy"></button>
+            <button type="button" data-lightbox="assets/jiangkou-process-v2.jpg" data-label="Jiangkou / Creation process"><img src="assets/jiangkou-process-v2.jpg" alt="江口沉银创作过程与三维制作记录" loading="lazy"></button>
+            <button type="button" data-lightbox="assets/jiangkou-renders-v2.jpg" data-label="Jiangkou / Use scene"><img src="assets/jiangkou-renders-v2.jpg" alt="江口沉银香炉使用场景三维渲染" loading="lazy"></button>
           </div>
         </article>
 
@@ -881,10 +917,10 @@
           </figure>
           <div class="drawer-project-list">
             <a class="drawer-project" href="#dad" data-drawer-link data-image="assets/dad-cover.jpg" data-alt="ROKU IKITION D&AD入围项目预览" data-name="ROKU IKITION / D&AD" data-year="2025"><span>01</span><strong>ROKU IKITION</strong><span>D&AD / Brand / 3D</span></a>
-            <a class="drawer-project" href="#packaging" data-drawer-link data-image="assets/packaging-cover.jpg" data-alt="外贸包装实习项目预览" data-name="EXPORT PACKAGING / INTERNSHIP" data-year="2026"><span>02</span><strong>外贸包装实习</strong><span>Packaging</span></a>
-            <a class="drawer-project" href="#keep" data-drawer-link data-image="assets/keep-cover.jpg" data-alt="KEEP绿源守护项目预览" data-name="KEEP / ORIGIN GUARDIAN" data-year="2025"><span>03</span><strong>KEEP绿源守护</strong><span>Campaign</span></a>
+            <a class="drawer-project" href="#packaging" data-drawer-link data-image="assets/packaging-cover.jpg" data-alt="外贸包装设计项目预览" data-name="PACKAGING DESIGN / INTERNSHIP" data-year="2026"><span>02</span><strong>包装设计</strong><span>Packaging</span></a>
+            <a class="drawer-project" href="#keep" data-drawer-link data-image="assets/keep-cover-v2.png" data-alt="KEEP绿源守护活动中心主视觉预览" data-name="KEEP / ORIGIN GUARDIAN" data-year="2025"><span>03</span><strong>KEEP绿源守护</strong><span>Campaign</span></a>
             <a class="drawer-project" href="#runes" data-drawer-link data-image="assets/thesis-cover.jpg" data-alt="符文攻防战项目预览" data-name="RUNES ATTACK AND DEFENSE" data-year="2026"><span>04</span><strong>符文攻防战</strong><span>Esports identity</span></a>
-            <a class="drawer-project" href="#jiangkou" data-drawer-link data-image="assets/jiangkou-cover.jpg" data-alt="江口沉银项目预览" data-name="JIANGKOU SUNKEN SILVER" data-year="2024"><span>05</span><strong>江口沉银</strong><span>3D / Cultural</span></a>
+            <a class="drawer-project" href="#jiangkou" data-drawer-link data-image="assets/jiangkou-cover-v2.jpg" data-alt="江口沉银香炉侧视图预览" data-name="JIANGKOU SUNKEN SILVER" data-year="2024"><span>05</span><strong>江口沉银</strong><span>3D / Cultural</span></a>
             <a class="drawer-project" href="#vitrolume" data-drawer-link data-image="assets/vitrolume-cover.jpg" data-alt="VitroLume项目预览" data-name="VITROLUME" data-year="2025"><span>06</span><strong>VitroLume</strong><span>Brand identity</span></a>
             <a class="drawer-project" href="#spatial" data-drawer-link data-image="assets/digital-scene.jpg" data-alt="数字空间场景渲染预览" data-name="SCENE RENDERING" data-year="2025"><span>07</span><strong>场景渲染</strong><span>3D atmosphere</span></a>
             <a class="drawer-project" href="#reverie" data-drawer-link data-image="assets/reverie-cover.jpg" data-alt="REVERIE网页项目预览" data-name="REVERIE / NOMADIC ART" data-year="2026"><span>08</span><strong>REVERIE</strong><span>Web / WebGL</span></a>
