@@ -69,6 +69,7 @@
     pageVisible: !document.hidden,
     motion: !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
     frame: 0,
+    idleTimer: 0,
     time: 0,
     last: performance.now(),
     holding: false,
@@ -416,12 +417,42 @@ void main() {
       spinPosition[index] += (spinVelocity[index] - spinPosition[index]) * (1 - Math.exp(-3 * delta));
       offsets[index] = spinPosition[index] + freezeAccum[index];
     }
+    if (window.__methodDisc) window.__methodDisc.motion = state.motion;
     render();
-    state.frame = state.visible && state.pageVisible && state.motion ? requestAnimationFrame(update) : 0;
+    const busy = state.holding
+      || state.charged
+      || state.charge > 0.002
+      || state.gather > 0.002
+      || state.pointerActive
+      || state.mouseInfluence > 0.02
+      || state.scrollBoost > 0.12
+      || ripples.length > 0;
+    if (!(state.visible && state.pageVisible && state.motion)) {
+      state.frame = 0;
+      return;
+    }
+    if (busy) {
+      state.frame = requestAnimationFrame(update);
+      return;
+    }
+    // Idle visible disc: cap ~24fps so scroll/UI keep main-thread headroom.
+    const idleDelay = Math.max(0, (1000 / 24) - (performance.now() - now));
+    state.frame = 0;
+    state.idleTimer = window.setTimeout(() => {
+      state.idleTimer = 0;
+      state.frame = requestAnimationFrame(update);
+    }, idleDelay);
   };
   const ensureLoop = () => {
+    if (state.idleTimer) {
+      clearTimeout(state.idleTimer);
+      state.idleTimer = 0;
+    }
     if (state.visible && state.pageVisible && state.motion) {
-      if (!state.frame) { state.last = performance.now(); state.frame = requestAnimationFrame(update); }
+      if (!state.frame) {
+        state.last = performance.now();
+        state.frame = requestAnimationFrame(update);
+      }
     } else {
       if (state.frame) cancelAnimationFrame(state.frame);
       state.frame = 0;
@@ -473,7 +504,7 @@ void main() {
     if ((event.key === 'Enter' || event.key === ' ') && !event.repeat) { event.preventDefault(); startCharge(); }
   });
   stage.addEventListener('keyup', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); releaseCharge(); } });
-  window.addEventListener('wheel', (event) => { state.scrollVelocity += event.deltaY * .02; }, { passive: true });
+  window.addEventListener('wheel', (event) => { if (state.visible && state.pageVisible) state.scrollVelocity += event.deltaY * .02; }, { passive: true });
   new ResizeObserver(() => { resize(); render(); }).observe(stage);
   new IntersectionObserver(([entry]) => { state.visible = entry.isIntersecting; ensureLoop(); }, { threshold: .05 }).observe(stage);
   document.addEventListener('visibilitychange', () => { state.pageVisible = !document.hidden; ensureLoop(); });

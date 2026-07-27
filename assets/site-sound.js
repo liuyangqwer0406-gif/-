@@ -245,16 +245,25 @@
     });
   };
 
+  let lastProgressPaint = -1;
+  let lastProgressSecond = -1;
   const tickProgress = (now) => {
     if (!isPlaying) return;
-    if (!document.hidden) {
-      elapsed += (now - startedAt) / 1000;
-      const duration = tracks[currentTrack].duration;
-      if (elapsed >= duration) {
-        selectTrack(currentTrack + 1, true);
-        return;
-      }
-      const percentage = (elapsed / duration) * 100;
+    if (document.hidden) {
+      progressFrame = 0;
+      return;
+    }
+    elapsed += (now - startedAt) / 1000;
+    const duration = tracks[currentTrack].duration;
+    if (elapsed >= duration) {
+      selectTrack(currentTrack + 1, true);
+      return;
+    }
+    const percentage = (elapsed / duration) * 100;
+    const second = Math.floor(elapsed);
+    if (Math.abs(percentage - lastProgressPaint) >= 0.25 || second !== lastProgressSecond) {
+      lastProgressPaint = percentage;
+      lastProgressSecond = second;
       progressInput.value = String(percentage);
       progressFill.style.width = `${percentage}%`;
       timeCurrent.textContent = formatTime(elapsed);
@@ -569,10 +578,15 @@
   document.addEventListener("visibilitychange", async () => {
     if (document.hidden) {
       vinylController.sleep();
+      if (progressFrame) {
+        cancelAnimationFrame(progressFrame);
+        progressFrame = 0;
+      }
       if (isPlaying) await audioContext?.suspend();
     } else if (isPlaying) {
       await audioContext?.resume();
       startedAt = performance.now();
+      if (!progressFrame) progressFrame = requestAnimationFrame(tickProgress);
       vinylController.wake();
     }
   });
