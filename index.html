@@ -1657,7 +1657,7 @@
     </div>
   </div>
 
-  <script src="assets/hero-disc-replica.js?v=method-hud-1"></script>
+  <script src="assets/hero-disc-replica.js?v=smooth-1"></script>
   <script>
     const siteCursor = document.querySelector('.site-cursor');
     const cursorEnabled = window.matchMedia('(hover: hover) and (pointer: fine)').matches && window.innerWidth > 560;
@@ -2097,10 +2097,8 @@
     const manifesto = document.querySelector('.manifesto');
     const manifestoSteps = [...document.querySelectorAll('[data-manifesto-step]')];
     const manifestoReadout = document.getElementById('manifesto-readout');
-    let manifestoFrame = 0;
     let activeManifestoStep = 0;
     const updateManifestoStage = () => {
-      manifestoFrame = 0;
       if (!manifesto || reducedMotionPreference) return;
       const bounds = manifesto.getBoundingClientRect();
       const distance = Math.max(1, bounds.height - window.innerHeight);
@@ -2113,9 +2111,6 @@
         manifestoReadout.textContent = `${String(activeManifestoStep + 1).padStart(2, '0')} / ${String(manifestoSteps.length).padStart(2, '0')}`;
       }
     };
-    window.addEventListener('scroll', () => {
-      if (!manifestoFrame) manifestoFrame = window.requestAnimationFrame(updateManifestoStage);
-    }, { passive: true });
     updateManifestoStage();
 
     const principlesField = document.querySelector('.symbol-field');
@@ -2124,10 +2119,8 @@
     const principlesReadout = document.getElementById('principles-readout');
     const principlesReadoutTop = document.getElementById('principles-readout-top');
     const principleLabels = ['ACT 01 · REAL', 'ACT 02 · CREATIVE', 'ACT 03 · BOLD'];
-    let principlesFrame = 0;
     let activePrincipleAct = 0;
     const updatePrinciplesStage = () => {
-      principlesFrame = 0;
       if (!principlesField || reducedMotionPreference || !principleActs.length) return;
       if (window.innerWidth <= 920) {
         principlesField.style.setProperty('--stage-progress', '0');
@@ -2157,56 +2150,85 @@
         }
       }
     };
-    window.addEventListener('scroll', () => {
-      if (!principlesFrame) principlesFrame = window.requestAnimationFrame(updatePrinciplesStage);
-    }, { passive: true });
     updatePrinciplesStage();
 
-    // Method disc instrument HUD — live charge readout from WebGL disc state.
+    // Method disc instrument HUD — visibility + interaction driven (not always-on rAF).
     const methodHudState = document.getElementById('method-hud-state');
     const methodHudPct = document.getElementById('method-hud-pct');
     const methodHudMeter = document.getElementById('method-hud-meter');
     const methodHudRoot = document.getElementById('method-hud');
     let methodHudFrame = 0;
+    let methodHudVisible = false;
+    let methodHudLastKey = '';
     const methodStateLabels = {
       idle: 'IDLE',
       holding: 'CHARGING',
       charged: 'ARMED',
       reduced: 'STATIC',
     };
-    const syncMethodHud = () => {
-      methodHudFrame = 0;
-      if (!methodHudState || !methodHudPct || !methodHudMeter) return;
-      if (document.hidden) {
-        methodHudFrame = window.requestAnimationFrame(syncMethodHud);
-        return;
-      }
+    const paintMethodHud = () => {
+      if (!methodHudState || !methodHudPct || !methodHudMeter) return false;
       const disc = window.__methodDisc || { mode: 'idle', charge: 0, motion: true };
       const mode = disc.motion === false ? 'reduced' : (disc.mode || 'idle');
       const charge = Math.max(0, Math.min(1, Number(disc.charge) || 0));
       const pct = Math.round(charge * 100);
+      const key = `${mode}|${pct}`;
+      if (key === methodHudLastKey) {
+        return mode === 'holding' || mode === 'charged' || charge > 0.01;
+      }
+      methodHudLastKey = key;
       methodHudState.textContent = methodStateLabels[mode] || 'IDLE';
       methodHudPct.textContent = `${String(pct).padStart(2, '0')}%`;
       methodHudMeter.style.width = `${pct}%`;
       if (methodHudRoot) methodHudRoot.dataset.discState = mode;
-      methodHudFrame = window.requestAnimationFrame(syncMethodHud);
+      return mode === 'holding' || mode === 'charged' || charge > 0.01;
     };
-    if (methodHudState) methodHudFrame = window.requestAnimationFrame(syncMethodHud);
+    const stopMethodHud = () => {
+      if (methodHudFrame) window.cancelAnimationFrame(methodHudFrame);
+      methodHudFrame = 0;
+    };
+    const syncMethodHud = () => {
+      methodHudFrame = 0;
+      if (!methodHudVisible || document.hidden) return;
+      if (paintMethodHud()) methodHudFrame = window.requestAnimationFrame(syncMethodHud);
+    };
+    const ensureMethodHud = () => {
+      if (!methodHudState || !methodHudVisible || document.hidden) {
+        stopMethodHud();
+        return;
+      }
+      if (!methodHudFrame) methodHudFrame = window.requestAnimationFrame(syncMethodHud);
+    };
+    if (methodHudState && principlesField && 'IntersectionObserver' in window) {
+      new IntersectionObserver(([entry]) => {
+        methodHudVisible = entry.isIntersecting;
+        if (methodHudVisible) ensureMethodHud();
+        else stopMethodHud();
+      }, { threshold: 0.05 }).observe(principlesField);
+    } else if (methodHudState) {
+      methodHudVisible = true;
+      ensureMethodHud();
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopMethodHud();
+      else ensureMethodHud();
+    });
+    // Light poll only while principles are on-screen to catch disc state changes.
+    const watchMethodDisc = () => {
+      if (methodHudVisible && !document.hidden) ensureMethodHud();
+      window.setTimeout(watchMethodDisc, methodHudVisible && !document.hidden ? 120 : 400);
+    };
+    if (methodHudState) window.setTimeout(watchMethodDisc, 120);
 
     const minimap = document.querySelector('.page-minimap');
     const minimapMarker = document.querySelector('.minimap-marker');
-    let minimapFrame = 0;
     const updateMinimap = () => {
-      minimapFrame = 0;
       const distance = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
       const progress = Math.max(0, Math.min(1, window.scrollY / distance));
       const travel = Math.max(0, minimap.clientHeight - 24);
       minimapMarker.style.transform = `translateY(${Math.round(progress * travel)}px)`;
       minimap.setAttribute('aria-valuenow', String(Math.round(progress * 100)));
     };
-    window.addEventListener('scroll', () => {
-      if (!minimapFrame) minimapFrame = window.requestAnimationFrame(updateMinimap);
-    }, { passive: true });
     updateMinimap();
 
     let minimapDragging = false;
@@ -2242,9 +2264,7 @@
 
     const navLinks = [...document.querySelectorAll('.nav a[href^="#"]')];
     const navTargets = navLinks.map((link) => ({ link, target: document.querySelector(link.getAttribute('href')) })).filter((item) => item.target);
-    let navStateFrame = 0;
     const updateActiveNavigation = () => {
-      navStateFrame = 0;
       const marker = Math.min(190, window.innerHeight * .32);
       let active = null;
       navTargets.forEach((item) => {
@@ -2258,18 +2278,13 @@
         else item.link.removeAttribute('aria-current');
       });
     };
-    window.addEventListener('scroll', () => {
-      if (!navStateFrame) navStateFrame = window.requestAnimationFrame(updateActiveNavigation);
-    }, { passive: true });
     updateActiveNavigation();
 
     const topbar = document.querySelector('.topbar');
     const siteGrid = document.querySelector('.site-grid');
     const interfaceThemeSections = [...document.querySelectorAll('[data-nav-theme]')];
     const gridQuietSections = [...document.querySelectorAll('.symbol-field, .showcase')];
-    let interfaceThemeFrame = 0;
     const updateInterfaceTheme = () => {
-      interfaceThemeFrame = 0;
       const marker = Math.min(72, window.innerHeight * .12);
       let section = null;
       for (const item of interfaceThemeSections) {
@@ -2298,8 +2313,18 @@
       });
       siteGrid.classList.toggle('suspended', heavyCanvasVisible);
     };
+    // One scroll rAF for stage/nav/minimap/theme — avoids 5 competing scroll handlers.
+    let stageScrollFrame = 0;
+    const runStageScroll = () => {
+      stageScrollFrame = 0;
+      updateManifestoStage();
+      updatePrinciplesStage();
+      updateMinimap();
+      updateActiveNavigation();
+      updateInterfaceTheme();
+    };
     window.addEventListener('scroll', () => {
-      if (!interfaceThemeFrame) interfaceThemeFrame = window.requestAnimationFrame(updateInterfaceTheme);
+      if (!stageScrollFrame) stageScrollFrame = window.requestAnimationFrame(runStageScroll);
     }, { passive: true });
     updateInterfaceTheme();
 
