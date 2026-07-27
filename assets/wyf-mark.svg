@@ -1,7 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 96" role="img" aria-labelledby="title desc">
-  <title id="title">温一帆 WYF 标志</title>
-  <desc id="desc">由白色 W 和 Y、橙色 F 构成的几何字母标</desc>
-  <path fill="#f3f1eb" d="M8 12h11l6 56 10-31h9l10 31 6-56h11L61 84H50L39.5 52 29 84H18z"/>
-  <path fill="#f3f1eb" d="M62 12h12l10 27 10-27h12L89 52v32H79V52z"/>
-  <path fill="#ff5a2f" d="M96 12h29v10h-18v18h16v10h-16v34H96z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="wyfTitle wyfDesc">
+  <title id="wyfTitle">温一帆 WYF</title>
+  <desc id="wyfDesc">Instrument disc monogram: concentric calibration rings with geometric W and signal core</desc>
+  <rect width="120" height="120" rx="8" fill="#111111"/>
+  <g fill="none" stroke="#F4F3EF" stroke-linecap="round">
+    <circle cx="60" cy="60" r="46" stroke-opacity=".22" stroke-width="1.2"/>
+    <circle cx="60" cy="60" r="36" stroke-opacity=".16" stroke-width=".9"/>
+    <circle cx="60" cy="60" r="26" stroke-opacity=".12" stroke-width=".7"/>
+    <!-- calibration ticks -->
+    <path stroke-opacity=".35" stroke-width="1.4" d="M60 16v6M60 98v6M16 60h6M98 60h6"/>
+    <path stroke="#FF5125" stroke-opacity=".9" stroke-width="1.6" d="M60 20v5"/>
+  </g>
+  <!-- geometric W / three peaks = 温·一·帆 -->
+  <path fill="#F4F3EF" d="M28 78h9.5l7.2-34.5 7.8 22.8h8.2L68.2 43.5 75.5 78H85L72.2 34H61.5L53.8 56.5 46.2 34H35.5z"/>
+  <!-- signal core -->
+  <circle cx="60" cy="60" r="7.2" fill="#FF5125"/>
+  <circle cx="60" cy="60" r="2.6" fill="#111111"/>
+  <!-- mono caption -->
+  <text x="60" y="108" text-anchor="middle" fill="#F4F3EF" fill-opacity=".45" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="7" letter-spacing="1.6">WYF</text>
 </svg>
