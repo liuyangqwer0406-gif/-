@@ -96,3 +96,38 @@ if (!reducedMotion && window.matchMedia('(hover: hover) and (pointer: fine) and 
   });
   document.documentElement.classList.add('cursor-ready');
 }
+
+/* Short paper case boot — not the home black theatre intro */
+(() => {
+  if (sessionStorage.getItem('wyf-case-boot') === '1' || reducedMotion) {
+    document.documentElement.classList.remove('case-booting');
+    document.querySelector('.case-boot')?.remove();
+    return;
+  }
+  const boot = document.querySelector('.case-boot');
+  if (!boot) {
+    document.documentElement.classList.remove('case-booting');
+    return;
+  }
+  const bar = boot.querySelector('.case-boot-bar span');
+  const started = performance.now();
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    if (bar) bar.style.width = '100%';
+    boot.classList.add('is-done');
+    document.documentElement.classList.remove('case-booting');
+    sessionStorage.setItem('wyf-case-boot', '1');
+    window.setTimeout(() => boot.remove(), 480);
+  };
+  const tick = (now) => {
+    if (done) return;
+    const t = Math.min(1, (now - started) / 720);
+    if (bar) bar.style.width = `${Math.round(t * 100)}%`;
+    if (t >= 1) finish();
+    else requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+  window.setTimeout(finish, 900);
+})();

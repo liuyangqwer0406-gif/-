@@ -3,11 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="data:,">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/favicon.svg">
+  <meta name="theme-color" content="#111111">
   <meta name="description" content="温一帆的品牌活动视觉、3D商业视觉与AIGC作品集。">
   <title>温一帆 / Brand Visual · 3D · AIGC</title>
+  <link rel="stylesheet" href="assets/site-sound.css">
   <script>document.documentElement.classList.add('js', 'intro-pending');</script>
   <style>
+    /* Hallmark | genre: atmospheric editorial | macrostructure: cinematic portfolio | accent: signal orange */
     @font-face {
       font-family: "Noto Sans SC";
       src: url("assets/fonts/noto-sans-sc-subset.woff2") format("woff2");
@@ -31,6 +35,10 @@
       --body: "Segoe UI Variable Text", "Noto Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif;
       --mono: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
       --ease: cubic-bezier(.2, .75, .2, 1);
+      --ease-odo: cubic-bezier(0.23, 1, 0.32, 1);
+      --dur-odo: 520ms;
+      --odo-stagger: 28ms;
+      --dur-color: 150ms;
       --radius-control: 3px;
       --radius-media: 4px;
       --radius-panel: 6px;
@@ -72,33 +80,261 @@
     }
 
     html.intro-pending, html.intro-pending body { overflow: hidden; }
-    .intro { position: fixed; z-index: 100; inset: 0; display: none; overflow: hidden; color: var(--white); background: var(--black); opacity: 1; visibility: visible; transition: opacity .7s var(--ease), visibility .7s step-end; }
+    /* Instrument boot — cinema black console, ordered telemetry, signal orange only */
+    .intro {
+      --intro-pad: clamp(18px, 3vw, 36px);
+      position: fixed;
+      z-index: 100;
+      inset: 0;
+      display: none;
+      overflow: hidden;
+      color: var(--white);
+      background: var(--black);
+      opacity: 1;
+      visibility: visible;
+      transition: opacity .55s var(--ease), visibility .55s step-end;
+    }
     .js .intro { display: block; }
-    .intro::before { position: absolute; top: 0; right: 0; left: 0; height: 8px; background-color: #292929; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23606060' d='M0 0h2v2H0zM2 2h2v2H2z'/%3E%3C/svg%3E"); content: ""; }
     .intro.intro-exit { opacity: 0; visibility: hidden; pointer-events: none; }
-    .intro-top { position: absolute; top: 28px; right: 40px; left: 40px; display: flex; justify-content: space-between; gap: 30px; padding-bottom: 14px; border-bottom: 1px solid var(--line-dark); color: rgba(244,243,239,.52); }
-    .intro-skip { position: absolute; z-index: 2; top: 74px; right: 40px; width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid var(--line-dark); border-radius: var(--radius-control); color: var(--white); background: transparent; font-size: 22px; cursor: pointer; transition: color .2s ease, border-color .2s ease, background .2s ease; }
+    .intro-frame {
+      position: absolute;
+      inset: var(--intro-pad);
+      border: 1px solid rgba(244,243,239,.18);
+      pointer-events: none;
+    }
+    .intro-frame::before,
+    .intro-frame::after {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border: 1px solid var(--orange);
+      content: "";
+    }
+    .intro-frame::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+    .intro-frame::after { right: -1px; bottom: -1px; border-top: 0; border-left: 0; }
+    .intro-corner {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border: 1px solid var(--orange);
+      pointer-events: none;
+    }
+    .intro-corner.tr { top: var(--intro-pad); right: var(--intro-pad); border-bottom: 0; border-left: 0; transform: translate(1px, -1px); }
+    .intro-corner.bl { bottom: var(--intro-pad); left: var(--intro-pad); border-top: 0; border-right: 0; transform: translate(-1px, 1px); }
+    .intro-top {
+      position: absolute;
+      top: calc(var(--intro-pad) + 16px);
+      right: calc(var(--intro-pad) + 18px);
+      left: calc(var(--intro-pad) + 18px);
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 16px;
+      color: rgba(244,243,239,.5);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .intro-top span:last-child { justify-self: end; }
+    .intro-led {
+      justify-self: center;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--orange);
+      box-shadow: 0 0 0 1px rgba(255,90,47,.35);
+      animation: intro-led 1s var(--ease) infinite;
+    }
+    .intro-skip {
+      position: absolute;
+      z-index: 2;
+      top: calc(var(--intro-pad) + 48px);
+      right: calc(var(--intro-pad) + 18px);
+      min-width: 92px;
+      height: 34px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid rgba(244,243,239,.28);
+      border-radius: var(--radius-control);
+      color: var(--white);
+      background: transparent;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color .2s ease, border-color .2s ease, background .2s ease;
+    }
     .intro-skip:hover, .intro-skip:focus-visible { color: var(--black); border-color: var(--orange); background: var(--orange); }
-    .intro-stage { position: absolute; inset: 118px 40px 112px; display: flex; flex-direction: column; justify-content: center; }
+    .intro-stage {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: clamp(88px, 14vh, 140px) clamp(24px, 6vw, 80px) clamp(110px, 16vh, 150px);
+    }
+    .intro-core {
+      position: relative;
+      width: min(920px, 100%);
+      display: grid;
+      gap: clamp(22px, 3vh, 36px);
+      justify-items: start;
+    }
+    .intro-kicker {
+      margin: 0;
+      color: var(--orange);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: intro-in .5s var(--ease) .05s forwards;
+    }
     .intro-crop { overflow: hidden; }
-    .intro-crop span { display: block; transform: translateY(112%); animation: intro-rise .85s var(--ease) forwards; }
-    .intro-name-cn { font-family: var(--display); font-size: clamp(104px, 14vw, 210px); font-weight: 640; letter-spacing: 0; line-height: 1; }
-    .intro-name-en { margin-top: 22px; color: var(--orange); font-family: var(--mono); font-size: clamp(26px, 3.7vw, 56px); font-weight: 400; letter-spacing: 0; line-height: 1; }
-    .intro-name-en span { animation-delay: .14s; }
-    .intro-bottom { position: absolute; right: 40px; bottom: 34px; left: 40px; display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 30px; }
-    .intro-status { display: grid; grid-template-columns: repeat(3, minmax(130px, 1fr)); max-width: 760px; border-top: 1px solid var(--line-dark); color: rgba(244,243,239,.5); }
-    .intro-status span { padding: 10px 10px 0 0; font-family: var(--mono); font-size: 9px; letter-spacing: .04em; text-transform: uppercase; }
-    .intro-counter { min-width: 138px; color: var(--white); font-family: var(--mono); font-size: 78px; letter-spacing: 0; line-height: .72; text-align: right; }
-    .intro-progress { position: absolute; right: 40px; bottom: 18px; left: 40px; height: 2px; background: rgba(244,243,239,.16); }
-    .intro-progress span { display: block; width: 0; height: 100%; background: var(--orange); transform-origin: left; transition: width .12s linear; }
+    .intro-crop span {
+      display: block;
+      transform: translateY(110%);
+      animation: intro-rise .72s var(--ease) forwards;
+    }
+    .intro-name-cn {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(72px, 12vw, 168px);
+      font-weight: 640;
+      letter-spacing: -.06em;
+      line-height: .88;
+    }
+    .intro-name-en {
+      margin: 0;
+      color: rgba(244,243,239,.72);
+      font-family: var(--mono);
+      font-size: clamp(13px, 1.5vw, 18px);
+      font-weight: 400;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .intro-name-en span { animation-delay: .12s; }
+    .intro-telemetry {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: rgba(244,243,239,.42);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .intro-telemetry li {
+      display: grid;
+      grid-template-columns: 14px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      opacity: .35;
+      transform: translateX(-6px);
+      transition: opacity .35s ease, color .35s ease, transform .45s var(--ease);
+    }
+    .intro-telemetry li.is-on {
+      opacity: 1;
+      color: rgba(244,243,239,.82);
+      transform: none;
+    }
+    .intro-telemetry li.is-live { color: var(--orange); }
+    .intro-telemetry i {
+      width: 6px;
+      height: 6px;
+      border: 1px solid currentColor;
+      border-radius: 50%;
+      background: transparent;
+    }
+    .intro-telemetry li.is-on i { background: currentColor; }
+    .intro-bottom {
+      position: absolute;
+      right: calc(var(--intro-pad) + 18px);
+      bottom: calc(var(--intro-pad) + 22px);
+      left: calc(var(--intro-pad) + 18px);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: end;
+      gap: 18px;
+    }
+    .intro-channel {
+      color: rgba(244,243,239,.48);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .intro-progress {
+      position: relative;
+      height: 2px;
+      margin-bottom: 8px;
+      background: rgba(244,243,239,.14);
+    }
+    .intro-progress::before {
+      position: absolute;
+      inset: -4px 0 auto;
+      height: 1px;
+      background: repeating-linear-gradient(90deg, rgba(244,243,239,.28) 0 1px, transparent 1px 18px);
+      content: "";
+    }
+    .intro-progress span {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: var(--orange);
+      transform-origin: left;
+    }
+    .intro-counter {
+      min-width: 4ch;
+      color: var(--white);
+      font-family: var(--mono);
+      font-size: clamp(28px, 4vw, 42px);
+      letter-spacing: .04em;
+      line-height: 1;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .intro-scan {
+      position: absolute;
+      top: 0;
+      right: var(--intro-pad);
+      left: var(--intro-pad);
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,90,47,.85), transparent);
+      opacity: .7;
+      transform: translateY(0);
+      animation: intro-scan 1.6s linear infinite;
+      pointer-events: none;
+    }
     @keyframes intro-rise { to { transform: translateY(0); } }
+    @keyframes intro-in { to { opacity: 1; transform: none; } }
+    @keyframes intro-led {
+      0%, 100% { opacity: .45; }
+      50% { opacity: 1; }
+    }
+    @keyframes intro-scan {
+      0% { top: var(--intro-pad); opacity: 0; }
+      8% { opacity: .75; }
+      92% { opacity: .55; }
+      100% { top: calc(100% - var(--intro-pad)); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .intro-led, .intro-scan { animation: none; }
+      .intro-crop span, .intro-kicker { animation: none; transform: none; opacity: 1; }
+    }
 
     .shell { width: min(var(--max), calc(100% - 80px)); margin: 0 auto; }
     .micro { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
     .muted { color: var(--gray); }
 
     .topbar { position: fixed; z-index: 40; top: 14px; left: 0; width: 100%; pointer-events: none; }
-    .topbar-inner { position: relative; width: min(1120px, calc(100% - 160px)); min-height: 58px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 6px 16px 0; overflow: hidden; border: 1px solid rgba(244,243,239,.34); border-radius: var(--radius-panel); background: rgba(17,17,17,.94); box-shadow: 0 8px 24px rgba(0,0,0,.24); pointer-events: auto; transition: color .3s ease, border-color .3s ease, background .3s ease, box-shadow .3s ease; }
+    .topbar-inner { position: relative; width: min(1120px, calc(100% - 160px)); min-height: 58px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 6px 16px 0; overflow: hidden; border: 1px solid rgba(244,243,239,.34); border-radius: var(--radius-panel); background: rgba(17,17,17,.94); box-shadow: 0 0 0 1px rgba(0,0,0,.1); pointer-events: auto; transition: color .3s ease, border-color .3s ease, background .3s ease, box-shadow .3s ease; }
     .topbar-inner::before { position: absolute; top: 0; right: 0; left: 0; height: 6px; background-color: #292929; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23606060' d='M0 0h2v2H0zM2 2h2v2H2z'/%3E%3C/svg%3E"); content: ""; }
     .brand { display: flex; align-items: center; gap: 11px; justify-self: start; font-family: var(--display); font-size: 19px; font-weight: 650; letter-spacing: -.04em; }
     .brand sup { color: var(--orange); font-family: var(--mono); font-size: 9px; letter-spacing: 0; }
@@ -110,9 +346,54 @@
     .nav a:hover::after, .nav a:focus-visible::after, .nav a.current::after { transform: scaleX(1); transform-origin: left; }
     .nav a::before { position: absolute; inset: -8px -9px; border: 2px dotted transparent; content: ""; pointer-events: none; transition: border-color .18s ease; }
     .nav a:hover::before, .nav a:focus-visible::before { border-color: currentColor; }
-    .topbar.theme-light .topbar-inner { color: var(--black); border-color: rgba(16,16,16,.28); background: rgba(243,241,235,.95); box-shadow: 0 8px 24px rgba(16,16,16,.12); }
+    .nav a.odo-link {
+      --odometer-progress: 0;
+      display: inline-flex;
+      align-items: center;
+      height: 1.2em;
+      color: rgba(244,243,239,.62);
+      white-space: nowrap;
+      transition: color .3s var(--ease);
+    }
+    .nav a.odo-link:hover,
+    .nav a.odo-link:focus-visible { color: var(--white); }
+    .nav a.odo-link.current { color: var(--orange); }
+    @media (prefers-reduced-motion: no-preference) {
+      .nav a.odo-link:hover,
+      .nav a.odo-link:focus-visible { --odometer-progress: 1; }
+    }
+    .odo-link__visual { display: inline-flex; align-items: baseline; }
+    .odo-col {
+      position: relative;
+      display: inline-block;
+      overflow: hidden;
+      height: 1em;
+      line-height: 1em;
+      vertical-align: baseline;
+    }
+    .odo-col__spacer { visibility: hidden; }
+    .odo-col__stack {
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(calc(var(--odometer-progress, 0) * -5em));
+      transition-property: transform;
+      transition-duration: var(--dur-odo);
+      transition-timing-function: var(--ease-odo);
+      transition-delay: calc(var(--odometer-progress, 0) * var(--i, 0) * var(--odo-stagger));
+    }
+    .odo-col__glyph { display: block; height: 1em; line-height: 1em; text-align: center; }
+    .topbar.theme-light .nav a.odo-link { color: rgba(16,16,16,.58); }
+    .topbar.theme-light .nav a.odo-link:hover,
+    .topbar.theme-light .nav a.odo-link:focus-visible { color: var(--black); }
+    .topbar.theme-light .nav a.odo-link.current { color: var(--orange-dark); }
+    .topbar.theme-light .topbar-inner { color: var(--black); border-color: rgba(16,16,16,.28); background: rgba(243,241,235,.95); box-shadow: 0 0 0 1px rgba(16,16,16,.05); }
     .topbar.theme-light .top-role { color: rgba(16,16,16,.58); }
     .topbar.theme-light .nav a.current { color: var(--orange-dark); }
+    .topbar.theme-light .brand sup { color: var(--orange-dark); }
+    .topbar.theme-light .menu-button { border-color: rgba(16,16,16,.28); }
     .menu-button { display: none; justify-self: end; width: 42px; height: 42px; border: 1px solid var(--line-dark); border-radius: var(--radius-control); background: transparent; cursor: pointer; }
     .menu-button span { display: block; width: 18px; height: 1px; margin: 5px auto; background: currentColor; transition: transform .25s ease, opacity .25s ease; }
 
@@ -133,6 +414,28 @@
     .index-launcher::before { position: absolute; top: 0; right: 0; left: 0; height: 5px; background-color: #292929; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23606060' d='M0 0h2v2H0zM2 2h2v2H2z'/%3E%3C/svg%3E"); content: ""; }
     .index-launcher b { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 2px; color: var(--black); background: var(--paper); font-size: 18px; font-weight: 400; }
     .index-launcher:hover, .index-launcher:focus-visible { color: var(--black); background: var(--orange); }
+    .index-launcher .status-led { margin-right: 2px; }
+    .status-led {
+      position: relative;
+      display: inline-flex;
+      width: 0.45em;
+      height: 0.45em;
+      flex: 0 0 auto;
+      vertical-align: middle;
+    }
+    .status-led__dot,
+    .status-led__ping {
+      position: absolute;
+      inset: 0;
+      border-radius: 9999px;
+      background: var(--orange);
+    }
+    .status-led__dot { position: relative; display: inline-flex; width: 100%; height: 100%; }
+    .status-led__ping { animation: statusPing 1.8s cubic-bezier(0, 0, 0.2, 1) infinite; }
+    @keyframes statusPing {
+      0% { opacity: .5; transform: scale(1); }
+      75%, 100% { opacity: 0; transform: scale(2.6); }
+    }
     body.drawer-open .index-launcher { opacity: 0; transform: translateY(18px); pointer-events: none; }
 
     .project-drawer { position: fixed; z-index: 70; inset: 0; opacity: 0; visibility: hidden; pointer-events: none; background: rgba(17,17,17,.62); transition: opacity .35s ease, visibility .35s step-end; }
@@ -158,28 +461,27 @@
     .drawer-project:hover, .drawer-project:focus-visible { padding-right: 10px; padding-left: 10px; color: var(--black); background: var(--orange); }
     body.drawer-open { overflow: hidden; }
 
-    .hero { position: relative; min-height: 92svh; overflow: hidden; background-color: var(--black); background-image: url("assets/digital-scene.jpg"); background-position: center; background-size: cover; isolation: isolate; }
+    .hero { position: relative; min-height: 100svh; overflow: hidden; background-color: var(--black); background-image: url("assets/digital-scene.jpg"); background-position: center; background-size: cover; isolation: isolate; }
     .hero::before { position: absolute; z-index: 1; inset: 0; background: rgba(8, 8, 8, .43); content: ""; pointer-events: none; }
     .hero-webgl { position: absolute; z-index: 0; inset: 0; opacity: 0; pointer-events: none; transition: opacity 1.2s var(--ease); }
     .hero.model-ready .hero-webgl { opacity: 1; }
     .hero-webgl canvas { width: 100%; height: 100%; display: block; }
     .model-stamp { position: absolute; z-index: 3; top: 104px; right: 40px; display: flex; align-items: center; gap: 9px; color: rgba(244,243,239,.52); font-family: var(--mono); font-size: 9px; letter-spacing: .08em; text-transform: uppercase; writing-mode: vertical-rl; }
     .model-stamp::before { width: 1px; height: 42px; background: var(--orange); content: ""; }
-    .hero-content { position: relative; z-index: 2; min-height: 92svh; padding-top: 146px; padding-bottom: 46px; display: grid; grid-template-columns: .9fr 1.8fr; grid-template-rows: 1fr auto; column-gap: 72px; }
-    .hero-inset { align-self: center; width: min(330px, 86%); }
-    .hero-inset figure { margin: 0; position: relative; aspect-ratio: 1 / .72; overflow: hidden; border: 1px solid var(--line-dark); border-radius: var(--radius-media); background: var(--black-soft); }
+    .hero-content { position: relative; z-index: 2; min-height: 100svh; padding-top: 126px; padding-bottom: 46px; display: grid; grid-template-columns: minmax(220px, .72fr) minmax(0, 1.28fr); grid-template-rows: 1fr auto; column-gap: clamp(42px, 5vw, 92px); }
+    .hero-inset { align-self: end; width: min(360px, 100%); padding-bottom: clamp(74px, 9vh, 116px); }
+    .hero-inset figure { margin: 0; position: relative; aspect-ratio: .88 / 1; overflow: hidden; border: 1px solid var(--line-dark); border-radius: var(--radius-media); background: var(--black-soft); }
     .hero-inset img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.08); }
     .hero-inset figcaption { display: flex; justify-content: space-between; margin-top: 12px; color: rgba(244,243,239,.52); }
-    .hero-copy { align-self: center; }
+    .hero-copy { align-self: end; padding-bottom: clamp(78px, 8vh, 118px); }
     .hero-label { margin: 0 0 14px; color: rgba(244,243,239,.55); font-family: var(--mono); font-size: 10px; letter-spacing: .06em; }
-    .hero h1 { max-width: 890px; margin: 0; font-family: var(--display); font-size: clamp(52px, 5.9vw, 88px); font-weight: 620; letter-spacing: -.055em; line-height: .98; word-break: keep-all; }
+    .hero h1 { max-width: 760px; margin: 0; font-family: var(--display); font-size: clamp(50px, 5.35vw, 82px); font-weight: 620; letter-spacing: -.055em; line-height: .93; word-break: keep-all; }
     .hero h1 em { color: var(--orange); font-style: normal; }
-    .hero-meta { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr auto; align-items: end; gap: 32px; color: rgba(244,243,239,.58); }
+    .hero-meta { grid-column: 2 / -1; display: grid; grid-template-columns: 1fr 1fr auto; align-items: end; gap: 32px; padding-top: 16px; border-top: 1px solid rgba(244,243,239,.34); color: rgba(244,243,239,.58); }
     .hero-meta span:nth-child(2) { justify-self: center; }
     .hero-cta { display: inline-flex; align-items: center; gap: 12px; min-height: 42px; padding: 0 6px 0 16px; border: 1px solid rgba(244,243,239,.42); border-radius: 999px; color: var(--white); font-family: var(--mono); font-size: 9px; letter-spacing: .06em; text-transform: uppercase; transition: color .25s ease, background .25s ease; }
     .hero-cta span { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid rgba(244,243,239,.34); border-radius: 50%; }
     .hero-cta:hover { color: var(--black); background: var(--orange); }
-
     .signal-strip { overflow: hidden; color: var(--black); background: var(--orange); border-top: 1px solid var(--orange); border-bottom: 1px solid var(--orange); }
     .signal-strip .shell { min-height: 132px; display: grid; grid-template-columns: .7fr 2.3fr; gap: 32px; align-items: stretch; }
     .signal-label { display: flex; align-items: center; margin: 0; font-family: var(--mono); font-size: 9px; letter-spacing: .08em; line-height: 1.35; text-transform: uppercase; }
@@ -203,7 +505,7 @@
     .section-number { padding-top: 9px; color: var(--orange); font-family: var(--mono); font-size: 10px; letter-spacing: .08em; }
     .section-title { margin: 0; font-family: var(--display); font-size: clamp(56px, 7vw, 106px); font-weight: 600; letter-spacing: -.07em; line-height: .95; }
 
-    .work-index { color: var(--black); background: var(--paper); }
+    .work-index { color: var(--black); background-color: var(--paper); }
     .work-index .section-number { color: var(--orange-dark); }
     .work-index .section-title { max-width: 750px; }
     .work-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: clamp(18px, 2.5vw, 36px); align-items: stretch; }
@@ -245,18 +547,235 @@
     .manifesto-rail { position: absolute; z-index: 2; top: 50%; right: 18px; width: 3px; height: 190px; overflow: hidden; background: rgba(244,243,239,.22); transform: translateY(-50%); }
     .manifesto-rail i { display: block; width: 100%; height: 100%; background: var(--orange); transform: scaleY(var(--stage-progress)); transform-origin: top; }
 
-    .symbol-field { position: relative; height: min(780px, 88svh); min-height: 660px; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; color: var(--black); background: var(--paper); }
-    .principles-copy { min-width: 0; display: flex; flex-direction: column; justify-content: space-between; padding: clamp(58px, 7vw, 104px) clamp(38px, 6vw, 86px) 44px; border-right: 1px solid var(--line-light); }
-    .principles-copy h2 { margin: 24px 0 38px; font-family: var(--display); font-size: clamp(68px, 7vw, 108px); font-weight: 590; letter-spacing: -.07em; line-height: .88; }
-    .principles-copy h2 span { display: block; }
-    .principles-copy h2 em { color: var(--orange); font-style: normal; }
-    .principles-copy > p { max-width: 500px; margin: 0; color: #5b5b57; font-size: 15px; }
-    .principles-status { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; padding-top: 14px; border-top: 1px solid var(--line-light); color: #5b5b57; }
-    .principles-status span { font-family: var(--mono); font-size: 9px; text-transform: uppercase; }
-    .vortex-stage { position: relative; min-width: 0; overflow: hidden; color: var(--white); background: var(--black); cursor: crosshair; }
+    /* Paper construct grid — hairline 12-col on light surfaces only */
+    .work-index,
+    .archive,
+    .cases,
+    .symbol-field {
+      --paper-grid-alpha: .14;
+      background-color: var(--paper);
+      background-image:
+        linear-gradient(to right, rgba(16,16,16,var(--paper-grid-alpha)) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(16,16,16,calc(var(--paper-grid-alpha) * .55)) 1px, transparent 1px);
+      background-size: calc(100% / 12) 100%, 100% 72px;
+      background-position: 0 0, 0 0;
+    }
+    .work-index .shell,
+    .archive .shell,
+    .cases .shell { position: relative; }
+
+    .symbol-field {
+      --stage-progress: 0;
+      --paper-shift: 0;
+      position: relative;
+      min-height: 240svh;
+      color: var(--black);
+      background-color: color-mix(in srgb, var(--paper) calc(100% - var(--paper-shift) * 14%), #e4e0d6 calc(var(--paper-shift) * 14%));
+      content-visibility: auto;
+      contain-intrinsic-size: 240svh;
+    }
+    .symbol-field-frame {
+      position: sticky;
+      top: 0;
+      height: 100svh;
+      min-height: 660px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      overflow: hidden;
+      border-bottom: 1px solid var(--line-light);
+      background-color: color-mix(in srgb, var(--paper) calc(100% - var(--paper-shift) * 16%), #ddd8ce calc(var(--paper-shift) * 16%));
+      background-image:
+        linear-gradient(to right, rgba(16,16,16,var(--paper-grid-alpha)) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(16,16,16,calc(var(--paper-grid-alpha) * .55)) 1px, transparent 1px);
+      background-size: calc(100% / 12) 100%, 100% 72px;
+      transition: color .35s var(--ease);
+    }
+    .principles-copy {
+      position: relative;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: clamp(58px, 7vw, 104px) clamp(38px, 6vw, 86px) 44px;
+      border-right: 1px solid var(--line-light);
+      isolation: isolate;
+    }
+    .principles-kicker { display: flex; justify-content: space-between; gap: 16px; color: #5b5b57; }
+    .principles-acts {
+      position: relative;
+      flex: 1;
+      min-height: min(48vh, 420px);
+      margin: 28px 0 24px;
+    }
+    .principle-act {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity .5s var(--ease), transform .65s cubic-bezier(.66, 0, .01, 1);
+      pointer-events: none;
+    }
+    .principle-act.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .principle-act h2 {
+      margin: 0 0 22px;
+      font-family: var(--display);
+      font-size: clamp(56px, 6.4vw, 96px);
+      font-weight: 590;
+      letter-spacing: -.07em;
+      line-height: .9;
+    }
+    .principle-act h2 em { color: var(--orange); font-style: normal; }
+    .principle-act p {
+      max-width: 460px;
+      margin: 0;
+      color: #5b5b57;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+    .principles-static { display: none; }
+    .principles-static h2 {
+      margin: 24px 0 22px;
+      font-family: var(--display);
+      font-size: clamp(56px, 6.4vw, 96px);
+      font-weight: 590;
+      letter-spacing: -.07em;
+      line-height: .9;
+    }
+    .principles-static h2 span { display: block; }
+    .principles-static h2 em { color: var(--orange); font-style: normal; }
+    .principles-static p { max-width: 500px; margin: 0; color: #5b5b57; font-size: 15px; }
+    .principles-status {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line-light);
+      color: #5b5b57;
+    }
+    .principles-status span {
+      font-family: var(--mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      opacity: .55;
+      transition: opacity .25s ease, color .25s ease;
+    }
+    .principles-status span.active {
+      opacity: 1;
+      color: var(--orange-dark);
+    }
+    .principles-readout {
+      position: absolute;
+      right: clamp(38px, 6vw, 86px);
+      bottom: 44px;
+      color: #5b5b57;
+      pointer-events: none;
+    }
+    /* Instrument HUD beside method disc — fills paper-side whitespace with ordered telemetry */
+    .method-hud {
+      margin: 18px 0 0;
+      border-top: 1px solid var(--line-light);
+      padding-top: 16px;
+      display: grid;
+      gap: 0;
+    }
+    .method-hud-row {
+      display: grid;
+      grid-template-columns: 88px 1fr auto;
+      gap: 14px;
+      align-items: baseline;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(16,16,16,.12);
+      color: #5b5b57;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+    .method-hud-row b {
+      color: var(--black);
+      font-weight: 500;
+      letter-spacing: .04em;
+    }
+    .method-hud-row em {
+      color: var(--orange-dark);
+      font-style: normal;
+    }
+    .method-hud-meter {
+      height: 2px;
+      margin-top: 12px;
+      background: rgba(16,16,16,.12);
+      overflow: hidden;
+    }
+    .method-hud-meter span {
+      display: block;
+      width: 0%;
+      height: 100%;
+      background: var(--orange);
+      transform-origin: left;
+      transition: width .18s linear;
+    }
+    .method-hud-hint {
+      margin: 14px 0 0;
+      color: #74746f;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      line-height: 1.5;
+    }
+    .method-hud-hint kbd {
+      display: inline-block;
+      margin: 0 2px;
+      padding: 1px 5px;
+      border: 1px solid rgba(16,16,16,.22);
+      border-radius: 2px;
+      font: inherit;
+      color: var(--black);
+    }
+    .method-hud[data-disc-state="holding"] .method-hud-row b,
+    .method-hud[data-disc-state="charged"] .method-hud-row b {
+      color: var(--orange-dark);
+    }
+    /* Desktop HUD replaces the floating readout to avoid overlap */
+    @media (min-width: 921px) {
+      .principles-readout { display: none; }
+    }
+    @media (max-width: 920px) {
+      .method-hud { display: none; }
+    }
+    .vortex-stage { position: relative; min-width: 0; height: 100%; min-height: 100%; overflow: hidden; color: var(--white); background: radial-gradient(circle at 50% 48%, rgba(255,90,47,.11), transparent 38%), radial-gradient(circle at 50% 80%, rgba(183,45,11,.08), transparent 55%), var(--black); cursor: pointer; touch-action: pan-y; }
     .vortex-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
     .vortex-label { position: absolute; z-index: 2; top: 24px; right: 24px; left: 24px; display: flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid var(--line-dark); color: rgba(244,243,239,.52); pointer-events: none; }
-    .vortex-index { position: absolute; z-index: 2; right: 24px; bottom: 22px; color: var(--orange); pointer-events: none; }
+    .vortex-index { position: absolute; z-index: 2; right: 24px; bottom: 22px; color: var(--orange); pointer-events: none; transition: color .18s ease; }
+    .vortex-stage:focus-visible { outline: 2px solid var(--orange); outline-offset: -2px; }
+    .vortex-stage.is-charging .vortex-index, .vortex-stage.is-charged .vortex-index { color: var(--white); }
+    .vortex-stage.is-charging {
+      background:
+        radial-gradient(circle at 50% 48%, rgba(255,90,47,.18), transparent 42%),
+        radial-gradient(circle at 50% 80%, rgba(183,45,11,.12), transparent 58%),
+        var(--black);
+    }
+    .vortex-stage.is-charged {
+      background:
+        radial-gradient(circle at 50% 48%, rgba(255,90,47,.24), transparent 46%),
+        radial-gradient(circle at 50% 72%, rgba(255,90,47,.1), transparent 62%),
+        var(--black);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .symbol-field { min-height: 0; contain-intrinsic-size: auto; }
+      .symbol-field-frame { position: relative; height: auto; min-height: min(780px, 88svh); }
+      .principles-acts { display: none; }
+      .principles-static { display: block; }
+      .principles-readout { display: none; }
+    }
 
     .skills { background: rgba(16,16,16,.8); }
     .skills-layout { --skills-left: 36%; display: grid; grid-template-columns: minmax(280px, var(--skills-left)) 12px minmax(0, 1fr); gap: 0; border-top: 1px solid var(--line-dark); border-bottom: 1px solid var(--line-dark); }
@@ -280,8 +799,15 @@
     .skill-group.collapsed .skill-heading::after { content: "[+]"; }
     .skill-heading h3 { margin: 0; font-family: var(--display); font-size: 38px; font-weight: 520; letter-spacing: -.055em; }
     .skill-heading span { color: var(--orange); font-family: var(--mono); font-size: 11px; }
-    .skill-table { max-height: 300px; overflow: hidden; border-top: 1px solid var(--line-dark); opacity: 1; transition: max-height .45s var(--ease), opacity .25s ease, border-color .25s ease; }
-    .skill-group.collapsed .skill-table { max-height: 0; border-top-color: transparent; opacity: 0; }
+    .skill-table {
+      display: grid;
+      grid-template-rows: 1fr;
+      border-top: 1px solid var(--line-dark);
+      opacity: 1;
+      transition: grid-template-rows .2s cubic-bezier(0, 0, 0.2, 1), opacity .2s ease, border-color .2s ease;
+    }
+    .skill-table__inner { min-height: 0; overflow: hidden; }
+    .skill-group.collapsed .skill-table { grid-template-rows: 0fr; border-top-color: transparent; opacity: 0; }
     .skill-line { display: grid; grid-template-columns: 126px 1fr 30px; gap: 0; padding: 14px 0; border-bottom: 1px solid var(--line-dark); color: rgba(244,243,239,.58); font-size: 14px; transition: color .2s ease, padding .25s ease; }
     .skill-line:hover { padding-right: 8px; padding-left: 8px; color: var(--white); }
     .skill-line span:first-child, .skill-line span:last-child { color: var(--orange); font-family: var(--mono); font-size: 10px; }
@@ -292,7 +818,7 @@
     .status-cursor { display: inline-block; width: 5px; height: 10px; margin-left: 4px; vertical-align: -1px; background: var(--orange); animation: cursor-blink .9s steps(1) infinite; }
     @keyframes cursor-blink { 50% { opacity: 0; } }
 
-    .showcase { min-height: 1000px; position: relative; overflow: hidden; background: var(--black); isolation: isolate; }
+    .showcase { min-height: max(860px, 100svh); position: relative; overflow: hidden; background: var(--black); isolation: isolate; }
     .showcase-webgl, .showcase-fallback { position: absolute; z-index: 0; inset: 0; }
     .showcase-webgl { opacity: 0; transition: opacity .9s var(--ease); }
     .showcase.model-ready .showcase-webgl { opacity: 1; }
@@ -311,30 +837,46 @@
     .showcase-toggle span:first-child { font-size: 15px; line-height: 1; }
     .showcase h2 { position: absolute; z-index: 3; right: 18px; bottom: 18px; left: 18px; margin: 0; color: var(--orange); font-family: var(--display); font-size: clamp(82px, 14vw, 210px); font-weight: 540; letter-spacing: -.08em; line-height: .86; white-space: nowrap; pointer-events: none; }
 
-    .cases { color: var(--black); background: var(--paper); }
-    .case { display: grid; grid-template-columns: .68fr 1.32fr; gap: 70px; padding: 88px 0; border-top: 1px solid var(--line-light); }
+    .cases { color: var(--black); background-color: var(--paper); }
+    .case { display: grid; grid-template-columns: minmax(250px, .52fr) minmax(0, 1.48fr); gap: clamp(52px, 6vw, 104px); padding: 128px 0; border-top: 1px solid var(--line-light); }
     .case:first-child { border-top: 0; }
-    .case-copy { display: flex; flex-direction: column; justify-content: space-between; min-height: 460px; }
+    .case-copy { display: flex; flex-direction: column; justify-content: space-between; min-height: clamp(520px, 48vw, 650px); }
     .case-copy h3 { margin: 0; font-family: var(--display); font-size: clamp(46px, 5vw, 76px); font-weight: 580; letter-spacing: -.07em; line-height: .86; }
     .case-copy h3 span { display: block; margin-top: 16px; color: var(--orange-dark); font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
     .case--packaging .case-copy h3 { line-height: 1.02; }
     .case--packaging .case-copy h3 span { margin-top: 20px; }
     #keep .case-copy h3, #runes .case-copy h3, #jiangkou .case-copy h3 { line-height: .98; }
     #keep .case-copy h3 span, #runes .case-copy h3 span, #jiangkou .case-copy h3 span { margin-top: 20px; }
-    .case-copy p { max-width: 370px; margin: 0; color: #575753; font-size: 14px; text-wrap: pretty; }
+    .case-copy p { max-width: 390px; margin: 0; color: #575753; font-size: 15px; line-height: 1.62; text-wrap: pretty; }
     .case--expanded .case-copy { position: sticky; top: 92px; align-self: start; }
-    .case-meta { display: grid; gap: 8px; margin-top: 28px; }
+    .case-meta { display: grid; gap: 8px; margin-top: 34px; }
     .case-meta div { display: flex; justify-content: space-between; gap: 20px; padding-top: 8px; border-top: 1px solid var(--line-light); font-family: var(--mono); font-size: 9px; text-transform: uppercase; }
     .case-live-link { width: fit-content; display: inline-flex; align-items: center; gap: 10px; margin-top: 20px; padding-bottom: 4px; border-bottom: 1px dashed currentColor; color: var(--orange-dark); font-family: var(--mono); font-size: 9px; letter-spacing: .04em; text-transform: uppercase; }
     .case-live-link:hover, .case-live-link:focus-visible { color: var(--black); }
-    .case-detail-link { width: min(100%, 330px); min-height: 58px; display: grid; grid-template-columns: 1fr 54px; align-items: stretch; margin-top: 24px; border: 1px solid var(--black); border-radius: var(--radius-media); color: var(--black); background: var(--orange); box-shadow: 4px 4px 0 var(--black); overflow: hidden; transition: color .22s ease, background .22s ease, box-shadow .22s ease, transform .22s var(--ease); }
+    .case-detail-link { width: min(100%, 330px); min-height: 58px; display: grid; grid-template-columns: 1fr 54px; align-items: stretch; margin-top: 24px; border: 1px solid var(--black); border-radius: var(--radius-media); color: var(--black); background: var(--orange); overflow: hidden; transition: color .22s ease, background .22s ease, border-color .22s ease, transform .22s var(--ease); }
     .case-detail-copy { display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: 9px 14px; }
     .case-detail-copy small { font-family: var(--mono); font-size: 8px; font-weight: 400; letter-spacing: .08em; line-height: 1; text-transform: uppercase; }
     .case-detail-copy strong { font-family: var(--display); font-size: 16px; font-weight: 650; letter-spacing: -.03em; line-height: 1.1; }
     .case-detail-arrow { display: grid; place-items: center; border-left: 1px solid currentColor; font-family: var(--mono); font-size: 22px; transition: transform .28s var(--ease); }
-    .case-detail-link:hover, .case-detail-link:focus-visible { color: var(--white); background: var(--black); box-shadow: 2px 2px 0 var(--orange); transform: translate(2px, 2px); }
+    .case-detail-link:hover, .case-detail-link:focus-visible { color: var(--white); border-color: var(--orange); background: var(--black); transform: translateX(4px); }
     .case-detail-link:hover .case-detail-arrow, .case-detail-link:focus-visible .case-detail-arrow { transform: translateX(4px); }
-    .case-media { height: 460px; display: grid; grid-template-columns: 1.35fr .65fr; grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .archive-detail-link {
+      width: fit-content;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid currentColor;
+      color: var(--black);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      transition: color .2s ease;
+    }
+    .archive-detail-link:hover, .archive-detail-link:focus-visible { color: var(--orange-dark); }
+    .case-media { height: clamp(520px, 48vw, 650px); display: grid; grid-template-columns: 1.35fr .65fr; grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .case-media button { position: relative; border: 0; border-radius: var(--radius-media); padding: 0; overflow: hidden; background: #222; cursor: zoom-in; }
     .media-ascii { position: absolute; z-index: 1; inset: 0; display: grid; place-items: center; margin: 0; padding: 14px; overflow: hidden; opacity: 0; color: rgba(244,243,239,.9); background: var(--black); font-family: var(--mono); font-size: 7px; line-height: .78; letter-spacing: 0; white-space: pre; clip-path: inset(0 calc(100% - var(--scan-x, 50%)) 0 0); pointer-events: none; transition: opacity .16s ease; }
     .case-media button:hover .media-ascii, .case-media button:focus-visible .media-ascii { opacity: 1; }
@@ -363,7 +905,17 @@
     .contact-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; }
     .contact-actions a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 18px; border: 1px solid var(--line-dark); border-radius: 999px; font-family: var(--mono); font-size: 9px; text-transform: uppercase; transition: color .2s ease, background .2s ease, border-color .2s ease; }
     .contact-actions a:hover { color: var(--black); border-color: var(--orange); background: var(--orange); }
-    .contact-signature { display: block; width: min(220px, 58vw); height: auto; margin: 46px auto 0; opacity: .82; filter: invert(1); }
+    .contact-signature { position: relative; width: min(360px, 82vw); height: 146px; display: grid; place-items: center; margin: 28px auto 0; cursor: pointer; touch-action: manipulation; }
+    .contact-signature::before { position: absolute; inset: 12px 5px; border: 1px solid transparent; border-radius: 50%; content: ""; pointer-events: none; transition: border-color .35s ease, transform .6s var(--ease); }
+    .contact-signature:hover::before, .contact-signature:focus-visible::before, .contact-signature.is-resolved::before { border-color: rgba(255,90,47,.24); transform: scale(1.025) rotate(-2deg); }
+    .contact-signature:focus-visible { outline: 1px solid var(--orange); outline-offset: 4px; }
+    .contact-signature-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+    .contact-signature.is-ready .contact-signature-canvas { opacity: 1; }
+    .contact-signature-image { position: relative; z-index: 1; width: min(220px, 58vw); height: auto; opacity: .82; pointer-events: none; transition: opacity .32s ease .08s, transform .5s var(--ease); }
+    .contact-signature.is-ready:not(.is-resolved) .contact-signature-image { opacity: 0; transform: scale(.985); }
+    .contact-signature.is-resolved .contact-signature-image { opacity: .86; transform: scale(1); }
+    .contact-signature-hint { position: absolute; z-index: 2; right: 0; bottom: 3px; left: 0; color: rgba(244,243,239,.36); font-family: var(--mono); font-size: 8px; letter-spacing: .08em; text-transform: uppercase; pointer-events: none; transition: opacity .25s ease; }
+    .contact-signature.is-resolved .contact-signature-hint { opacity: .18; }
 
     .footer-marquee .marquee-track span { font-size: clamp(58px, 8vw, 120px); }
     .footer { padding: 24px 0 34px; background: rgba(16,16,16,.82); }
@@ -394,18 +946,22 @@
       .nav.open a { padding: 15px 18px; border-bottom: 1px solid var(--line-dark); font-size: 10px; }
       .hero-content { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; gap: 34px; padding-top: 112px; }
       .hero-inset { width: 190px; align-self: start; }
-      .hero-copy { align-self: start; }
+      .hero-copy { align-self: start; padding-bottom: 0; }
       .hero h1 { font-size: clamp(48px, 9.4vw, 76px); }
       .model-stamp { right: 20px; }
-      .hero-meta { grid-template-columns: 1fr auto; gap: 20px; }
+      .hero-meta { grid-column: 1 / -1; grid-template-columns: 1fr auto; gap: 20px; }
       .hero-meta span:nth-child(2) { display: none; }
       .section { padding: 88px 0; }
       .section-head, .case { grid-template-columns: 1fr; gap: 46px; }
       .work-grid { grid-template-columns: 1fr; gap: 46px; }
       .preview, .project-list { grid-column: auto; }
       .preview { position: relative; top: auto; min-height: 420px; }
-      .symbol-field { height: auto; min-height: 0; grid-template-columns: 1fr; }
-      .principles-copy { min-height: 610px; padding: 78px 42px 34px; border-right: 0; border-bottom: 1px solid var(--line-light); }
+      .symbol-field { min-height: 0; contain-intrinsic-size: auto; }
+      .symbol-field-frame { position: relative; height: auto; min-height: 0; grid-template-columns: 1fr; }
+      .principles-copy { min-height: 0; padding: 78px 42px 34px; border-right: 0; border-bottom: 1px solid var(--line-light); }
+      .principles-acts { display: none; }
+      .principles-static { display: block; }
+      .principles-readout { display: none; }
       .vortex-stage { height: 70svh; min-height: 560px; }
       .skills-layout { display: block; }
       .skills-intro { position: relative; top: auto; padding: 48px 0; }
@@ -425,18 +981,15 @@
     }
 
     @media (max-width: 560px) {
-      .intro-top { top: 22px; right: 15px; left: 15px; }
+      .intro-top { top: calc(var(--intro-pad) + 12px); right: calc(var(--intro-pad) + 12px); left: calc(var(--intro-pad) + 12px); grid-template-columns: 1fr auto; }
       .intro-top span:last-child { display: none; }
-      .intro-skip { top: 70px; right: 15px; width: 40px; height: 40px; }
-      .intro-stage { inset: 120px 15px 150px; }
-      .intro-name-cn { font-size: 76px; }
-      .intro-name-en { margin-top: 15px; font-size: 31px; }
-      .intro-bottom { right: 15px; bottom: 34px; left: 15px; grid-template-columns: 1fr auto; }
-      .intro-status { grid-template-columns: 1fr; }
-      .intro-status span { display: none; }
-      .intro-status span:first-child { display: block; }
-      .intro-counter { min-width: 94px; font-size: 58px; }
-      .intro-progress { right: 15px; bottom: 18px; left: 15px; }
+      .intro-skip { top: calc(var(--intro-pad) + 42px); right: calc(var(--intro-pad) + 12px); min-width: 84px; height: 32px; }
+      .intro-stage { padding: 108px 18px 128px; }
+      .intro-name-cn { font-size: clamp(56px, 16vw, 78px); }
+      .intro-name-en { font-size: 12px; letter-spacing: .1em; }
+      .intro-bottom { right: calc(var(--intro-pad) + 12px); bottom: calc(var(--intro-pad) + 16px); left: calc(var(--intro-pad) + 12px); gap: 12px; }
+      .intro-channel { display: none; }
+      .intro-counter { font-size: 28px; }
       .shell { width: min(var(--max), calc(100% - 30px)); }
       .topbar-inner { min-height: 66px; }
       .page-minimap { display: none; }
@@ -474,7 +1027,7 @@
       .footer-marquee .marquee-track span { padding-top: 9px; padding-bottom: 12px; font-size: 56px; }
       .section-title { font-size: 54px; }
       .section-head { margin-bottom: 44px; }
-      .preview { min-height: 270px; }
+      .preview { min-height: 340px; }
       .preview-ascii { padding: 12px; font-size: 5px; line-height: .76; }
       .project-row { grid-template-columns: 38px 1fr 44px; gap: 10px; min-height: 68px; }
       .project-row span:nth-child(3) { display: none; }
@@ -513,7 +1066,7 @@
       .showcase-year { top: 55%; right: 15px; }
       .showcase-toggle { top: 72%; }
       .showcase h2 { right: 8px; bottom: 14px; left: 8px; font-size: 56px; }
-      .case { padding: 68px 0; }
+      .case { padding: 82px 0; }
       .case-copy h3 { font-size: 50px; }
       .case--expanded .case-copy { position: static; }
       .case-media { height: auto; grid-template-columns: 1fr; grid-template-rows: none; }
@@ -525,6 +1078,8 @@
       .contact { min-height: 650px; }
       .contact-mark { font-size: 48px; }
       .contact h2 { font-size: clamp(34px, 9.2vw, 42px); }
+      .contact-signature { width: min(310px, 88vw); height: 126px; margin-top: 22px; }
+      .contact-signature-image { width: min(205px, 56vw); }
       .footer-inner { grid-template-columns: 1fr; gap: 8px; }
       .footer-inner span:nth-child(2), .footer-inner a { justify-self: start; }
       .lightbox { padding: 18px; }
@@ -544,6 +1099,96 @@
       .gooey-role-stage { filter: none; }
       .gooey-role-word:last-child { display: none; }
       .global-prism { transition: none; }
+      .contact-signature-canvas, .contact-signature-hint { display: none; }
+      .contact-signature-image, .contact-signature.is-ready:not(.is-resolved) .contact-signature-image { opacity: .86; transform: none; }
+      .status-led__ping { display: none !important; }
+      .odo-col__stack { transition: none !important; transform: none !important; }
+      .skill-table { transition: none !important; }
+    }
+    /* Narrative restructure: preserve the visual system, move core evidence forward. */
+    main { display: flex; flex-direction: column; }
+    .hero { order: 1; }
+    .signal-strip { display: none; }
+    .work-index { order: 2; }
+    .cases { display: contents; background: transparent; }
+    .cases .shell { display: contents; }
+    .case { width: 100%; padding-right: max(40px, calc((100vw - var(--max)) / 2)); padding-left: max(40px, calc((100vw - var(--max)) / 2)); background: var(--paper); }
+    #dad { order: 3; }
+    #jiangkou { order: 4; }
+    #runes { order: 5; }
+    .showcase { order: 6; }
+    #reverie { order: 7; }
+    .manifesto { order: 8; min-height: 320px; contain-intrinsic-size: 320px; }
+    .manifesto-frame { position: relative; height: auto; min-height: 320px; }
+    .manifesto-frame::after, .manifesto-sequence, .manifesto-rail, .manifesto-status { display: none; }
+    .manifesto-stage { min-height: 320px; padding: 72px 0 46px; place-items: start; }
+    .manifesto-kicker { position: static; margin-bottom: 22px; }
+    .manifesto-static { display: block; max-width: 680px; margin: 0; font-family: var(--display); font-size: clamp(32px, 3.6vw, 52px); font-weight: 570; letter-spacing: -.05em; line-height: 1.03; text-wrap: balance; }
+    .manifesto-static span { display: block; }
+    .symbol-field { order: 9; height: min(520px, 64svh); min-height: 440px; }
+    .principles-copy { padding: clamp(42px, 5vw, 72px); }
+    .principles-copy h2 { margin: 18px 0 24px; font-size: clamp(52px, 5vw, 78px); }
+    .vortex-label, .vortex-index { opacity: .52; }
+    .skills { order: 10; }
+    .gooey-role, .skills-status { display: none; }
+    .skills-resizer { opacity: .24; }
+    .archive { order: 11; color: var(--black); background-color: var(--paper); }
+    .archive-head { margin-bottom: 54px; }
+    .archive-head > div > p { max-width: 420px; margin: 22px 0 0; color: #5b5b57; font-size: 15px; line-height: 1.6; }
+    .archive-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; border-top: 1px solid var(--line-light); }
+    .archive-card { min-width: 0; padding-top: 14px; }
+    .archive-card button { width: 100%; aspect-ratio: 4 / 3; border: 0; padding: 0; overflow: hidden; border-radius: var(--radius-media); background: var(--black); cursor: zoom-in; }
+    .archive-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s var(--ease); }
+    .archive-card button:hover img, .archive-card button:focus-visible img { transform: scale(1.025); }
+    .archive-card > div { padding: 14px 0 4px; border-bottom: 1px solid var(--line-light); }
+    .archive-card span { color: var(--orange-dark); }
+    .archive-card h3 { margin: 12px 0 6px; font-family: var(--display); font-size: clamp(24px, 2.2vw, 34px); font-weight: 580; letter-spacing: -.055em; line-height: .95; }
+    .archive-card p { min-height: 42px; margin: 0; color: #5b5b57; font-size: 13px; line-height: 1.55; }
+    .archive-card a { display: inline-block; margin-top: 14px; padding-bottom: 3px; border-bottom: 1px solid currentColor; color: var(--orange-dark); font-family: var(--mono); font-size: 9px; letter-spacing: .05em; text-transform: uppercase; }
+    .contact { order: 12; }
+    .footer-marquee { order: 13; }
+    #packaging, #keep, #vitrolume { display: none; }
+    .hero-content { grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr auto; padding-top: 126px; }
+    .hero-copy { width: min(860px, 74vw); align-self: end; padding-bottom: clamp(84px, 9vh, 132px); }
+    .hero-label { margin-bottom: 18px; color: rgba(244,243,239,.62); }
+    .hero h1 { max-width: none; font-size: clamp(68px, 7.7vw, 118px); line-height: .88; }
+    .hero h1 span { display: block; margin-top: 16px; font-size: .52em; line-height: .98; }
+    .hero-specialism { margin: 20px 0 0; color: var(--orange); font-family: var(--display); font-size: clamp(30px, 3.1vw, 48px); font-weight: 580; letter-spacing: -.05em; line-height: 1; }
+    .hero-specialism em { font-style: normal; }
+    .hero-meta { grid-column: 1 / -1; padding-top: 16px; border-top: 1px solid rgba(244,243,239,.34); }
+    .preview-mode { opacity: .42; }
+    .preview:hover .preview-mode, .preview:focus-within .preview-mode { opacity: 1; }
+    .page-minimap { opacity: .62; }
+    .site-cursor.is-media i { inset: -8px; opacity: .72; }
+    .site-cursor.is-drag i { inset: -7px 3px; opacity: .68; }
+    .media-inspector { opacity: 0; }
+    .case-media button:hover .media-inspector, .case-media button:focus-visible .media-inspector { opacity: .62; }
+    .case-media button:hover::after, .case-media button:focus-visible::after { opacity: .42; }
+
+    @media (max-width: 920px) {
+      .case { padding-right: 30px; padding-left: 30px; }
+      .manifesto, .manifesto-frame, .manifesto-stage { min-height: 280px; }
+      .manifesto-stage { padding: 66px 0 40px; }
+      .archive-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero-copy { width: min(780px, 100%); padding-bottom: 0; }
+    }
+    @media (max-width: 560px) {
+      .case { padding: 82px 15px; }
+      .hero h1 { font-size: clamp(52px, 14vw, 72px); }
+      .hero h1 span { margin-top: 12px; font-size: .58em; }
+      .hero-specialism { margin-top: 15px; font-size: 28px; }
+      .hero-meta { grid-template-columns: 1fr auto; }
+      .hero-meta span:nth-child(2) { display: none; }
+      .manifesto, .manifesto-frame, .manifesto-stage { min-height: 240px; }
+      .manifesto-stage { padding: 58px 0 34px; }
+      .manifesto-kicker { margin-bottom: 18px; }
+      .manifesto-static { font-size: clamp(29px, 8.4vw, 34px); line-height: 1.08; }
+      .symbol-field { min-height: 0; }
+      .symbol-field-frame { min-height: 0; }
+      .principles-copy { min-height: 0; padding: 54px 15px 38px; }
+      .vortex-stage { height: 44svh; min-height: 340px; }
+      .archive-grid { grid-template-columns: 1fr; gap: 22px; }
+      .archive-card p { min-height: 0; }
     }
   </style>
 </head>
@@ -552,28 +1197,45 @@
   <div class="site-cursor" aria-hidden="true"><i></i></div>
   <div class="site-grid" aria-hidden="true"></div>
   <div class="intro" id="intro" role="status" aria-label="作品集正在加载">
-    <div class="intro-top micro" aria-hidden="true"><span>Portfolio system / 2026</span><span>Brand visual · 3D · Interactive</span></div>
-    <button class="intro-skip" type="button" aria-label="跳过开场动画" title="跳过开场动画">×</button>
+    <div class="intro-frame" aria-hidden="true"></div>
+    <span class="intro-corner tr" aria-hidden="true"></span>
+    <span class="intro-corner bl" aria-hidden="true"></span>
+    <div class="intro-scan" aria-hidden="true"></div>
+    <div class="intro-top" aria-hidden="true">
+      <span>SYS / WYF-PORTFOLIO</span>
+      <span class="intro-led"></span>
+      <span>CH-01 · SIGNAL</span>
+    </div>
+    <button class="intro-skip" type="button" aria-label="跳过开场动画" title="Escape / Enter / Space">Skip ↵</button>
     <div class="intro-stage" aria-hidden="true">
-      <div class="intro-crop intro-name-cn"><span>温一帆</span></div>
-      <div class="intro-crop intro-name-en"><span>WEN YIFAN / PORTFOLIO</span></div>
+      <div class="intro-core">
+        <p class="intro-kicker">Instrument boot · ordered entry</p>
+        <div class="intro-crop intro-name-cn"><span>温一帆</span></div>
+        <div class="intro-crop intro-name-en"><span>WEN YIFAN / BRAND · 3D · AIGC</span></div>
+        <ul class="intro-telemetry" id="intro-telemetry">
+          <li data-step="0"><i></i><span>01 / Align viewport</span><span>WAIT</span></li>
+          <li data-step="1"><i></i><span>02 / Load scene buffer</span><span>WAIT</span></li>
+          <li data-step="2"><i></i><span>03 / Arm interface</span><span>WAIT</span></li>
+          <li data-step="3"><i></i><span>04 / Open portfolio</span><span>WAIT</span></li>
+        </ul>
+      </div>
     </div>
     <div class="intro-bottom" aria-hidden="true">
-      <div class="intro-status"><span>01 / Loading scene</span><span>02 / Building interface</span><span>03 / Ready for view</span></div>
+      <span class="intro-channel">CINEMA BLACK / SIGNAL ORANGE</span>
+      <div class="intro-progress"><span id="intro-progress-bar"></span></div>
       <div class="intro-counter"><span id="intro-progress-value">000</span></div>
     </div>
-    <div class="intro-progress" aria-hidden="true"><span id="intro-progress-bar"></span></div>
   </div>
   <header class="topbar">
     <div class="shell topbar-inner">
       <a class="brand" href="#top">温一帆 <sup>©26</sup></a>
-      <div class="top-role">Brand visual / 3D / Interactive</div>
+      <div class="top-role">Brand Campaign Visual Designer / 3D · AIGC · Digital Experience</div>
       <button class="menu-button" type="button" aria-label="打开导航" aria-expanded="false"><span></span><span></span></button>
       <nav class="nav" aria-label="主导航">
-        <a href="#about" data-scramble>About *</a>
-        <a href="#work" data-scramble>Works //</a>
-        <a href="#skills" data-scramble>Skills</a>
-        <a href="#contact" data-scramble>Let's talk</a>
+        <a class="odo-link" href="#about" data-odo="About *"><span class="sr-only">About *</span><span class="odo-link__visual" aria-hidden="true"></span></a>
+        <a class="odo-link" href="#work" data-odo="Works //"><span class="sr-only">Works //</span><span class="odo-link__visual" aria-hidden="true"></span></a>
+        <a class="odo-link" href="#skills" data-odo="Skills"><span class="sr-only">Skills</span><span class="odo-link__visual" aria-hidden="true"></span></a>
+        <a class="odo-link" href="#contact" data-odo="Let's talk"><span class="sr-only">Let's talk</span><span class="odo-link__visual" aria-hidden="true"></span></a>
       </nav>
     </div>
   </header>
@@ -586,17 +1248,14 @@
       <div class="hero-webgl" aria-hidden="true"><canvas id="hero-canvas"></canvas></div>
       <span class="model-stamp" aria-hidden="true">Jiangkou / object 01</span>
       <div class="shell hero-content">
-        <div class="hero-inset" data-reveal>
-          <figure><img src="assets/dove-render.jpg" alt="Dove产品三维场景渲染"></figure>
-          <figcaption class="micro"><span>Selected object</span><span>/ 2024</span></figcaption>
-        </div>
         <div class="hero-copy" data-reveal>
-          <p class="hero-label">(About me)</p>
-          <h1 id="hero-title">我是温一帆，<br>品牌活动<wbr>视觉设计师，<br>专注<em>3D与AIGC</em>。</h1>
+          <p class="hero-label">Brand Campaign Visual Designer</p>
+          <h1 id="hero-title">温一帆<br><span>品牌活动视觉设计师</span></h1>
+          <p class="hero-specialism"><em>3D · AIGC · 数字体验</em></p>
         </div>
         <div class="hero-meta micro">
-          <span>/ PORTFOLIO 2026 /</span>
-          <span>Scroll down</span>
+          <span>Selected Work 2024–2026</span>
+          <span>Brand Campaign / 3D / Digital</span>
           <a class="hero-cta" href="#work">View selected work <span aria-hidden="true">↗</span></a>
         </div>
       </div>
@@ -631,13 +1290,9 @@
           </figure>
           <div class="project-list" data-reveal>
             <a class="project-row active" href="#dad" data-image="assets/dad-cover.jpg" data-alt="ROKU IKITION D&AD入围项目户外视觉预览" data-name="ROKU IKITION / D&AD" data-year="2025"><span>(01)</span><strong>ROKU IKITION</strong><span>D&AD / Brand / 3D</span><span>2025</span></a>
-            <a class="project-row" href="#packaging" data-image="assets/packaging-cover.jpg" data-alt="外贸家纺包装设计项目预览" data-name="PACKAGING DESIGN / INTERNSHIP" data-year="2026"><span>(02)</span><strong>包装设计</strong><span>Packaging / Production</span><span>2026</span></a>
-            <a class="project-row" href="#keep" data-image="assets/keep-cover-v2.png" data-alt="KEEP绿源守护活动中心主视觉预览" data-name="KEEP / ORIGIN GUARDIAN" data-year="2025"><span>(03)</span><strong>KEEP绿源守护</strong><span>Campaign / UI visual</span><span>2025</span></a>
-            <a class="project-row" href="#runes" data-image="assets/thesis-cover.jpg" data-alt="符文攻防战电竞活动视觉系统预览" data-name="RUNES ATTACK AND DEFENSE" data-year="2026"><span>(04)</span><strong>符文攻防战</strong><span>Esports / Visual system</span><span>2026</span></a>
-            <a class="project-row" href="#jiangkou" data-image="assets/jiangkou-cover-v2.jpg" data-alt="江口沉银香炉侧视图预览" data-name="JIANGKOU SUNKEN SILVER" data-year="2024"><span>(05)</span><strong>江口沉银</strong><span>Cultural / 3D visual</span><span>2024</span></a>
-            <a class="project-row" href="#vitrolume" data-image="assets/vitrolume-cover.jpg" data-alt="VitroLume品牌设计预览" data-name="VITROLUME" data-year="2025"><span>(06)</span><strong>VitroLume</strong><span>Brand identity</span><span>2025</span></a>
-            <a class="project-row" href="#spatial" data-image="assets/digital-scene.jpg" data-alt="数字空间场景渲染预览" data-name="SCENE RENDERING" data-year="2025"><span>(07)</span><strong>场景渲染</strong><span>3D / Atmosphere</span><span>2025</span></a>
-            <a class="project-row" href="#reverie" data-image="assets/reverie-cover.jpg" data-alt="REVERIE沉浸式艺术机构网页预览" data-name="REVERIE / NOMADIC ART" data-year="2026"><span>(08)</span><strong>REVERIE</strong><span>Web / WebGL / Interaction</span><span>2026</span></a>
+            <a class="project-row" href="#jiangkou" data-image="assets/jiangkou-cover-v2.jpg" data-alt="江口沉银香炉侧视图预览" data-name="JIANGKOU SUNKEN SILVER" data-year="2024"><span>(02)</span><strong>江口沉银</strong><span>Cultural / 3D visual</span><span>2024</span></a>
+            <a class="project-row" href="#runes" data-image="assets/thesis-cover.jpg" data-alt="符文攻防战电竞活动视觉系统预览" data-name="RUNES ATTACK AND DEFENSE" data-year="2026"><span>(03)</span><strong>符文攻防战</strong><span>Esports / Visual system</span><span>2026</span></a>
+            <a class="project-row" href="#reverie" data-image="assets/reverie-cover.jpg" data-alt="REVERIE沉浸式艺术机构网页预览" data-name="REVERIE / NOMADIC ART" data-year="2026"><span>(04)</span><strong>REVERIE</strong><span>Web / WebGL / Interaction</span><span>2026</span></a>
           </div>
         </div>
       </div>
@@ -646,32 +1301,64 @@
     <section class="manifesto" id="about" aria-label="设计宣言">
       <div class="manifesto-frame">
         <div class="shell manifesto-stage">
-          <span class="manifesto-kicker micro">Scroll chapter / 03</span>
+          <span class="manifesto-kicker micro">Design method / 03</span>
           <h2 class="manifesto-sequence" aria-label="设计不是把画面填满，而是找到最该被看见的部分，再用概念、材质与叙事让品牌留下记忆。">
             <span class="manifesto-step active" data-manifesto-step="0" aria-hidden="true">设计不是<br>把画面填满</span>
             <span class="manifesto-step" data-manifesto-step="1" aria-hidden="true">找到<em>最该被看见</em><br>的部分</span>
             <span class="manifesto-step" data-manifesto-step="2" aria-hidden="true">用概念、材质与叙事<br>留下记忆</span>
           </h2>
-          <p class="manifesto-static">设计不是把画面填满，而是找到<em>最该被看见</em>的部分，再用概念、材质与叙事让品牌留下记忆。</p>
+          <p class="manifesto-static"><span>看见真正的问题。</span><span>让概念决定形式。</span><span>让体验<em>留下记忆</em>。</span></p>
           <div class="manifesto-status micro"><span id="manifesto-readout">01 / 03</span><span>Concept → Material → Memory</span></div>
         </div>
         <div class="manifesto-rail" aria-hidden="true"><i></i></div>
       </div>
     </section>
 
-    <section class="symbol-field" aria-labelledby="principles-title">
-      <div class="principles-copy">
-        <div>
-          <span class="micro">Principles / 03</span>
-          <h2 id="principles-title" data-text-reveal><span>Be Real.</span><span>Be Creative.</span><span><em>Be Bold.</em></span></h2>
-          <p>从真实问题出发，让概念、结构与材质共同建立可识别、可延展的品牌体验。</p>
+    <section class="symbol-field" aria-labelledby="principles-title" data-nav-theme="light">
+      <div class="symbol-field-frame">
+        <div class="principles-copy">
+          <div class="principles-kicker micro">
+            <span>Principles / 03</span>
+            <span id="principles-readout-top">01 / 03</span>
+          </div>
+          <div class="principles-acts" aria-live="polite">
+            <div class="principle-act active" data-principle-act="0">
+              <h2 id="principles-title">Be <em>Real.</em></h2>
+              <p>从真实问题出发，不先堆效果。先确认谁在看、要记住什么。</p>
+            </div>
+            <div class="principle-act" data-principle-act="1">
+              <h2>Be <em>Creative.</em></h2>
+              <p>概念决定结构与材质。形式是方法的结果，不是装饰层。</p>
+            </div>
+            <div class="principle-act" data-principle-act="2">
+              <h2>Be <em>Bold.</em></h2>
+              <p>体验要可识别、可延展——留下记忆，而不是填满画面。</p>
+            </div>
+          </div>
+          <div class="principles-static">
+            <h2 data-text-reveal><span>Be Real.</span><span>Be Creative.</span><span><em>Be Bold.</em></span></h2>
+            <p>从真实问题出发，让概念、结构与材质共同建立可识别、可延展的品牌体验。</p>
+          </div>
+          <div class="principles-status" aria-hidden="true">
+            <span class="active" data-principle-status="0">01 / Concept</span>
+            <span data-principle-status="1">02 / Form</span>
+            <span data-principle-status="2">03 / Experience</span>
+          </div>
+          <div class="method-hud" id="method-hud" aria-hidden="true">
+            <div class="method-hud-row"><span>State</span><b id="method-hud-state">IDLE</b><em id="method-hud-pct">00%</em></div>
+            <div class="method-hud-row"><span>Rings</span><b>30 / mono atlas</b><em>WebGL2</em></div>
+            <div class="method-hud-row"><span>Method</span><b id="method-hud-act">01 · REAL</b><em>LIVE</em></div>
+            <div class="method-hud-meter" aria-hidden="true"><span id="method-hud-meter"></span></div>
+            <p class="method-hud-hint">Hold disc to charge · release for ripple · <kbd>Esc</kbd> cancel</p>
+          </div>
+          <span class="principles-readout micro" id="principles-readout">ACT 01 · REAL</span>
         </div>
-        <div class="principles-status"><span>01 / Concept</span><span>02 / Form</span><span>03 / Experience</span></div>
-      </div>
-      <div class="vortex-stage" aria-hidden="true">
-        <canvas id="principles-canvas"></canvas>
-        <div class="vortex-label micro"><span>Wen Yifan</span><span>Visual system</span></div>
-        <span class="vortex-index micro">Brand · Event · 3D · AIGC</span>
+        <div class="vortex-stage" role="button" tabindex="0" aria-label="品牌设计方法圆盘交互" aria-describedby="disc-instruction">
+          <span class="sr-only" id="disc-instruction">桌面端按住圆盘蓄力，蓄满后松开可触发扩散波。触屏设备轻触并按住；按 Escape 可取消。</span>
+          <canvas id="principles-canvas" aria-hidden="true"></canvas>
+          <div class="vortex-label micro" aria-hidden="true"><span>Wen Yifan</span><span>Method / 03</span></div>
+          <span class="vortex-index micro" aria-hidden="true">HOLD TO CHARGE</span>
+        </div>
       </div>
     </section>
 
@@ -699,37 +1386,45 @@
         <button class="skills-resizer" type="button" aria-label="调整能力面板宽度" aria-valuemin="28" aria-valuemax="48" aria-valuenow="36"></button>
         <div class="skills-panel">
           <section class="skill-group" data-reveal>
-            <button class="skill-heading" type="button" aria-expanded="true"><span>(04)</span><h3>品牌与平面</h3></button>
+            <button class="skill-heading" type="button" aria-expanded="true"><span>(01)</span><h3>品牌与平面</h3></button>
             <div class="skill-table">
+            <div class="skill-table__inner">
               <div class="skill-line"><span>01</span><span>视觉方向 / Visual direction</span><span>1</span></div>
               <div class="skill-line"><span>02</span><span>主视觉与海报 / Key visual</span><span>2</span></div>
               <div class="skill-line"><span>03</span><span>包装与品牌延展 / Application</span><span>3</span></div>
-              <div class="skill-line"><span>04</span><span>界面视觉 / UI visual</span><span>4</span></div>
+              <div class="skill-line"><span>04</span><span>界面视觉 / UI visual</span><span>4</span></div></div>
+
             </div>
           </section>
           <section class="skill-group" data-reveal>
-            <button class="skill-heading" type="button" aria-expanded="true"><span>(04)</span><h3>3D与动态</h3></button>
+            <button class="skill-heading" type="button" aria-expanded="true"><span>(02)</span><h3>3D与动态</h3></button>
             <div class="skill-table">
+            <div class="skill-table__inner">
               <div class="skill-line"><span>01</span><span>产品建模 / Modeling</span><span>1</span></div>
               <div class="skill-line"><span>02</span><span>材质与灯光 / Material & lighting</span><span>2</span></div>
               <div class="skill-line"><span>03</span><span>场景渲染 / Scene rendering</span><span>3</span></div>
-              <div class="skill-line"><span>04</span><span>动态合成 / Motion composite</span><span>4</span></div>
+              <div class="skill-line"><span>04</span><span>动态合成 / Motion composite</span><span>4</span></div></div>
+
             </div>
           </section>
           <section class="skill-group" data-reveal>
             <button class="skill-heading" type="button" aria-expanded="true"><span>(03)</span><h3>AIGC工作流</h3></button>
             <div class="skill-table">
+            <div class="skill-table__inner">
               <div class="skill-line"><span>01</span><span>概念与情绪探索 / Explore</span><span>1</span></div>
               <div class="skill-line"><span>02</span><span>纹理方向生成 / Texture</span><span>2</span></div>
-              <div class="skill-line"><span>03</span><span>人工二次设计 / Art direction</span><span>3</span></div>
+              <div class="skill-line"><span>03</span><span>人工二次设计 / Art direction</span><span>3</span></div></div>
+
             </div>
           </section>
           <section class="skill-group" data-reveal>
-            <button class="skill-heading" type="button" aria-expanded="true"><span>(03)</span><h3>Web与交互</h3></button>
+            <button class="skill-heading" type="button" aria-expanded="true"><span>(04)</span><h3>Web与交互</h3></button>
             <div class="skill-table">
+            <div class="skill-table__inner">
               <div class="skill-line"><span>01</span><span>信息架构 / Information architecture</span><span>1</span></div>
               <div class="skill-line"><span>02</span><span>响应式界面 / Responsive UI</span><span>2</span></div>
-              <div class="skill-line"><span>03</span><span>WebGL与动效 / WebGL & motion</span><span>3</span></div>
+              <div class="skill-line"><span>03</span><span>WebGL与动效 / WebGL & motion</span><span>3</span></div></div>
+          
             </div>
           </section>
         </div>
@@ -754,7 +1449,7 @@
 
     <section class="cases" aria-label="项目案例" data-nav-theme="light">
       <div class="shell">
-        <article class="case case--expanded" id="dad">
+        <article class="case case--expanded" id="dad" data-nav-theme="light">
           <div class="case-copy" data-reveal>
             <div><p class="section-number">CASE / 01</p><h3>ROKU<br>IKITION<span>D&AD New Blood Awards / Shortlisted entry</span></h3></div>
             <div>
@@ -779,7 +1474,7 @@
               <p>在外贸家居用品厂商实习期间，参与家纺、宠物用品与卫浴产品的海外零售包装设计，完成场景图、腰封、吊牌、洗标及多规格印前文件，并根据客户反馈持续适配不同颜色、尺寸和SKU。</p>
               <div class="case-meta"><div><span>Role</span><span>Packaging / Production artwork</span></div><div><span>Scope</span><span>Home textile / Pet / Bath</span></div><div><span>Output</span><span>Sleeve / Hang tag / Care label</span></div><div><span>Year</span><span>2026</span></div></div>
               <p class="case-disclaimer">Selected internship work / Client data and barcodes redacted</p>
-              <a class="case-detail-link" href="projects/packaging.html"><span class="case-detail-copy"><small>Full case study</small><strong>进入完整案例</strong></span><span class="case-detail-arrow" aria-hidden="true">→</span></a>
+              <a class="archive-detail-link" href="projects/packaging.html">查看包装案例 →</a>
             </div>
           </div>
           <div class="case-media case-media--expanded" data-reveal>
@@ -804,7 +1499,7 @@
           </div>
         </article>
 
-        <article class="case case--expanded" id="runes">
+        <article class="case case--expanded" id="runes" data-nav-theme="light">
           <div class="case-copy" data-reveal>
             <div><p class="section-number">CASE / 04</p><h3>符文<br>攻防战<span>Esports event identity / Graduation concept</span></h3></div>
             <div>
@@ -824,10 +1519,10 @@
           </div>
         </article>
 
-        <article class="case" id="jiangkou">
+        <article class="case" id="jiangkou" data-nav-theme="light">
           <div class="case-copy" data-reveal>
             <div><p class="section-number">CASE / 05</p><h3>江口<br>沉银<span>Cultural visual / Competition finalist</span></h3></div>
-            <div><p>从“沉没、发现、重见”提炼叙事，结合文物建模、材质灯光与包装延展，建立有历史重量的文创视觉。</p><div class="case-meta"><div><span>Role</span><span>Concept / 3D / Packaging</span></div><div><span>Tools</span><span>Blender / SD / PS</span></div><div><span>Year</span><span>2024</span></div></div></div>
+            <div><p>从“沉没、发现、重见”提炼叙事，结合文物建模、材质灯光与包装延展，建立有历史重量的文创视觉。</p><div class="case-meta"><div><span>Role</span><span>Concept / 3D / Packaging</span></div><div><span>Type</span><span>Personal competition entry</span></div><div><span>Output</span><span>3D visual / Packaging</span></div><div><span>Year</span><span>2024</span></div></div><p class="case-disclaimer">Personal concept / Non-official cultural visual proposal</p><a class="case-detail-link" href="projects/jiangkou.html"><span class="case-detail-copy"><small>Full case study</small><strong>进入完整案例</strong></span><span class="case-detail-arrow" aria-hidden="true">→</span></a></div>
           </div>
           <div class="case-media" data-reveal>
             <button type="button" data-lightbox="assets/jiangkou-cover-v2.jpg" data-label="Jiangkou / Side view"><img src="assets/jiangkou-cover-v2.jpg" alt="江口沉银香炉侧视图" loading="lazy"></button>
@@ -848,7 +1543,7 @@
           </div>
         </article>
 
-        <article class="case" id="reverie">
+        <article class="case" id="reverie" data-nav-theme="light">
           <div class="case-copy" data-reveal>
             <div><p class="section-number">CASE / 07</p><h3>REVERIE<span>Immersive web experience / Personal project</span></h3></div>
             <div>
@@ -867,6 +1562,21 @@
       </div>
     </section>
 
+    <section class="section archive" id="archive" aria-labelledby="archive-title" data-nav-theme="light">
+      <div class="shell">
+        <div class="section-head archive-head" data-reveal>
+          <span class="section-number">Archive / 04</span>
+          <div><h2 class="section-title" id="archive-title">其他<br>作品档案</h2><p>以较紧凑的形式保留商业包装、活动概念、品牌延展与场景研究。</p></div>
+        </div>
+        <div class="archive-grid">
+          <article class="archive-card" data-reveal><button type="button" data-lightbox="assets/packaging-cover.jpg" data-label="Packaging design / Commercial work"><img src="assets/packaging-cover.jpg" alt="包装设计项目预览" loading="lazy"></button><div><span class="micro">01 / Commercial</span><h3>包装设计</h3><p>海外零售包装与生产文件</p><a href="projects/packaging.html">查看案例 →</a></div></article>
+          <article class="archive-card" data-reveal><button type="button" data-lightbox="assets/keep-cover-v2.png" data-label="KEEP / Origin Guardian"><img src="assets/keep-cover-v2.png" alt="KEEP绿源守护活动视觉预览" loading="lazy"></button><div><span class="micro">02 / Campaign</span><h3>KEEP 绿源守护</h3><p>活动主视觉与移动端任务机制</p></div></article>
+          <article class="archive-card" data-reveal><button type="button" data-lightbox="assets/vitrolume-cover.jpg" data-label="VitroLume / Brand identity"><img src="assets/vitrolume-cover.jpg" alt="VitroLume品牌视觉预览" loading="lazy"></button><div><span class="micro">03 / Identity</span><h3>VitroLume</h3><p>轻奢品牌识别与产品场景</p></div></article>
+          <article class="archive-card" data-reveal><button type="button" data-lightbox="assets/digital-scene.jpg" data-label="Scene rendering / Spatial study"><img src="assets/digital-scene.jpg" alt="场景渲染研究预览" loading="lazy"></button><div><span class="micro">04 / Spatial</span><h3>场景渲染</h3><p>材质、灯光与数字空间研究</p></div></article>
+        </div>
+      </div>
+    </section>
+
     <section class="contact" id="contact" aria-labelledby="contact-title">
       <div class="shell contact-inner">
         <div class="contact-mark" aria-hidden="true"><span>(</span><span>)</span></div>
@@ -876,7 +1586,11 @@
           <a href="assets/温一帆_简历.docx" download>Download resume</a>
           <a href="https://www.zcool.com.cn/work/ZNzI4MTc4MjQ=.html" target="_blank" rel="noreferrer">ZCOOL ↗</a>
         </div>
-        <img class="contact-signature" src="assets/wenyifan-signature.png" alt="温一帆签名" data-reveal>
+        <div class="contact-signature" data-signature-particles role="button" tabindex="0" aria-label="温一帆粒子签名，悬停或点击查看" aria-pressed="false" data-reveal>
+          <canvas class="contact-signature-canvas" aria-hidden="true"></canvas>
+          <img class="contact-signature-image" src="assets/wenyifan-signature-vector.svg" alt="温一帆签名">
+          <span class="contact-signature-hint" aria-hidden="true">Hover to resolve / Tap to replay</span>
+        </div>
       </div>
     </section>
 
@@ -895,7 +1609,7 @@
     <div class="lightbox-label micro"></div>
   </div>
 
-  <button class="index-launcher" type="button" aria-expanded="false" aria-controls="project-drawer"><span>Project index</span><b aria-hidden="true">+</b></button>
+  <button class="index-launcher" type="button" aria-expanded="false" aria-controls="project-drawer"><span class="status-led" aria-hidden="true"><span class="status-led__ping"></span><span class="status-led__dot"></span></span><span>Project index</span><b aria-hidden="true">+</b></button>
   <div class="project-drawer" id="project-drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
     <div class="project-drawer-panel">
       <button class="drawer-close" type="button" aria-label="关闭项目索引">×</button>
@@ -930,6 +1644,7 @@
     </div>
   </div>
 
+  <script src="assets/hero-disc-replica.js?v=method-hud-1"></script>
   <script>
     const siteCursor = document.querySelector('.site-cursor');
     const cursorEnabled = window.matchMedia('(hover: hover) and (pointer: fine)').matches && window.innerWidth > 560;
@@ -945,7 +1660,7 @@
 
       const renderCursor = () => {
         cursorFrame = 0;
-        const easing = 1;
+        const easing = .34;
         cursorX += (cursorTargetX - cursorX) * easing;
         cursorY += (cursorTargetY - cursorY) * easing;
         siteCursor.style.transform = `translate3d(${cursorX}px, ${cursorY}px, 0)`;
@@ -995,18 +1710,35 @@
     const introProgressBar = document.getElementById('intro-progress-bar');
     const introSkip = document.querySelector('.intro-skip');
     const introCanvas = document.getElementById('hero-canvas');
+    const introTelemetry = Array.from(document.querySelectorAll('#intro-telemetry li'));
     const introReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const introStartedAt = performance.now();
     let introSceneReady = false;
     let introFinished = false;
     let introProgress = 0;
+    let introStep = -1;
 
+    const setIntroTelemetry = (progress) => {
+      // Ordered instrument checklist — only one live step at a time.
+      const next = progress >= 92 ? 3 : progress >= 62 ? 2 : progress >= 28 ? 1 : 0;
+      if (next === introStep) return;
+      introStep = next;
+      introTelemetry.forEach((row, index) => {
+        const on = index <= introStep;
+        const live = index === introStep;
+        row.classList.toggle('is-on', on);
+        row.classList.toggle('is-live', live);
+        const status = row.querySelector('span:last-child');
+        if (status) status.textContent = live ? 'LIVE' : on ? 'OK' : 'WAIT';
+      });
+    };
     const setIntroProgress = (value) => {
       introProgress = Math.max(introProgress, Math.min(100, value));
       const rounded = Math.round(introProgress);
       introProgressValue.textContent = String(rounded).padStart(3, '0');
       introProgressBar.style.width = `${introProgress}%`;
       intro.setAttribute('aria-label', `作品集正在加载，${rounded}%`);
+      setIntroTelemetry(introProgress);
     };
     const finishIntro = () => {
       if (introFinished) return;
@@ -1014,32 +1746,46 @@
       setIntroProgress(100);
       intro.classList.add('intro-exit');
       document.documentElement.classList.remove('intro-pending');
-      window.setTimeout(() => intro.remove(), introReducedMotion ? 20 : 760);
+      window.setTimeout(() => intro.remove(), introReducedMotion ? 20 : 580);
     };
     const updateIntro = (time) => {
       if (introFinished) return;
       const elapsed = time - introStartedAt;
-      const stagedProgress = Math.min(92, (elapsed / 2200) * 92);
+      // Compact instrument ramp; waits for hero readiness when available.
+      const stagedProgress = Math.min(86, (elapsed / 1400) * 86);
       setIntroProgress(stagedProgress);
-      if ((introSceneReady && elapsed > 1100) || elapsed > 2900) {
-        setIntroProgress(introProgress + Math.max(1.2, (100 - introProgress) * .17));
+      if ((introSceneReady && elapsed > 640) || elapsed > 2000) {
+        setIntroProgress(introProgress + Math.max(2, (100 - introProgress) * .26));
       }
       if (introProgress >= 99.4) {
-        window.setTimeout(finishIntro, 100);
+        window.setTimeout(finishIntro, 50);
         return;
       }
       window.requestAnimationFrame(updateIntro);
     };
     const introCanvasObserver = new MutationObserver(() => {
-      if (['ready', 'fallback'].includes(introCanvas.dataset.renderState)) introSceneReady = true;
+      if (['ready', 'fallback'].includes(introCanvas?.dataset?.renderState)) introSceneReady = true;
     });
-    introCanvasObserver.observe(introCanvas, { attributes: true, attributeFilter: ['data-render-state'] });
+    if (introCanvas) {
+      introCanvasObserver.observe(introCanvas, { attributes: true, attributeFilter: ['data-render-state'] });
+      if (['ready', 'fallback'].includes(introCanvas.dataset.renderState)) introSceneReady = true;
+    } else {
+      introSceneReady = true;
+    }
     introSkip.addEventListener('click', finishIntro);
+    window.addEventListener('keydown', (event) => {
+      if (introFinished) return;
+      if (event.key === 'Escape' || event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        finishIntro();
+      }
+    });
     if (introReducedMotion) {
       finishIntro();
     } else {
+      setIntroProgress(0);
       window.requestAnimationFrame(updateIntro);
-      window.setTimeout(() => { introSceneReady = true; }, 2800);
+      window.setTimeout(() => { introSceneReady = true; }, 1800);
     }
 
     const menuButton = document.querySelector('.menu-button');
@@ -1286,33 +2032,54 @@
     window.addEventListener('resize', renderAsciiPreview, { passive: true });
     renderAsciiPreview();
 
-    const scrambleCharacters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/#*';
-    document.querySelectorAll('[data-scramble]').forEach((link) => {
-      const original = link.textContent;
-      let intervalId;
-      link.setAttribute('aria-label', original);
-      const restore = () => {
-        window.clearInterval(intervalId);
-        link.textContent = original;
-      };
-      const scramble = () => {
-        if (reducedMotionPreference) return;
-        let frame = 0;
-        window.clearInterval(intervalId);
-        intervalId = window.setInterval(() => {
-          link.textContent = [...original].map((character, index) => {
-            if (character === ' ' || index < frame / 2) return character;
-            return scrambleCharacters[Math.floor(Math.random() * scrambleCharacters.length)];
-          }).join('');
-          frame += 1;
-          if (frame >= original.length * 2) restore();
-        }, 28);
-      };
-      link.addEventListener('mouseenter', scramble);
-      link.addEventListener('focus', scramble);
-      link.addEventListener('mouseleave', restore);
-      link.addEventListener('blur', restore);
-    });
+    const odoNoisePool = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/#*·+';
+    const odoNoiseChar = (ch) => {
+      let next = odoNoisePool[Math.floor(Math.random() * odoNoisePool.length)];
+      let guard = 0;
+      while (next === ch && guard < 6) {
+        next = odoNoisePool[Math.floor(Math.random() * odoNoisePool.length)];
+        guard += 1;
+      }
+      return next;
+    };
+    const buildOdometer = (root = document) => {
+      root.querySelectorAll('[data-odo]').forEach((el) => {
+        const label = el.getAttribute('data-odo') || '';
+        let visual = el.querySelector('.odo-link__visual');
+        if (!visual) {
+          visual = document.createElement('span');
+          visual.className = 'odo-link__visual';
+          el.appendChild(visual);
+        }
+        visual.replaceChildren();
+        [...label].forEach((ch, i) => {
+          if (ch === ' ') {
+            visual.appendChild(document.createTextNode('\u00a0'));
+            return;
+          }
+          const col = document.createElement('span');
+          col.className = 'odo-col';
+          col.style.setProperty('--i', String(i));
+          const n1 = odoNoiseChar(ch);
+          const n2 = odoNoiseChar(ch);
+          const n3 = odoNoiseChar(ch);
+          const n4 = odoNoiseChar(ch);
+          col.innerHTML =
+            '<span class="odo-col__spacer">' + ch + '</span>' +
+            '<span class="odo-col__stack" aria-hidden="true">' +
+            '<span class="odo-col__glyph">' + ch + '</span>' +
+            '<span class="odo-col__glyph">' + n1 + '</span>' +
+            '<span class="odo-col__glyph">' + n2 + '</span>' +
+            '<span class="odo-col__glyph">' + n3 + '</span>' +
+            '<span class="odo-col__glyph">' + n4 + '</span>' +
+            '<span class="odo-col__glyph">' + ch + '</span>' +
+            '</span>';
+          visual.appendChild(col);
+        });
+      });
+    };
+    buildOdometer(document);
+
 
     const manifesto = document.querySelector('.manifesto');
     const manifestoSteps = [...document.querySelectorAll('[data-manifesto-step]')];
@@ -1337,6 +2104,81 @@
       if (!manifestoFrame) manifestoFrame = window.requestAnimationFrame(updateManifestoStage);
     }, { passive: true });
     updateManifestoStage();
+
+    const principlesField = document.querySelector('.symbol-field');
+    const principleActs = [...document.querySelectorAll('[data-principle-act]')];
+    const principleStatuses = [...document.querySelectorAll('[data-principle-status]')];
+    const principlesReadout = document.getElementById('principles-readout');
+    const principlesReadoutTop = document.getElementById('principles-readout-top');
+    const principleLabels = ['ACT 01 · REAL', 'ACT 02 · CREATIVE', 'ACT 03 · BOLD'];
+    let principlesFrame = 0;
+    let activePrincipleAct = 0;
+    const updatePrinciplesStage = () => {
+      principlesFrame = 0;
+      if (!principlesField || reducedMotionPreference || !principleActs.length) return;
+      if (window.innerWidth <= 920) {
+        principlesField.style.setProperty('--stage-progress', '0');
+        principlesField.style.setProperty('--paper-shift', '0');
+        principlesField.classList.remove('is-late');
+        return;
+      }
+      const bounds = principlesField.getBoundingClientRect();
+      const distance = Math.max(1, bounds.height - window.innerHeight);
+      const progress = Math.max(0, Math.min(1, -bounds.top / distance));
+      const nextAct = Math.min(principleActs.length - 1, Math.floor(progress * principleActs.length * 0.999));
+      principlesField.style.setProperty('--stage-progress', progress.toFixed(4));
+      principlesField.style.setProperty('--paper-shift', progress.toFixed(4));
+      principlesField.classList.toggle('is-late', progress > 0.62);
+      if (nextAct !== activePrincipleAct) {
+        activePrincipleAct = nextAct;
+        principleActs.forEach((act, index) => act.classList.toggle('active', index === activePrincipleAct));
+        principleStatuses.forEach((item, index) => item.classList.toggle('active', index === activePrincipleAct));
+        if (principlesReadout) principlesReadout.textContent = principleLabels[activePrincipleAct];
+        if (principlesReadoutTop) {
+          principlesReadoutTop.textContent = `${String(activePrincipleAct + 1).padStart(2, '0')} / ${String(principleActs.length).padStart(2, '0')}`;
+        }
+        const methodHudAct = document.getElementById('method-hud-act');
+        if (methodHudAct) {
+          const actNames = ['01 · REAL', '02 · CREATIVE', '03 · BOLD'];
+          methodHudAct.textContent = actNames[activePrincipleAct] || actNames[0];
+        }
+      }
+    };
+    window.addEventListener('scroll', () => {
+      if (!principlesFrame) principlesFrame = window.requestAnimationFrame(updatePrinciplesStage);
+    }, { passive: true });
+    updatePrinciplesStage();
+
+    // Method disc instrument HUD — live charge readout from WebGL disc state.
+    const methodHudState = document.getElementById('method-hud-state');
+    const methodHudPct = document.getElementById('method-hud-pct');
+    const methodHudMeter = document.getElementById('method-hud-meter');
+    const methodHudRoot = document.getElementById('method-hud');
+    let methodHudFrame = 0;
+    const methodStateLabels = {
+      idle: 'IDLE',
+      holding: 'CHARGING',
+      charged: 'ARMED',
+      reduced: 'STATIC',
+    };
+    const syncMethodHud = () => {
+      methodHudFrame = 0;
+      if (!methodHudState || !methodHudPct || !methodHudMeter) return;
+      if (document.hidden) {
+        methodHudFrame = window.requestAnimationFrame(syncMethodHud);
+        return;
+      }
+      const disc = window.__methodDisc || { mode: 'idle', charge: 0, motion: true };
+      const mode = disc.motion === false ? 'reduced' : (disc.mode || 'idle');
+      const charge = Math.max(0, Math.min(1, Number(disc.charge) || 0));
+      const pct = Math.round(charge * 100);
+      methodHudState.textContent = methodStateLabels[mode] || 'IDLE';
+      methodHudPct.textContent = `${String(pct).padStart(2, '0')}%`;
+      methodHudMeter.style.width = `${pct}%`;
+      if (methodHudRoot) methodHudRoot.dataset.discState = mode;
+      methodHudFrame = window.requestAnimationFrame(syncMethodHud);
+    };
+    if (methodHudState) methodHudFrame = window.requestAnimationFrame(syncMethodHud);
 
     const minimap = document.querySelector('.page-minimap');
     const minimapMarker = document.querySelector('.minimap-marker');
@@ -1415,15 +2257,28 @@
     let interfaceThemeFrame = 0;
     const updateInterfaceTheme = () => {
       interfaceThemeFrame = 0;
-      const marker = Math.min(48, window.innerHeight * .08);
-      const section = interfaceThemeSections.find((item) => {
+      const marker = Math.min(72, window.innerHeight * .12);
+      let section = null;
+      for (const item of interfaceThemeSections) {
         const bounds = item.getBoundingClientRect();
-        return bounds.top <= marker && bounds.bottom > marker;
-      });
+        if (bounds.top <= marker && bounds.bottom > marker) {
+          section = item;
+          break;
+        }
+      }
+      if (!section) {
+        section = interfaceThemeSections.find((item) => {
+          const bounds = item.getBoundingClientRect();
+          return bounds.top < window.innerHeight * .45 && bounds.bottom > window.innerHeight * .35;
+        }) || null;
+      }
       const light = section?.dataset.navTheme === 'light';
       topbar.classList.toggle('theme-light', light);
       minimap.classList.toggle('theme-light', light);
       topbar.dataset.surface = light ? 'light' : 'dark';
+      if (topbar.dataset.chapter !== (section?.id || section?.className || '')) {
+        topbar.dataset.chapter = section?.id || (section?.classList?.[0] || 'stage');
+      }
       const heavyCanvasVisible = gridQuietSections.some((item) => {
         const bounds = item.getBoundingClientRect();
         return bounds.top < window.innerHeight && bounds.bottom > 0;
@@ -1630,110 +2485,405 @@
       }, { passive: true });
     });
 
+    if (!window.__vortexReplicaActive) {
     const symbolField = document.querySelector('.symbol-field');
     const vortexStage = document.querySelector('.vortex-stage');
     const vortexCanvas = document.getElementById('principles-canvas');
     const vortexContext = vortexCanvas.getContext('2d');
+    const vortexIndex = vortexStage.querySelector('.vortex-index');
     const vortexPhrases = [
-      'WEN YIFAN · BRAND VISUAL · ',
-      'BE REAL · BE CREATIVE · BE BOLD · ',
+      'WEN YIFAN · BE REAL · BE BOLD · ',
       'CONCEPT · FORM · EXPERIENCE · ',
-      'EVENT · 3D · AIGC · INTERACTION · ',
+      'BRAND · CAMPAIGN · MATERIAL · ',
+      '3D · AIGC · DIGITAL · METHOD · ',
     ];
+    // Motion DNA aligned to DESIGN-kit / hero-disc-replica (§10 / §11.12)
+    const DISC = {
+      chargeSeconds: 0.9,
+      chargeDecay: 10,
+      gatherTau: 4,
+      ringLag: 14,
+      rippleDuration: 1.8,
+      rippleMaxR: 0.82,
+      rippleWidth: 0.085,
+      ripplePush: 0.045,
+      rippleScale: 0.5,
+      gatherScale: 0.12,
+      shakeAmp: 1.35,
+      shakeFraction: 0.18,
+      glitchRate: 9,
+      glitchFraction: 0.15,
+      hoverRadius: 0.35,
+      mouseInf: 6,
+      mousePos: 14,
+      spinK: 3,
+      rippleSpin: 0.55,
+      rippleSlots: 16,
+      scrollBoostDecay: 5,
+      scrollBoostLerp: 4,
+      scrollVelScale: 0.02,
+      releaseStrength: (g) => 0.7 + 0.6 * g,
+    };
+    const clampDisc = (value, min, max) => Math.min(max, Math.max(min, value));
+    const smoothDisc = (start, end, value) => {
+      if (start === end) return value < start ? 0 : 1;
+      const amount = clampDisc((value - start) / (end - start), 0, 1);
+      return amount * amount * (3 - 2 * amount);
+    };
+    const discLabels = {
+      idle: 'HOLD TO CHARGE',
+      idleTouch: 'HOLD TO CHARGE',
+      holding: 'KEEP HOLDING',
+      charged: 'RELEASE',
+      released: 'RELEASE',
+      reduced: 'METHOD DISC / STATIC',
+    };
+    const discIsTouch = () => window.matchMedia('(hover: none), (pointer: coarse)').matches || window.innerWidth < 760;
+    const discIdleLabel = () => (discIsTouch() ? discLabels.idleTouch : discLabels.idle);
     let vortexWidth = 1;
     let vortexHeight = 1;
     let vortexVisible = false;
     let vortexFrame = 0;
-    let vortexPointerX = 0;
-    let vortexPointerY = 0;
-    let vortexTargetX = 0;
-    let vortexTargetY = 0;
-    let vortexScrollPhase = window.scrollY * .00055;
-    let vortexRings = [];
     let vortexLastDraw = 0;
     let vortexFrameInterval = 1000 / 60;
-    let vortexPointerEase = .075;
+    let vortexTime = 0;
+    let vortexCharge = 0;
+    let vortexGather = 0;
+    let vortexHolding = false;
+    let vortexCharged = false;
+    let vortexPointerActive = false;
+    let vortexPointerX = -999;
+    let vortexPointerY = -999;
+    let vortexMouseX = 9999;
+    let vortexMouseY = 9999;
+    let vortexMouseInf = 0;
+    let vortexMouseInfTarget = 0;
+    let vortexTouchStart = null;
+    let vortexState = '';
+    let vortexRings = [];
+    let vortexRipples = [];
+    let vortexHasEntrance = false;
+    let vortexScrollVel = 0;
+    let vortexScrollBoost = 0;
+
+    const setVortexState = (next) => {
+      if (vortexState === next) return;
+      vortexState = next;
+      vortexStage.dataset.discState = next;
+      vortexStage.classList.toggle('is-charging', next === 'holding');
+      vortexStage.classList.toggle('is-charged', next === 'charged');
+      vortexStage.setAttribute('aria-pressed', String(next === 'holding' || next === 'charged'));
+      const label = next === 'idle' ? discIdleLabel() : (discLabels[next] || discIdleLabel());
+      vortexIndex.textContent = label;
+    };
 
     const buildVortexRings = () => {
-      const ringCount = vortexWidth < 600 ? 9 : 10;
-      const maximumRadius = Math.hypot(vortexWidth, vortexHeight) * .66;
-      const radiusStep = (maximumRadius - 28) / Math.max(1, ringCount - 1);
-      const cacheRatio = Math.min(window.devicePixelRatio || 1, 1.15);
+      const ringCount = vortexWidth < 600 ? 14 : 20;
+      const minimumRadius = Math.max(22, Math.min(vortexWidth, vortexHeight) * 0.055);
+      const maximumRadius = Math.min(vortexWidth, vortexHeight) * 0.46;
+      const radiusStep = (maximumRadius - minimumRadius) / Math.max(1, ringCount - 1);
 
-      vortexRings = Array.from({ length: ringCount }, (_, ring) => {
-        const radius = 28 + ring * radiusStep;
-        const fontSize = Math.min(16, 8.2 + ring * .42);
-        const padding = fontSize + 5;
-        const size = Math.ceil((radius + padding) * 2);
-        const ringCanvas = document.createElement('canvas');
-        ringCanvas.width = Math.ceil(size * cacheRatio);
-        ringCanvas.height = Math.ceil(size * cacheRatio);
-        const ringContext = ringCanvas.getContext('2d', { alpha: true });
-        ringContext.setTransform(cacheRatio, 0, 0, cacheRatio, 0, 0);
-        const center = size / 2;
+      vortexRings = Array.from({ length: ringCount }, (_, index) => {
+        const t = index / Math.max(1, ringCount - 1);
+        const radius = minimumRadius + index * radiusStep;
+        const fontSize = clampDisc(8 + t * 7.5, 8, 15);
+        const glyphCount = Math.max(14, Math.floor((Math.PI * 2 * radius) / Math.max(6.5, fontSize * 0.72)));
+        const phrase = vortexPhrases[index % vortexPhrases.length];
+        const accent = index % 5 === 0;
+        const direction = index % 2 ? 1 : -1;
+        const speed = direction * (0.09 + (1 - t) * 0.11 + index * 0.004);
+        const glyphs = Array.from({ length: glyphCount }, (_, glyphIndex) => {
+          const seed = (glyphIndex * 17.23 + index * 11.71) % 1;
+          const shakeSeed = (glyphIndex * 91.17 + index * 47.91) % 1;
+          return {
+            angle: (glyphIndex / glyphCount) * Math.PI * 2,
+            character: phrase[glyphIndex % phrase.length],
+            seed,
+            shakeSeed,
+            shakes: shakeSeed < DISC.shakeFraction,
+          };
+        });
+        const cacheRadius = Math.ceil(radius + fontSize * 2.2 + 6);
+        const cache = document.createElement('canvas');
+        cache.width = cacheRadius * 2;
+        cache.height = cacheRadius * 2;
+        const cacheContext = cache.getContext('2d');
 
-        ringContext.beginPath();
-        ringContext.arc(center, center, radius, 0, Math.PI * 2);
-        ringContext.setLineDash([1, 6]);
-        ringContext.strokeStyle = ring % 4 === 0 ? 'rgba(255,90,47,.28)' : 'rgba(243,241,235,.13)';
-        ringContext.stroke();
-
-        const phrase = vortexPhrases[ring % vortexPhrases.length];
-        const repeatCount = Math.max(1, Math.ceil((Math.PI * 2 * radius) / Math.max(72, phrase.length * 7.5)));
-        const characters = phrase.repeat(repeatCount);
-        const angleStep = Math.PI * 2 / characters.length;
-        ringContext.font = `${fontSize}px "Cascadia Mono", Consolas, monospace`;
-        ringContext.textAlign = 'center';
-        ringContext.textBaseline = 'middle';
-        ringContext.fillStyle = ring % 6 === 0 ? 'rgba(255,90,47,.92)' : `rgba(243,241,235,${Math.min(.92, .38 + ring * .034)})`;
-
-        for (let index = 0; index < characters.length; index += 1) {
-          const angle = index * angleStep;
-          ringContext.save();
-          ringContext.translate(center + Math.cos(angle) * radius, center + Math.sin(angle) * radius);
-          ringContext.rotate(angle + Math.PI / 2);
-          ringContext.fillText(characters[index], 0, 0);
-          ringContext.restore();
-        }
+        cacheContext.font = `${fontSize}px "Cascadia Mono", Consolas, monospace`;
+        cacheContext.textAlign = 'center';
+        cacheContext.textBaseline = 'middle';
+        glyphs.forEach((glyph, glyphIndex) => {
+          cacheContext.save();
+          cacheContext.translate(
+            cacheRadius + Math.cos(glyph.angle) * radius,
+            cacheRadius + Math.sin(glyph.angle) * radius,
+          );
+          cacheContext.rotate(glyph.angle + Math.PI / 2);
+          cacheContext.globalAlpha = clampDisc(0.38 + t * 0.42, 0.14, 0.86);
+          cacheContext.fillStyle = accent && glyphIndex % 5 === 0 ? '#ff5a2f' : '#f4f3ef';
+          if (glyph.character === ' ') {
+            cacheContext.beginPath();
+            cacheContext.arc(0, 0, 0.95, 0, Math.PI * 2);
+            cacheContext.fill();
+          } else {
+            cacheContext.fillText(glyph.character, 0, 0);
+          }
+          cacheContext.restore();
+        });
 
         return {
-          canvas: ringCanvas,
-          size,
-          direction: ring % 2 ? 1 : -1,
-          baseRotation: ring * .38,
-          speed: .000028 + ring * .0000014,
+          radius,
+          direction,
+          speed,
+          accent,
+          cache,
+          cacheRadius,
+          glyphs,
+          points: glyphs.filter((_, glyphIndex) => glyphIndex % Math.max(1, Math.floor(glyphCount / 28)) === 0),
+          rawCharge: 0,
+          rawGather: 0,
+          ringCharge: 0,
+          ringGather: 0,
+          freezeAccum: 0,
+          spinVel: 0,
+          spinPos: 0,
+          offset: 0,
         };
       });
     };
 
-    const drawVortex = (time = 0) => {
+    const getRippleAt = (radius) => {
+      let best = 0;
+      const minSide = Math.min(vortexWidth, vortexHeight);
+      const maxWave = minSide * DISC.rippleMaxR;
+      const width = Math.max(18, minSide * DISC.rippleWidth);
+      for (let i = 0; i < vortexRipples.length; i++) {
+        const ripple = vortexRipples[i];
+        const elapsed = vortexTime - ripple.start;
+        if (elapsed < 0 || elapsed >= DISC.rippleDuration) continue;
+        const progress = elapsed / DISC.rippleDuration;
+        const waveRadius = smoothDisc(0, 1, progress) * maxWave;
+        const bell = 1 - smoothDisc(0, width * 0.5, Math.abs(radius - waveRadius));
+        const life = smoothDisc(0, 0.22, progress) * (1 - smoothDisc(0.78, 1, progress));
+        const strength = bell * life * ripple.strength;
+        if (strength > best) best = strength;
+      }
+      return best;
+    };
+
+    const pruneRipples = () => {
+      while (vortexRipples.length && vortexTime - vortexRipples[0].start >= DISC.rippleDuration) {
+        vortexRipples.shift();
+      }
+      if (vortexRipples.length > DISC.rippleSlots) {
+        vortexRipples.splice(0, vortexRipples.length - DISC.rippleSlots);
+      }
+    };
+
+    const drawVortex = (timestamp = 0) => {
       vortexFrame = 0;
-      const elapsedSinceDraw = time - vortexLastDraw;
+      const elapsedSinceDraw = timestamp - vortexLastDraw;
       if (!reducedMotionPreference && vortexLastDraw && elapsedSinceDraw < vortexFrameInterval - 1) {
-        if (vortexVisible) vortexFrame = window.requestAnimationFrame(drawVortex);
+        if (vortexVisible && !document.hidden) vortexFrame = window.requestAnimationFrame(drawVortex);
         return;
       }
-      vortexLastDraw = vortexLastDraw ? time - (elapsedSinceDraw % vortexFrameInterval) : time;
-      vortexPointerX += (vortexTargetX - vortexPointerX) * vortexPointerEase;
-      vortexPointerY += (vortexTargetY - vortexPointerY) * vortexPointerEase;
+      const delta = vortexLastDraw ? Math.min(0.05, Math.max(0.001, elapsedSinceDraw / 1000)) : 0.016;
+      vortexLastDraw = timestamp;
+      if (!reducedMotionPreference) vortexTime += delta;
+
+      if (vortexHolding) {
+        vortexCharge = Math.min(1, vortexCharge + delta / DISC.chargeSeconds);
+        vortexGather = 1 - (1 - vortexGather) * Math.exp(-delta / DISC.gatherTau);
+        if (!vortexCharged && vortexCharge >= 1) {
+          vortexCharged = true;
+          setVortexState('charged');
+        }
+      } else if (!reducedMotionPreference) {
+        vortexCharge *= Math.exp(-DISC.chargeDecay * delta);
+        vortexGather *= Math.exp(-DISC.chargeDecay * delta);
+        if (vortexCharge < 0.02) vortexCharge = 0;
+        if (vortexGather < 0.02) vortexGather = 0;
+      }
+
+      pruneRipples();
+      if (!vortexHolding && !vortexRipples.length && vortexState === 'released' && vortexCharge < 0.05) {
+        setVortexState('idle');
+      }
+
+      const kInf = 1 - Math.exp(-DISC.mouseInf * delta);
+      const kPos = 1 - Math.exp(-DISC.mousePos * delta);
+      vortexMouseInf += (vortexMouseInfTarget - vortexMouseInf) * kInf;
+      if (vortexPointerActive) {
+        vortexMouseX += (vortexPointerX - vortexMouseX) * kPos;
+        vortexMouseY += (vortexPointerY - vortexMouseY) * kPos;
+      }
+
+      const decay = Math.exp(-DISC.chargeDecay * delta);
+      const kRing = 1 - Math.exp(-DISC.ringLag * delta);
+      const kSpin = 1 - Math.exp(-DISC.spinK * delta);
+      vortexScrollVel *= Math.exp(-DISC.scrollBoostDecay * delta);
+      const scrollDrive = Math.min(40, Math.abs(vortexScrollVel));
+      vortexScrollBoost += (scrollDrive - vortexScrollBoost) * (1 - Math.exp(-DISC.scrollBoostLerp * delta));
+      let waveEdge = Infinity;
+      if (vortexRipples.length) {
+        const latest = vortexRipples[vortexRipples.length - 1];
+        const since = vortexTime - latest.start;
+        if (since >= 0 && since < DISC.rippleDuration) {
+          waveEdge = Math.min(vortexWidth, vortexHeight) * DISC.rippleMaxR * smoothDisc(0, 1, since / DISC.rippleDuration);
+        }
+      }
+
+      vortexRings.forEach((ring) => {
+        let o = ring.rawCharge;
+        let n = ring.rawGather;
+        if (vortexHolding) {
+          o += (vortexCharge - o) * kRing;
+          n += (smoothDisc(0, 1, vortexCharge) * vortexGather - n) * kRing;
+        } else if (!(vortexRipples.length && waveEdge < ring.radius)) {
+          o *= decay;
+          n *= decay;
+        }
+        ring.rawCharge = o;
+        ring.rawGather = n;
+        ring.ringGather = n;
+        ring.ringCharge = smoothDisc(0, 1, o);
+        ring.freezeAccum -= ring.ringCharge * ring.speed * delta;
+
+        const ripple = getRippleAt(ring.radius);
+        ring.spinVel += (DISC.rippleSpin * ripple * ring.direction * 12 + ring.speed * vortexScrollBoost * ring.direction) * delta;
+        ring.spinVel *= Math.exp(-2.2 * delta);
+        ring.spinPos += (ring.spinVel - ring.spinPos) * kSpin;
+        ring.offset = ring.spinPos + ring.freezeAccum;
+      });
+
       vortexContext.clearRect(0, 0, vortexWidth, vortexHeight);
       vortexContext.fillStyle = '#101010';
       vortexContext.fillRect(0, 0, vortexWidth, vortexHeight);
 
-      const centerX = vortexWidth * .51 + vortexPointerX;
-      const centerY = vortexHeight * .53 + vortexPointerY;
-      vortexRings.forEach((ring) => {
-        const motion = reducedMotionPreference ? 0 : time * ring.speed * ring.direction;
-        const rotation = ring.baseRotation + motion + vortexScrollPhase * ring.direction;
+      const centerX = vortexWidth * 0.5;
+      const centerY = vortexHeight * 0.52;
+      const minSide = Math.min(vortexWidth, vortexHeight);
+      const hoverRadius = clampDisc(minSide * DISC.hoverRadius, 88, 190);
+      const pushPx = minSide * DISC.ripplePush;
+
+      vortexRings.forEach((ring, ringIndex) => {
+        const ripple = getRippleAt(ring.radius);
+        const effectiveRadius = ring.radius * (1 - ring.ringGather * DISC.gatherScale) + ripple * pushPx;
+        const freeze = 1 - ring.ringCharge * 0.96;
+        const rotation = reducedMotionPreference
+          ? ring.offset
+          : vortexTime * ring.speed * freeze + ring.offset;
+        const guideAlpha = 0.05 + ripple * 0.18 + (ring.accent ? 0.035 : 0) + ring.ringCharge * 0.04;
+        const scale = effectiveRadius / ring.radius;
+        const jitter =
+          ring.ringCharge *
+          DISC.shakeAmp *
+          Math.sin(vortexTime * (38 + ringIndex * 1.7) + ring.freezeAccum) *
+          (ring.points[0] && ring.points[0].shakes ? 1 : 0.35);
+
         vortexContext.save();
-        vortexContext.translate(centerX, centerY);
+        vortexContext.beginPath();
+        vortexContext.arc(centerX, centerY, effectiveRadius, 0, Math.PI * 2);
+        vortexContext.setLineDash([1, 8]);
+        vortexContext.lineWidth = 1;
+        vortexContext.strokeStyle = ring.accent
+          ? `rgba(255,90,47,${guideAlpha})`
+          : `rgba(243,241,235,${guideAlpha})`;
+        vortexContext.stroke();
+        vortexContext.setLineDash([]);
+        vortexContext.translate(centerX + jitter, centerY - jitter * 0.55);
         vortexContext.rotate(rotation);
-        vortexContext.drawImage(ring.canvas, -ring.size / 2, -ring.size / 2, ring.size, ring.size);
+        vortexContext.scale(scale * (1 + ripple * DISC.rippleScale * 0.08), scale * (1 + ripple * DISC.rippleScale * 0.08));
+        vortexContext.globalAlpha = clampDisc(0.8 + ripple * 0.2, 0.66, 1);
+        vortexContext.drawImage(ring.cache, -ring.cacheRadius, -ring.cacheRadius);
         vortexContext.restore();
       });
 
-      vortexCanvas.dataset.renderState = 'ready';
-      if (vortexVisible && !reducedMotionPreference) vortexFrame = window.requestAnimationFrame(drawVortex);
+      if (vortexMouseInf > 0.02 && !reducedMotionPreference) {
+        const fade = vortexContext.createRadialGradient(
+          vortexMouseX,
+          vortexMouseY,
+          0,
+          vortexMouseX,
+          vortexMouseY,
+          hoverRadius,
+        );
+        fade.addColorStop(0, `rgba(0,0,0,${0.72 * vortexMouseInf})`);
+        fade.addColorStop(0.45, `rgba(0,0,0,${0.34 * vortexMouseInf})`);
+        fade.addColorStop(1, 'rgba(0,0,0,0)');
+        vortexContext.save();
+        vortexContext.globalCompositeOperation = 'destination-out';
+        vortexContext.fillStyle = fade;
+        vortexContext.fillRect(vortexMouseX - hoverRadius, vortexMouseY - hoverRadius, hoverRadius * 2, hoverRadius * 2);
+        vortexContext.restore();
+      }
+
+      const glitchTick = Math.floor(vortexTime * DISC.glitchRate);
+      vortexRings.forEach((ring, ringIndex) => {
+        const ripple = getRippleAt(ring.radius);
+        const effectiveRadius = ring.radius * (1 - ring.ringGather * DISC.gatherScale) + ripple * pushPx;
+        const freeze = 1 - ring.ringCharge * 0.96;
+        const rotation = reducedMotionPreference
+          ? ring.offset
+          : vortexTime * ring.speed * freeze + ring.offset;
+
+        if (ripple > 0.04) {
+          vortexContext.save();
+          vortexContext.globalCompositeOperation = 'destination-out';
+          vortexContext.beginPath();
+          vortexContext.arc(centerX, centerY, effectiveRadius, 0, Math.PI * 2);
+          vortexContext.lineWidth = 2.5 + ripple * 7;
+          vortexContext.strokeStyle = `rgba(0,0,0,${ripple * 0.72})`;
+          vortexContext.stroke();
+          vortexContext.restore();
+        }
+
+        ring.points.forEach((point, pointIndex) => {
+          const angle = point.angle + rotation;
+          let x = centerX + Math.cos(angle) * effectiveRadius;
+          let y = centerY + Math.sin(angle) * effectiveRadius;
+
+          if (point.shakes && ring.ringCharge > 0.05) {
+            const amp = ring.ringCharge * DISC.shakeAmp * 1.1;
+            x += Math.sin(vortexTime * (38 + point.shakeSeed * 14) + point.shakeSeed * 271) * amp;
+            y += Math.cos(vortexTime * (34 + point.shakeSeed * 17) + point.shakeSeed * 113) * amp;
+          }
+
+          const pointerDistance = Math.hypot(x - vortexMouseX, y - vortexMouseY);
+          const hover = vortexMouseInf > 0.02
+            ? (1 - smoothDisc(0, hoverRadius, pointerDistance)) * vortexMouseInf
+            : 0;
+
+          const glitchNoise = ((point.seed * 91.7 + glitchTick * 7.31 + ringIndex) % 1 + 1) % 1;
+          const chargeGlitch = glitchNoise < ring.ringCharge * DISC.glitchFraction ? ring.ringCharge : 0;
+
+          const strength = Math.max(hover * 2.85, ripple, chargeGlitch);
+          if (strength < 0.08) return;
+
+          const alpha = clampDisc(0.16 + strength * 0.74, 0.12, 0.94);
+          const size = (1 + strength * (1.4 + ripple * DISC.rippleScale)) * (point.shakes && ring.ringCharge > 0.5 ? 1.15 : 1);
+          vortexContext.beginPath();
+          vortexContext.arc(x, y, size, 0, Math.PI * 2);
+          vortexContext.fillStyle = ring.accent && (pointIndex % 4 === 0 || ring.ringCharge > 0.8)
+            ? `rgba(255,90,47,${alpha})`
+            : `rgba(243,241,235,${alpha})`;
+          vortexContext.fill();
+        });
+      });
+
+      if (vortexCharge > 0.02) {
+        const coreRadius = 9 + vortexCharge * 20;
+        vortexContext.beginPath();
+        vortexContext.arc(centerX, centerY, coreRadius, 0, Math.PI * 2);
+        vortexContext.strokeStyle = `rgba(255,90,47,${0.14 + vortexCharge * 0.48})`;
+        vortexContext.lineWidth = 1;
+        vortexContext.stroke();
+      }
+
+      vortexCanvas.dataset.renderState = reducedMotionPreference ? 'reduced' : 'ready';
+      if (vortexVisible && !reducedMotionPreference && !document.hidden) {
+        vortexFrame = window.requestAnimationFrame(drawVortex);
+      }
     };
 
     const queueVortex = () => {
@@ -1741,13 +2891,11 @@
     };
     const resizeVortex = () => {
       const bounds = vortexStage.getBoundingClientRect();
-      const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.25);
+      const pixelRatio = 1;
       const nextWidth = Math.max(1, Math.round(bounds.width));
       const nextHeight = Math.max(1, Math.round(bounds.height));
-      const targetFps = nextWidth < 600 ? 30 : 60;
-      vortexFrameInterval = 1000 / targetFps;
-      vortexPointerEase = targetFps === 60 ? .075 : .14;
-      vortexCanvas.dataset.targetFps = String(targetFps);
+      vortexFrameInterval = 1000 / (nextWidth < 600 ? 24 : 45);
+      vortexCanvas.dataset.targetFps = String(nextWidth < 600 ? 24 : 45);
       if (nextWidth === vortexWidth && nextHeight === vortexHeight && vortexRings.length) {
         queueVortex();
         return;
@@ -1763,36 +2911,314 @@
       vortexLastDraw = 0;
       queueVortex();
     };
+    const startVortexCharge = () => {
+      if (reducedMotionPreference || vortexHolding) return;
+      vortexHolding = true;
+      vortexCharged = false;
+      setVortexState('holding');
+      queueVortex();
+    };
+    const releaseVortexCharge = () => {
+      if (!vortexHolding) return;
+      const charged = vortexCharged || vortexCharge >= 0.96;
+      vortexHolding = false;
+      if (charged) {
+        vortexRipples.push({
+          start: vortexTime,
+          strength: DISC.releaseStrength(vortexGather),
+        });
+        if (vortexRipples.length > DISC.rippleSlots) {
+          vortexRipples.splice(0, vortexRipples.length - DISC.rippleSlots);
+        }
+        setVortexState('released');
+      } else {
+        setVortexState('idle');
+      }
+      vortexCharged = false;
+      queueVortex();
+    };
+    const cancelVortexCharge = () => {
+      vortexHolding = false;
+      vortexCharged = false;
+      vortexCharge = 0;
+      vortexGather = 0;
+      vortexRings.forEach((ring) => {
+        ring.rawCharge = 0;
+        ring.rawGather = 0;
+        ring.ringCharge = 0;
+        ring.ringGather = 0;
+      });
+      setVortexState(reducedMotionPreference ? 'reduced' : 'idle');
+      queueVortex();
+    };
+    const setVortexPointer = (event) => {
+      const bounds = vortexStage.getBoundingClientRect();
+      vortexPointerX = event.clientX - bounds.left;
+      vortexPointerY = event.clientY - bounds.top;
+      vortexPointerActive = true;
+      vortexMouseInfTarget = 1;
+      vortexCanvas.dataset.pointerState = 'active';
+    };
     const vortexObserver = new IntersectionObserver(([entry]) => {
       vortexVisible = entry.isIntersecting;
-      if (vortexVisible) queueVortex();
-      else if (vortexFrame) {
+      if (vortexVisible) {
+        if (!vortexHasEntrance && !reducedMotionPreference) {
+          vortexHasEntrance = true;
+          vortexRipples.push({ start: vortexTime, strength: 1 });
+        }
+        queueVortex();
+      } else if (vortexFrame) {
         window.cancelAnimationFrame(vortexFrame);
         vortexFrame = 0;
       }
-    }, { threshold: .05 });
+    }, { threshold: 0.05 });
     vortexObserver.observe(symbolField);
     new ResizeObserver(resizeVortex).observe(vortexStage);
     resizeVortex();
+    setVortexState(reducedMotionPreference ? 'reduced' : 'idle');
 
-    if (!reducedMotionPreference) {
-      vortexStage.addEventListener('pointermove', (event) => {
-        const bounds = vortexStage.getBoundingClientRect();
-        vortexTargetX = ((event.clientX - bounds.left) / bounds.width - .5) * Math.min(110, bounds.width * .16);
-        vortexTargetY = ((event.clientY - bounds.top) / bounds.height - .5) * Math.min(90, bounds.height * .14);
-        vortexCanvas.dataset.pointerState = 'active';
-        queueVortex();
-      }, { passive: true });
-      vortexStage.addEventListener('pointerleave', () => {
-        vortexTargetX = 0;
-        vortexTargetY = 0;
-        vortexCanvas.dataset.pointerState = 'idle';
-      }, { passive: true });
-      window.addEventListener('scroll', () => {
-        vortexScrollPhase = window.scrollY * .00055;
-        if (vortexVisible) queueVortex();
-      }, { passive: true });
+    vortexStage.addEventListener('wheel', (event) => {
+      if (reducedMotionPreference || !vortexVisible) return;
+      vortexScrollVel += event.deltaY * DISC.scrollVelScale;
+      queueVortex();
+    }, { passive: true });
+    window.addEventListener('resize', () => {
+      if (vortexState === 'idle' || vortexState === '') setVortexState(reducedMotionPreference ? 'reduced' : 'idle');
+    }, { passive: true });
+    vortexStage.addEventListener('pointerenter', (event) => {
+      if (reducedMotionPreference) return;
+      setVortexPointer(event);
+      vortexMouseX = vortexPointerX;
+      vortexMouseY = vortexPointerY;
+      queueVortex();
+    }, { passive: true });
+    vortexStage.addEventListener('pointermove', (event) => {
+      if (reducedMotionPreference) return;
+      setVortexPointer(event);
+      if (event.pointerType === 'touch' && vortexHolding && vortexTouchStart) {
+        const distance = Math.hypot(event.clientX - vortexTouchStart.x, event.clientY - vortexTouchStart.y);
+        if (distance > 12) cancelVortexCharge();
+      }
+      queueVortex();
+    }, { passive: true });
+    vortexStage.addEventListener('pointerleave', () => {
+      vortexPointerActive = false;
+      vortexMouseInfTarget = 0;
+      vortexCanvas.dataset.pointerState = 'idle';
+      if (vortexHolding) cancelVortexCharge();
+    }, { passive: true });
+    vortexStage.addEventListener('pointerdown', (event) => {
+      if (reducedMotionPreference || !event.isPrimary) return;
+      vortexTouchStart = { x: event.clientX, y: event.clientY };
+      setVortexPointer(event);
+      vortexStage.setPointerCapture?.(event.pointerId);
+      startVortexCharge();
+    });
+    vortexStage.addEventListener('pointerup', (event) => {
+      vortexTouchStart = null;
+      vortexStage.releasePointerCapture?.(event.pointerId);
+      releaseVortexCharge();
+    });
+    vortexStage.addEventListener('pointercancel', () => {
+      vortexTouchStart = null;
+      cancelVortexCharge();
+    });
+    vortexStage.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        cancelVortexCharge();
+        return;
+      }
+      if ((event.key === 'Enter' || event.key === ' ') && !event.repeat) {
+        event.preventDefault();
+        startVortexCharge();
+      }
+    });
+    vortexStage.addEventListener('keyup', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        releaseVortexCharge();
+      }
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden && vortexVisible) queueVortex();
+    });
+
     }
+
+    document.querySelectorAll('[data-signature-particles]').forEach((container) => {
+      const canvas = container.querySelector('.contact-signature-canvas');
+      const signatureImage = container.querySelector('.contact-signature-image');
+      const context = canvas.getContext('2d', { alpha: true, willReadFrequently: true });
+      const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+      const particles = [];
+      const particleColors = ['244,243,239', '244,243,239', '244,243,239', '244,243,239', '244,243,239', '255,90,47'];
+      let resolved = reducedMotionPreference;
+      let visible = false;
+      let frameId = 0;
+      let resizeFrame = 0;
+      let previousTime = 0;
+      let elapsed = 0;
+      let canvasWidth = 0;
+      let canvasHeight = 0;
+      let pixelRatio = 1;
+
+      const setResolved = (next) => {
+        resolved = next || reducedMotionPreference;
+        container.classList.toggle('is-resolved', resolved);
+        container.setAttribute('aria-pressed', String(resolved));
+        container.dataset.particleState = resolved ? 'resolved' : 'floating';
+      };
+
+      const stop = () => {
+        window.cancelAnimationFrame(frameId);
+        frameId = 0;
+      };
+
+      const render = (time) => {
+        frameId = 0;
+        if (!visible || document.hidden || reducedMotionPreference || !particles.length) return;
+        const delta = Math.min(.034, Math.max(.001, (time - (previousTime || time)) / 1000));
+        previousTime = time;
+        elapsed += delta;
+        context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+        context.clearRect(0, 0, canvasWidth, canvasHeight);
+
+        particles.forEach((particle, index) => {
+          if (resolved) {
+            const settle = 1 - Math.exp(-delta * 9.5);
+            particle.x += (particle.originX - particle.x) * settle;
+            particle.y += (particle.originY - particle.y) * settle;
+            particle.alpha += (particle.targetAlpha - particle.alpha) * settle;
+          } else {
+            const waveX = Math.sin(elapsed * particle.speed + particle.phase) * particle.drift;
+            const waveY = Math.cos(elapsed * particle.speed * .76 + particle.phase * 1.37) * particle.drift * .55;
+            const floatEase = 1 - Math.exp(-delta * 1.8);
+            particle.x += (particle.originX + waveX - particle.x) * floatEase;
+            particle.y += (particle.originY + waveY - particle.y) * floatEase;
+            const sparkle = .16 + .24 * (.5 + .5 * Math.sin(elapsed * (1.2 + particle.speed) + index));
+            particle.alpha += (sparkle * particle.targetAlpha - particle.alpha) * Math.min(1, delta * 4);
+          }
+          if (particle.alpha <= .01) return;
+          context.fillStyle = `rgba(${particle.color},${Math.min(1, particle.alpha).toFixed(3)})`;
+          context.fillRect(particle.x, particle.y, particle.size, particle.size);
+        });
+        frameId = window.requestAnimationFrame(render);
+      };
+
+      const start = () => {
+        if (!frameId && visible && !document.hidden && !reducedMotionPreference && particles.length) {
+          previousTime = 0;
+          frameId = window.requestAnimationFrame(render);
+        }
+      };
+
+      const seedParticles = () => {
+        if (!signatureImage.complete || !signatureImage.naturalWidth || !context || reducedMotionPreference) return;
+        const bounds = container.getBoundingClientRect();
+        canvasWidth = Math.max(1, Math.round(bounds.width));
+        canvasHeight = Math.max(1, Math.round(bounds.height));
+        pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+        canvas.width = Math.round(canvasWidth * pixelRatio);
+        canvas.height = Math.round(canvasHeight * pixelRatio);
+        canvas.style.width = `${canvasWidth}px`;
+        canvas.style.height = `${canvasHeight}px`;
+        context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+        context.clearRect(0, 0, canvasWidth, canvasHeight);
+
+        const drawWidth = Math.min(canvasWidth * .62, 220);
+        const drawHeight = drawWidth * (528 / 1063);
+        const drawX = (canvasWidth - drawWidth) / 2;
+        const drawY = (canvasHeight - drawHeight) / 2;
+        context.drawImage(signatureImage, drawX, drawY, drawWidth, drawHeight);
+
+        let imageData;
+        try {
+          imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        } catch (error) {
+          container.dataset.particleState = 'static-fallback';
+          setResolved(true);
+          return;
+        }
+
+        particles.length = 0;
+        const sampleStep = Math.max(4, Math.round(4.25 * pixelRatio));
+        for (let y = 0; y < canvas.height; y += sampleStep) {
+          for (let x = 0; x < canvas.width; x += sampleStep) {
+            const alpha = imageData.data[(y * canvas.width + x) * 4 + 3];
+            if (alpha < 72) continue;
+            const originX = x / pixelRatio;
+            const originY = y / pixelRatio;
+            const seed = particles.length + 1;
+            const phase = (seed * 2.399963) % (Math.PI * 2);
+            const radius = 10 + ((seed * 17) % 29);
+            particles.push({
+              x: originX + Math.cos(phase) * radius,
+              y: originY + Math.sin(phase) * radius,
+              originX,
+              originY,
+              phase,
+              drift: 8 + ((seed * 13) % 23),
+              speed: .42 + ((seed * 7) % 20) / 25,
+              alpha: .12 + (alpha / 255) * .28,
+              targetAlpha: alpha / 255,
+              size: seed % 11 === 0 ? 1.4 : .95,
+              color: particleColors[seed % particleColors.length],
+            });
+          }
+        }
+        context.clearRect(0, 0, canvasWidth, canvasHeight);
+        container.classList.add('is-ready');
+        container.dataset.particleCount = String(particles.length);
+        start();
+      };
+
+      const rebuild = () => {
+        window.cancelAnimationFrame(resizeFrame);
+        resizeFrame = window.requestAnimationFrame(seedParticles);
+      };
+
+      if (reducedMotionPreference) {
+        setResolved(true);
+      } else if (signatureImage.complete) {
+        seedParticles();
+      } else {
+        signatureImage.addEventListener('load', seedParticles, { once: true });
+        signatureImage.addEventListener('error', () => {
+          container.dataset.particleState = 'asset-error';
+          setResolved(true);
+        }, { once: true });
+      }
+
+      container.addEventListener('pointerenter', () => {
+        if (finePointer) setResolved(true);
+      });
+      container.addEventListener('pointerleave', () => {
+        if (finePointer) setResolved(false);
+      });
+      container.addEventListener('click', () => {
+        if (!finePointer) setResolved(!resolved);
+      });
+      container.addEventListener('keydown', (event) => {
+        if (!['Enter', ' '].includes(event.key)) return;
+        event.preventDefault();
+        setResolved(!resolved);
+      });
+
+      new ResizeObserver(rebuild).observe(container);
+      const signatureVisibility = new IntersectionObserver(([entry]) => {
+        visible = entry.isIntersecting;
+        if (visible) {
+          if (!finePointer) setResolved(true);
+          start();
+        } else {
+          stop();
+        }
+      }, { threshold: .1 });
+      signatureVisibility.observe(container);
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stop(); else start();
+      });
+    });
 
     const lightbox = document.querySelector('.lightbox');
     const lightboxImage = lightbox.querySelector('img');
@@ -2454,5 +3880,6 @@
       }
     }
   </script>
+  <script src="assets/site-sound.js" data-root="" data-surface="dark" data-three="assets/vendor/three/three.module.js" defer></script>
 </body>
 </html>
