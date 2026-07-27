@@ -1,0 +1,590 @@
+/* Site Sound Deck — full-site ambient player
+ * Visual DNA: DESIGN.md cinematic black / paper / signal orange
+ * Interaction DNA: rainmorime side vinyl drawer (tonearm play, expand list)
+ * Motion: restrained, skippable, reduced-motion safe
+ */
+.sound-dock {
+  --sd-bg: #111111;
+  --sd-ink: #f4f3ef;
+  --sd-muted: #8a8a86;
+  --sd-line: rgba(244, 243, 239, .22);
+  --sd-orange: #ff5125;
+  --sd-ease: cubic-bezier(.2, .75, .2, 1);
+  --sd-fast: 180ms;
+  --sd-med: 480ms;
+  --sd-radius: 3px;
+  position: fixed;
+  z-index: 80;
+  top: 50%;
+  left: 0;
+  width: 348px;
+  color: var(--sd-ink);
+  font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+  transform: translate3d(calc(-100% + 42px), -50%, 0);
+  transition: transform var(--sd-med) var(--sd-ease), color var(--sd-fast) linear;
+  contain: layout style;
+  pointer-events: none;
+}
+.sound-dock * { box-sizing: border-box; }
+.sound-dock.is-open { transform: translate3d(0, -50%, 0); }
+.sound-dock[data-surface="paper"] {
+  --sd-bg: #ecebe6;
+  --sd-ink: #111111;
+  --sd-muted: #676763;
+  --sd-line: rgba(17, 17, 17, .22);
+}
+
+.sound-dock .dock-shell,
+.sound-dock .dock-handle { pointer-events: auto; }
+
+.sound-dock .dock-shell {
+  position: relative;
+  width: 306px;
+  min-height: 560px;
+  border: 1px solid var(--sd-line);
+  border-left: 0;
+  background: var(--sd-bg);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .06);
+}
+.sound-dock .dock-panel { padding: 14px 18px 18px; }
+.sound-dock .dock-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 34px;
+  border-bottom: 1px solid var(--sd-line);
+  font-size: 9px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.sound-dock .dock-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--sd-muted);
+}
+.sound-dock .dock-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  transition: background var(--sd-fast) linear, border-color var(--sd-fast) linear, box-shadow var(--sd-fast) linear;
+}
+.sound-dock.is-playing .dock-status { color: var(--sd-orange); }
+.sound-dock.is-playing .dock-status::before {
+  background: var(--sd-orange);
+  border-color: var(--sd-orange);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sd-orange) 22%, transparent);
+}
+.sound-dock[data-state="loading"] .dock-status::before {
+  animation: sd-status-tick .72s steps(2, end) infinite;
+}
+.sound-dock .panel-count { color: var(--sd-muted); }
+
+/* Vinyl + tonearm stage (rainmorime-inspired) */
+.sound-dock .record-stage {
+  position: relative;
+  width: 100%;
+  height: 196px;
+  margin: 18px 0 10px;
+  touch-action: manipulation;
+}
+.sound-dock .record-wrap {
+  position: absolute;
+  left: 18px;
+  top: 12px;
+  width: 168px;
+  height: 168px;
+  perspective: 640px;
+}
+.sound-dock .record-viewport {
+  position: absolute;
+  inset: 0;
+  transform: rotateX(0deg) rotateY(0deg);
+  transform-style: preserve-3d;
+  transition: transform 260ms var(--sd-ease);
+}
+.sound-dock .record-fallback {
+  position: absolute;
+  inset: 6px;
+  border: 1px solid var(--sd-line);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #111 0 3px, var(--sd-orange) 4px 19px, #181818 20px 26px, transparent 27px),
+    repeating-radial-gradient(circle, #242421 0 2px, #151513 3px 5px);
+  transform: rotateX(8deg);
+  transition: opacity var(--sd-fast) linear;
+}
+.sound-dock .record-fallback::after {
+  content: "WYF";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-bottom: 10px;
+  color: #111;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .08em;
+}
+.sound-dock .record-canvas-host {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity var(--sd-fast) linear;
+}
+.sound-dock .record-canvas-host canvas { display: block; width: 100%; height: 100%; }
+.sound-dock.is-three-ready .record-canvas-host { opacity: 1; }
+.sound-dock.is-three-ready .record-fallback { opacity: 0; }
+.sound-dock.is-playing:not(.is-three-ready) .record-fallback {
+  animation: sd-fallback-spin 1.8s linear infinite;
+}
+
+/* Tonearm — play affordance */
+.sound-dock .tonearm {
+  position: absolute;
+  right: 28px;
+  top: 8px;
+  width: 78px;
+  height: 168px;
+  pointer-events: none;
+}
+.sound-dock .tonearm-pivot {
+  position: absolute;
+  top: 10px;
+  right: 8px;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--sd-line);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--sd-bg) 70%, var(--sd-ink));
+}
+.sound-dock .tonearm-arm {
+  position: absolute;
+  top: 16px;
+  right: 13px;
+  width: 3px;
+  height: 118px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--sd-ink), color-mix(in srgb, var(--sd-ink) 55%, transparent));
+  transform-origin: 50% 0;
+  transform: rotate(-28deg);
+  transition: transform var(--sd-med) var(--sd-ease), background var(--sd-fast) linear;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--sd-line) 60%, transparent);
+}
+.sound-dock .tonearm-head {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 10px;
+  height: 14px;
+  border: 1px solid var(--sd-line);
+  border-radius: 2px;
+  background: var(--sd-bg);
+  transform: translateX(-50%);
+}
+.sound-dock.is-playing .tonearm-arm {
+  transform: rotate(6deg);
+  background: linear-gradient(180deg, var(--sd-orange), color-mix(in srgb, var(--sd-orange) 40%, var(--sd-ink)));
+}
+.sound-dock .record-play {
+  position: absolute;
+  z-index: 3;
+  left: 18px;
+  top: 12px;
+  width: 168px;
+  height: 168px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--sd-ink);
+  background: transparent;
+  cursor: pointer;
+}
+.sound-dock .record-play::before {
+  content: "";
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--sd-line);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--sd-bg), transparent 12%);
+  transform: translate(-50%, -50%);
+  transition: background var(--sd-fast) var(--sd-ease), border-color var(--sd-fast) var(--sd-ease), transform var(--sd-fast) var(--sd-ease);
+}
+.sound-dock .record-play::after {
+  content: "";
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 12px;
+  height: 14px;
+  background: currentColor;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  transform: translate(-42%, -50%);
+  transition: clip-path var(--sd-fast) linear, width var(--sd-fast) linear, height var(--sd-fast) linear, transform var(--sd-fast) linear;
+}
+.sound-dock.is-playing .record-play::after {
+  width: 12px;
+  height: 12px;
+  clip-path: none;
+  background: linear-gradient(90deg, currentColor 0 34%, transparent 34% 66%, currentColor 66%);
+  transform: translate(-50%, -50%);
+}
+.sound-dock .record-play:hover::before,
+.sound-dock .record-play:focus-visible::before {
+  border-color: var(--sd-orange);
+  background: var(--sd-orange);
+  color: #f4f3ef;
+}
+.sound-dock .record-play:hover,
+.sound-dock .record-play:focus-visible { color: #f4f3ef; }
+.sound-dock .record-play:active::before { transform: translate(-50%, -50%) scale(.96); }
+.sound-dock .record-play:disabled { cursor: wait; opacity: .5; }
+.sound-dock .record-play:focus-visible { outline: none; }
+.sound-dock .record-play:focus-visible::before {
+  outline: 2px solid var(--sd-orange);
+  outline-offset: 4px;
+}
+
+.sound-dock .render-note {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  color: var(--sd-muted);
+  font-size: 8px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.sound-dock .render-note span + span::before {
+  content: "/";
+  margin-right: 8px;
+  color: var(--sd-line);
+}
+
+.sound-dock .track-kicker {
+  margin: 0 0 6px;
+  color: var(--sd-muted);
+  font-size: 9px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.sound-dock .track-title {
+  margin: 0;
+  min-height: 28px;
+  font-family: "Segoe UI Variable Display", "Aptos Display", "Helvetica Neue", sans-serif;
+  font-size: 24px;
+  font-weight: 580;
+  letter-spacing: -.045em;
+  line-height: .94;
+  overflow-wrap: anywhere;
+}
+.sound-dock .track-artist {
+  margin: 6px 0 0;
+  color: var(--sd-muted);
+  font-size: 9px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sound-dock .progress-wrap { position: relative; margin-top: 16px; padding-top: 8px; }
+.sound-dock .progress-input {
+  width: 100%;
+  height: 18px;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.sound-dock .progress-track {
+  position: absolute;
+  inset: 15px 0 auto;
+  height: 2px;
+  background: var(--sd-line);
+  pointer-events: none;
+  overflow: hidden;
+}
+.sound-dock .progress-fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--sd-orange);
+  transform-origin: left center;
+  transition: width 80ms linear;
+}
+.sound-dock .time-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
+  color: var(--sd-muted);
+  font-size: 8px;
+}
+
+.sound-dock .controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: 12px;
+}
+.sound-dock .control {
+  min-width: 0;
+  min-height: 42px;
+  padding: 0 4px;
+  border: 1px solid var(--sd-line);
+  border-radius: var(--sd-radius);
+  color: var(--sd-ink);
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 8px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: color var(--sd-fast) var(--sd-ease), background var(--sd-fast) var(--sd-ease), border-color var(--sd-fast) var(--sd-ease), transform var(--sd-fast) var(--sd-ease);
+}
+.sound-dock .control:hover,
+.sound-dock .control:focus-visible {
+  color: #f4f3ef;
+  background: var(--sd-orange);
+  border-color: var(--sd-orange);
+  outline: none;
+}
+.sound-dock .control:active { transform: translateY(1px); }
+.sound-dock .control:disabled { cursor: not-allowed; opacity: .38; }
+.sound-dock .control--accent {
+  border-color: var(--sd-orange);
+  color: var(--sd-orange);
+}
+
+.sound-dock .volume-row {
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr) 28px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--sd-muted);
+  font-size: 8px;
+  text-transform: uppercase;
+}
+.sound-dock .volume-input { width: 100%; accent-color: var(--sd-orange); }
+.sound-dock .volume-output { text-align: right; }
+
+.sound-dock .dock-handle {
+  position: absolute;
+  top: 0;
+  left: 305px;
+  width: 42px;
+  min-height: 124px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border: 1px solid var(--sd-line);
+  border-left: 0;
+  border-radius: 0 var(--sd-radius) var(--sd-radius) 0;
+  color: var(--sd-ink);
+  background: var(--sd-bg);
+  cursor: pointer;
+  font: inherit;
+  transition: color var(--sd-fast) var(--sd-ease), background var(--sd-fast) var(--sd-ease), border-color var(--sd-fast) var(--sd-ease), transform var(--sd-fast) var(--sd-ease);
+}
+.sound-dock .dock-handle:hover,
+.sound-dock .dock-handle:focus-visible {
+  color: #f4f3ef;
+  background: var(--sd-orange);
+  border-color: var(--sd-orange);
+  outline: none;
+}
+.sound-dock .dock-handle:active { transform: translateX(1px); }
+.sound-dock .handle-led {
+  width: 6px;
+  height: 6px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  transition: background var(--sd-fast) linear, box-shadow var(--sd-fast) linear;
+}
+.sound-dock.is-playing .handle-led {
+  background: var(--sd-orange);
+  border-color: var(--sd-orange);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sd-orange) 25%, transparent);
+}
+.sound-dock .handle-label {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 9px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.sound-dock .handle-arrow {
+  font-size: 12px;
+  transition: transform var(--sd-med) var(--sd-ease);
+}
+.sound-dock.is-open .handle-arrow { transform: rotate(180deg); }
+
+.sound-dock .playlist {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  padding: 18px;
+  color: var(--sd-ink);
+  background: var(--sd-bg);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(-14px);
+  transition: opacity var(--sd-fast) linear, visibility 0s var(--sd-fast), transform var(--sd-fast) var(--sd-ease);
+}
+.sound-dock.is-list-open .playlist {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: none;
+  transition: opacity var(--sd-fast) linear, transform var(--sd-fast) var(--sd-ease);
+}
+.sound-dock .playlist-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--sd-line);
+}
+.sound-dock .playlist-head h2 {
+  margin: 0;
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+.sound-dock .playlist-close {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--sd-line);
+  border-radius: var(--sd-radius);
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 16px;
+}
+.sound-dock .playlist-close:hover,
+.sound-dock .playlist-close:focus-visible {
+  color: #f4f3ef;
+  background: var(--sd-orange);
+  border-color: var(--sd-orange);
+  outline: none;
+}
+.sound-dock .playlist-list { list-style: none; margin: 0; padding: 0; max-height: calc(100% - 96px); overflow: auto; }
+.sound-dock .track-row {
+  width: 100%;
+  min-height: 64px;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 10px;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--sd-line);
+  color: var(--sd-ink);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  transition: color var(--sd-fast) linear, background var(--sd-fast) linear;
+}
+.sound-dock .track-row:hover,
+.sound-dock .track-row[aria-current="true"] {
+  color: #f4f3ef;
+  background: var(--sd-orange);
+}
+.sound-dock .track-row:focus-visible { outline: 2px solid var(--sd-orange); outline-offset: -2px; }
+.sound-dock .track-row-index { color: var(--sd-muted); font-size: 9px; }
+.sound-dock .track-row:hover .track-row-index,
+.sound-dock .track-row[aria-current="true"] .track-row-index { color: inherit; }
+.sound-dock .track-row-title {
+  display: block;
+  font-family: "Segoe UI Variable Display", "Aptos Display", "Helvetica Neue", sans-serif;
+  font-size: 15px;
+  font-weight: 580;
+  letter-spacing: -.02em;
+}
+.sound-dock .track-row-artist {
+  display: block;
+  margin-top: 5px;
+  color: var(--sd-muted);
+  font-size: 8px;
+}
+.sound-dock .track-row:hover .track-row-artist,
+.sound-dock .track-row[aria-current="true"] .track-row-artist { color: inherit; }
+.sound-dock .track-row-mark {
+  width: 6px;
+  height: 6px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+}
+.sound-dock .track-row[aria-current="true"] .track-row-mark { background: currentColor; }
+.sound-dock .playlist-note {
+  margin: 16px 0 0;
+  color: var(--sd-muted);
+  font-size: 8px;
+  line-height: 1.55;
+}
+.sound-dock .sd-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes sd-fallback-spin {
+  to { transform: rotateX(8deg) rotate(1turn); }
+}
+@keyframes sd-status-tick {
+  50% { opacity: .2; }
+}
+
+@media (max-width: 560px) {
+  .sound-dock {
+    width: min(332px, calc(100vw - 12px));
+    transform: translate3d(calc(-100% + 42px), -50%, 0);
+  }
+  .sound-dock.is-open { transform: translate3d(0, -50%, 0); }
+  .sound-dock .dock-shell { width: calc(100% - 42px); min-height: 540px; }
+  .sound-dock .dock-handle { left: calc(100% - 42px); }
+  .sound-dock .record-wrap,
+  .sound-dock .record-play { width: 152px; height: 152px; }
+  .sound-dock .record-stage { height: 180px; }
+  .sound-dock .tonearm { height: 152px; right: 18px; }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .sound-dock .record-viewport { transform: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sound-dock,
+  .sound-dock .record-viewport,
+  .sound-dock .handle-arrow,
+  .sound-dock .playlist,
+  .sound-dock .tonearm-arm,
+  .sound-dock .progress-fill {
+    transition: none !important;
+  }
+  .sound-dock .record-fallback,
+  .sound-dock .dock-status::before {
+    animation: none !important;
+  }
+  .sound-dock.is-playing .tonearm-arm { transform: rotate(6deg); }
+}
+
+/* Hide on print */
+@media print {
+  .sound-dock { display: none !important; }
+}

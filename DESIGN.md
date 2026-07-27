@@ -1,5 +1,37 @@
 # Design System: Wen Yifan Portfolio V2
 
+## 0. Design Philosophy (binding)
+
+This portfolio is a **design instrument**, not a card gallery.
+
+| Pillar | Meaning |
+| --- | --- |
+| **Instrument** | UI reads like a calibrated console: mono telemetry, hairline frames, live state, skippable boot. |
+| **Order** | Information is indexed (`01 / 02 / 03`), aligned to a construction grid, and revealed in sequence. |
+| **Restraint** | Motion is short, purposeful, and skippable. Orange is a signal, never a wash. |
+| **Evidence** | Real work leads. Copy is short and factual. No invented awards or decorative noise. |
+| **Contrast** | Cinema Black carries narrative immersion; Editorial Paper carries index and case evidence. |
+
+### Opening sequence language
+
+The home intro is a **system boot**, not a brand splash video:
+
+- Cinema Black field, hairline instrument frame, corner ticks in Signal Orange.
+- Oversized Chinese name + mono English channel label.
+- Ordered telemetry checklist (WAIT → LIVE → OK).
+- Tabular progress counter and thin orange meter.
+- Skippable via button or `Escape` / `Enter` / `Space`.
+- Disabled under `prefers-reduced-motion`.
+- Duration target: under ~2s when the hero scene is ready; hard cap ~2s.
+
+### Method disc language
+
+The principles section pairs paper copy with a black kinetic disc:
+
+- Disc is the interactive instrument (hold to charge, release for ripple).
+- Paper side carries method acts **and** a mono instrument HUD (state / charge / rings / act).
+- HUD mirrors disc charge without competing with the canvas.
+
 ## 1. Visual Theme & Atmosphere
 
 This portfolio adapts selected visual languages into a distinct personal system for Wen Yifan. The foundation is cinematic, black-led, typographically aggressive, and punctuated by a near-neon orange-red; a later interface layer adds console-like navigation, ASCII previews, and structural controls. The adaptation uses only Wen Yifan's own brand-visual, 3D, AIGC, and interactive-web work.
@@ -18,7 +50,8 @@ The site alternates immersive dark scenes with one high-contrast paper section. 
 - A console-like navigation shell and live page minimap expose the site's information structure without replacing the portfolio narrative.
 - Selected work can switch between the source image and a locally generated ASCII interpretation.
 - The capability section behaves like an interface: resizable desktop panes, collapsible groups, and a compact status rail.
-- A short system-style opening sequence introduces Wen Yifan, reports loading progress, and exits as soon as the hero WebGL scene is ready; it remains skippable and is disabled for reduced-motion users.
+- A short instrument-style opening sequence introduces Wen Yifan, reports ordered loading telemetry, and exits as soon as the hero WebGL scene is ready; it remains skippable and is disabled for reduced-motion users.
+- Site-wide sound dock (left drawer, vinyl/tonearm metaphor) uses the same mono/orange console language; audio is opt-in.
 
 ## 2. Color Palette & Roles
 
@@ -285,13 +318,14 @@ Create a responsive portfolio for Wen Yifan using a cinematic black, editorial p
 - Scroll behavior: 4-5% intersection threshold with one-time reveal.
 - Hover behavior: orange row inversion and preview crossfade.
 - Click behavior: project row selection and full-screen image inspection.
-- Animation tone: crisp and restrained, 200-800ms with one easing curve; the one-time opening sequence may run up to three seconds while real scene assets initialize.
+- Animation tone: crisp and restrained, 200-800ms with one easing curve; the one-time instrument boot may run up to two seconds while real scene assets initialize.
 - Project index drawer: fixed bottom-right launcher opens a paper-colored side panel with chapter links, project rows, hover/focus preview switching, backdrop dismissal, Escape dismissal, and a trapped keyboard-focus loop.
 - Case-media inspector: pointer position drives a thin orange scan line, subtle image parallax, and a live XY coordinate label; touch layouts hide the coordinate label.
-- Principles vortex: concentric text uses only Wen Yifan's own positioning language; pointer movement shifts its center and scroll changes its rotational phase. The Canvas 2D loop runs only while visible.
+- Principles vortex: concentric text uses only Wen Yifan's own positioning language; pointer movement shifts its center and scroll changes its rotational phase. The Canvas / WebGL loop runs only while visible. The paper-side method HUD mirrors charge state in mono telemetry.
 - Page minimap: displays live scroll progress and also acts as a desktop scroll slider with pointer, arrow, Page Up/Down, Home, and End support.
 - Active navigation: the fixed navigation marks the section currently crossing the reading line and exposes it with `aria-current="page"`.
 - Global cursor: fine-pointer desktop devices use a square crosshair that expands over commands, grows over inspectable media, and becomes a vertical drag frame over structural controls. It never captures pointer events and is disabled on touch layouts.
+- Sound dock: left fixed console drawer with vinyl metaphor, procedural tracks (replaceable later with real audio), dark/paper surface adaptation, and reduced-motion safe fallbacks.
 - Reduced motion: disables image parallax and vortex motion while preserving a static typography composition and access to all content and controls.
 
 ## Optional Appendix: Content & Messaging Patterns
