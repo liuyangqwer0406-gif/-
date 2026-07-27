@@ -578,7 +578,7 @@
       position: sticky;
       top: 0;
       height: 100svh;
-      min-height: 660px;
+      min-height: 0;
       display: grid;
       grid-template-columns: 1fr 1fr;
       overflow: hidden;
@@ -593,19 +593,23 @@
     .principles-copy {
       position: relative;
       min-width: 0;
+      min-height: 0;
+      height: 100%;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: clamp(58px, 7vw, 104px) clamp(38px, 6vw, 86px) 44px;
+      gap: 16px;
+      padding: clamp(42px, 5vw, 72px) clamp(38px, 6vw, 86px) 36px;
       border-right: 1px solid var(--line-light);
       isolation: isolate;
+      overflow: hidden;
     }
-    .principles-kicker { display: flex; justify-content: space-between; gap: 16px; color: #5b5b57; }
+    .principles-kicker { display: flex; justify-content: space-between; gap: 16px; color: #5b5b57; flex: 0 0 auto; }
     .principles-acts {
       position: relative;
-      flex: 1;
-      min-height: min(48vh, 420px);
-      margin: 28px 0 24px;
+      flex: 1 1 auto;
+      min-height: 0;
+      margin: 12px 0;
     }
     .principle-act {
       position: absolute;
@@ -658,6 +662,7 @@
       padding-top: 14px;
       border-top: 1px solid var(--line-light);
       color: #5b5b57;
+      flex: 0 0 auto;
     }
     .principles-status span {
       font-family: var(--mono);
@@ -679,11 +684,12 @@
     }
     /* Instrument HUD beside method disc — fills paper-side whitespace with ordered telemetry */
     .method-hud {
-      margin: 18px 0 0;
+      margin: 8px 0 0;
       border-top: 1px solid var(--line-light);
-      padding-top: 16px;
+      padding-top: 12px;
       display: grid;
       gap: 0;
+      flex: 0 0 auto;
     }
     .method-hud-row {
       display: grid;
@@ -1125,10 +1131,17 @@
     .manifesto-kicker { position: static; margin-bottom: 22px; }
     .manifesto-static { display: block; max-width: 680px; margin: 0; font-family: var(--display); font-size: clamp(32px, 3.6vw, 52px); font-weight: 570; letter-spacing: -.05em; line-height: 1.03; text-wrap: balance; }
     .manifesto-static span { display: block; }
-    .symbol-field { order: 9; height: min(520px, 64svh); min-height: 440px; }
+    /* Keep order in narrative, but DO NOT crush the sticky 240svh instrument stage.
+       A fixed ~520px height clipped principles copy + disc (overflow:hidden on frame). */
+    .symbol-field {
+      order: 9;
+      height: auto;
+      min-height: 240svh;
+      contain-intrinsic-size: 240svh;
+    }
     .principles-copy { padding: clamp(42px, 5vw, 72px); }
     .principles-copy h2 { margin: 18px 0 24px; font-size: clamp(52px, 5vw, 78px); }
-    .vortex-label, .vortex-index { opacity: .52; }
+    .vortex-label, .vortex-index { opacity: .72; }
     .skills { order: 10; }
     .gooey-role, .skills-status { display: none; }
     .skills-resizer { opacity: .24; }
