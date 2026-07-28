@@ -177,10 +177,11 @@
   let toneNodes = [];
   let pluckTimer = 0;
   const audio = new Audio();
-  audio.preload = "metadata";
+  audio.preload = "none";
   audio.playsInline = true;
   let usingFallback = false;
   let audioLoadFailed = false;
+  let loadedTrack = -1;
 
   const getOutputGain = () => Math.max(0, Math.min(1, Number(volumeInput.value) / 100)) * OUTPUT_SCALE;
   const getTrackDuration = () => (
@@ -211,11 +212,22 @@
   };
 
   const loadCurrentTrack = () => {
+    if (loadedTrack === currentTrack) return;
     audio.pause();
     usingFallback = false;
     audioLoadFailed = false;
     audio.src = new URL(`${rootPath}${tracks[currentTrack].src}`, window.location.href).href;
+    loadedTrack = currentTrack;
     audio.load();
+  };
+
+  const unloadCurrentTrack = () => {
+    audio.pause();
+    audio.removeAttribute("src");
+    audio.load();
+    loadedTrack = -1;
+    usingFallback = false;
+    audioLoadFailed = false;
   };
 
   const renderPlaylist = () => {
@@ -337,6 +349,7 @@
     status.textContent = "Starting";
     playButtons.forEach((button) => { button.disabled = true; });
     try {
+      loadCurrentTrack();
       if (audioLoadFailed) throw new Error("Local audio failed to load");
       usingFallback = false;
       audio.volume = getOutputGain();
@@ -382,7 +395,7 @@
     cancelAnimationFrame(progressFrame);
     progressFrame = 0;
     currentTrack = (index + tracks.length) % tracks.length;
-    loadCurrentTrack();
+    unloadCurrentTrack();
     renderTrack();
     announce(`已选择 ${tracks[currentTrack].title}`);
     if (shouldContinue) await startPlayback();
@@ -744,7 +757,6 @@
   }
 
   audio.volume = getOutputGain();
-  loadCurrentTrack();
   renderPlaylist();
   renderTrack();
   updatePlayUi();
