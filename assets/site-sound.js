@@ -3,11 +3,44 @@
   window.__siteSoundMounted = true;
 
   const STORAGE_KEY = "wyf-sound-v1";
+  const OUTPUT_SCALE = 0.58;
   const tracks = [
-    { title: "SIGNAL DRIFT", artist: "PROCEDURAL TONE / 01", root: 110, scale: [0, 3, 7, 10, 12], tempo: 2.2, duration: 146 },
-    { title: "PAPER STATIC", artist: "PROCEDURAL TONE / 02", root: 146.83, scale: [0, 2, 5, 9, 12], tempo: 1.65, duration: 132 },
-    { title: "ORANGE HOUR", artist: "PROCEDURAL TONE / 03", root: 98, scale: [0, 4, 7, 11, 14], tempo: 2.8, duration: 158 },
-    { title: "NIGHT GRID", artist: "PROCEDURAL TONE / 04", root: 130.81, scale: [0, 3, 5, 7, 10], tempo: 1.25, duration: 171 }
+    {
+      title: "COALESCE",
+      artist: "FAODAIL / LOCAL 01",
+      src: "assets/audio/coalesce.mp3",
+      root: 110,
+      scale: [0, 3, 7, 10, 12],
+      tempo: 2.2,
+      duration: 332.4
+    },
+    {
+      title: "CREDITS",
+      artist: "JUSTIN HURWITZ / LOCAL 02",
+      src: "assets/audio/credits.mp3",
+      root: 146.83,
+      scale: [0, 2, 5, 9, 12],
+      tempo: 1.65,
+      duration: 219.3
+    },
+    {
+      title: "ECDYSIS",
+      artist: "FLUME / LOCAL 03",
+      src: "assets/audio/ecdysis.mp3",
+      root: 98,
+      scale: [0, 4, 7, 11, 14],
+      tempo: 2.8,
+      duration: 104.9
+    },
+    {
+      title: "IN THE RAIN",
+      artist: "KINOYO / LOCAL 04",
+      src: "assets/audio/in-the-rain.mp3",
+      root: 130.81,
+      scale: [0, 3, 5, 7, 10],
+      tempo: 1.25,
+      duration: 160
+    }
   ];
 
   const readStore = () => {
@@ -97,7 +130,7 @@
           <button class="playlist-close" type="button" aria-label="关闭歌单">×</button>
         </header>
         <ol class="playlist-list" id="playlistList"></ol>
-        <p class="playlist-note">当前为浏览器生成的程序试听音色，用于验证全站播放器交互。正式曲库请替换为你拥有使用权的音频。</p>
+        <p class="playlist-note">本地音轨已接入；若文件加载失败，播放器会自动切换到程序音色。</p>
       </section>
     </div>
 
@@ -143,6 +176,18 @@
   let master = null;
   let toneNodes = [];
   let pluckTimer = 0;
+  const audio = new Audio();
+  audio.preload = "metadata";
+  audio.playsInline = true;
+  let usingFallback = false;
+  let audioLoadFailed = false;
+
+  const getOutputGain = () => Math.max(0, Math.min(1, Number(volumeInput.value) / 100)) * OUTPUT_SCALE;
+  const getTrackDuration = () => (
+    !usingFallback && Number.isFinite(audio.duration) && audio.duration > 0
+      ? audio.duration
+      : tracks[currentTrack].duration
+  );
 
   const formatTime = (seconds) => {
     const value = Math.max(0, Math.floor(seconds));
@@ -154,7 +199,7 @@
     const track = tracks[currentTrack];
     trackTitle.textContent = track.title;
     trackArtist.textContent = track.artist;
-    timeTotal.textContent = formatTime(track.duration);
+    timeTotal.textContent = formatTime(getTrackDuration());
     elapsed = 0;
     progressInput.value = "0";
     progressFill.style.width = "0%";
@@ -163,6 +208,14 @@
       row.setAttribute("aria-current", String(index === currentTrack));
     });
     writeStore({ track: currentTrack });
+  };
+
+  const loadCurrentTrack = () => {
+    audio.pause();
+    usingFallback = false;
+    audioLoadFailed = false;
+    audio.src = new URL(`${rootPath}${tracks[currentTrack].src}`, window.location.href).href;
+    audio.load();
   };
 
   const renderPlaylist = () => {
@@ -180,10 +233,11 @@
     if (!audioContext) {
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
       master = audioContext.createGain();
-      master.gain.value = Number(volumeInput.value) / 100 * 0.16;
+      master.gain.value = getOutputGain();
       master.connect(audioContext.destination);
     }
-    if (audioContext.state === "suspended") await audioContext.resume();
+    if (audioContext.state !== "running") await audioContext.resume();
+    if (audioContext.state !== "running") throw new Error("Audio context did not start");
   };
 
   const stopTone = () => {
@@ -237,7 +291,7 @@
 
   const updatePlayUi = () => {
     dock.classList.toggle("is-playing", isPlaying);
-    status.textContent = isPlaying ? "Playing" : "Sound off";
+    status.textContent = isPlaying ? (usingFallback ? "Playing / fallback" : "Playing") : "Sound off";
     playButtons.forEach((button, index) => {
       button.setAttribute("aria-pressed", String(isPlaying));
       button.setAttribute("aria-label", isPlaying ? "暂停" : "播放");
@@ -247,8 +301,22 @@
 
   let lastProgressPaint = -1;
   let lastProgressSecond = -1;
+  const paintProgress = (current, duration) => {
+    if (!Number.isFinite(duration) || duration <= 0) return;
+    const percentage = Math.max(0, Math.min(100, (current / duration) * 100));
+    const second = Math.floor(current);
+    if (Math.abs(percentage - lastProgressPaint) >= 0.25 || second !== lastProgressSecond) {
+      lastProgressPaint = percentage;
+      lastProgressSecond = second;
+      progressInput.value = String(percentage);
+      progressFill.style.width = `${percentage}%`;
+      timeCurrent.textContent = formatTime(current);
+      timeTotal.textContent = formatTime(duration);
+    }
+  };
+
   const tickProgress = (now) => {
-    if (!isPlaying) return;
+    if (!isPlaying || !usingFallback) return;
     if (document.hidden) {
       progressFrame = 0;
       return;
@@ -259,31 +327,68 @@
       selectTrack(currentTrack + 1, true);
       return;
     }
-    const percentage = (elapsed / duration) * 100;
-    const second = Math.floor(elapsed);
-    if (Math.abs(percentage - lastProgressPaint) >= 0.25 || second !== lastProgressSecond) {
-      lastProgressPaint = percentage;
-      lastProgressSecond = second;
-      progressInput.value = String(percentage);
-      progressFill.style.width = `${percentage}%`;
-      timeCurrent.textContent = formatTime(elapsed);
-    }
+    paintProgress(elapsed, duration);
     startedAt = now;
     progressFrame = requestAnimationFrame(tickProgress);
   };
 
-  const selectTrack = (index, continuePlaying = false) => {
-    currentTrack = (index + tracks.length) % tracks.length;
-    renderTrack();
-    announce(`已选择 ${tracks[currentTrack].title}`);
-    if (isPlaying || continuePlaying) {
+  const startPlayback = async () => {
+    dock.dataset.state = "loading";
+    status.textContent = "Starting";
+    playButtons.forEach((button) => { button.disabled = true; });
+    try {
+      if (audioLoadFailed) throw new Error("Local audio failed to load");
+      usingFallback = false;
+      audio.volume = getOutputGain();
+      await audio.play();
       isPlaying = true;
-      startedAt = performance.now();
-      startTone();
-      cancelAnimationFrame(progressFrame);
-      progressFrame = requestAnimationFrame(tickProgress);
+      dock.dataset.state = "success";
       updatePlayUi();
       vinylController.setPlaying(true);
+      announce(`正在播放 ${tracks[currentTrack].title}`);
+    } catch (_) {
+      try {
+        audio.pause();
+        await ensureAudio();
+        usingFallback = true;
+        isPlaying = true;
+        elapsed = 0;
+        startedAt = performance.now();
+        startTone();
+        dock.dataset.state = "success";
+        updatePlayUi();
+        vinylController.setPlaying(true);
+        progressFrame = requestAnimationFrame(tickProgress);
+        announce("本地音轨加载失败，已切换到程序音色");
+      } catch (_) {
+        isPlaying = false;
+        dock.dataset.state = "error";
+        status.textContent = "Audio unavailable";
+        announce("当前浏览器无法启动音频");
+      }
+    } finally {
+      playButtons.forEach((button) => { button.disabled = false; });
+      setTimeout(() => {
+        if (dock.dataset.state === "success") dock.dataset.state = "default";
+      }, 600);
+    }
+  };
+
+  const selectTrack = async (index, continuePlaying = false) => {
+    const shouldContinue = isPlaying || continuePlaying;
+    isPlaying = false;
+    audio.pause();
+    stopTone();
+    cancelAnimationFrame(progressFrame);
+    progressFrame = 0;
+    currentTrack = (index + tracks.length) % tracks.length;
+    loadCurrentTrack();
+    renderTrack();
+    announce(`已选择 ${tracks[currentTrack].title}`);
+    if (shouldContinue) await startPlayback();
+    else {
+      updatePlayUi();
+      vinylController.setPlaying(false);
     }
   };
 
@@ -291,38 +396,35 @@
     if (isPlaying) {
       isPlaying = false;
       cancelAnimationFrame(progressFrame);
+      progressFrame = 0;
+      audio.pause();
       stopTone();
-      await audioContext?.suspend();
+      if (usingFallback) {
+        try { await audioContext?.suspend(); } catch (_) {}
+      }
       updatePlayUi();
       vinylController.setPlaying(false);
       announce("音乐已暂停");
       return;
     }
-
-    dock.dataset.state = "loading";
-    status.textContent = "Starting";
-    playButtons.forEach((button) => { button.disabled = true; });
-    try {
-      await ensureAudio();
-      isPlaying = true;
-      startedAt = performance.now();
-      startTone();
-      dock.dataset.state = "success";
-      updatePlayUi();
-      vinylController.setPlaying(true);
-      progressFrame = requestAnimationFrame(tickProgress);
-      announce(`正在播放 ${tracks[currentTrack].title}`);
-      setTimeout(() => {
-        if (dock.dataset.state === "success") dock.dataset.state = "default";
-      }, 600);
-    } catch (_) {
-      dock.dataset.state = "error";
-      status.textContent = "Audio unavailable";
-      announce("当前浏览器无法启动音频");
-    } finally {
-      playButtons.forEach((button) => { button.disabled = false; });
-    }
+    await startPlayback();
   };
+
+  audio.addEventListener("loadedmetadata", () => {
+    audioLoadFailed = false;
+    timeTotal.textContent = formatTime(getTrackDuration());
+  });
+  audio.addEventListener("durationchange", () => {
+    timeTotal.textContent = formatTime(getTrackDuration());
+  });
+  audio.addEventListener("timeupdate", () => {
+    if (!usingFallback) paintProgress(audio.currentTime, getTrackDuration());
+  });
+  audio.addEventListener("ended", () => selectTrack(currentTrack + 1, true));
+  audio.addEventListener("error", () => {
+    audioLoadFailed = true;
+    if (!isPlaying) status.textContent = "Local audio unavailable";
+  });
 
   const setListOpen = (open) => {
     dock.classList.toggle("is-list-open", open);
@@ -542,15 +644,18 @@
   });
 
   progressInput.addEventListener("input", () => {
-    elapsed = (tracks[currentTrack].duration * Number(progressInput.value)) / 100;
-    progressFill.style.width = `${progressInput.value}%`;
-    timeCurrent.textContent = formatTime(elapsed);
+    const duration = getTrackDuration();
+    const target = (duration * Number(progressInput.value)) / 100;
+    if (usingFallback) elapsed = target;
+    else if (Number.isFinite(audio.duration)) audio.currentTime = target;
+    paintProgress(target, duration);
     startedAt = performance.now();
   });
   volumeInput.addEventListener("input", () => {
     volumeOutput.value = volumeInput.value;
     writeStore({ volume: Number(volumeInput.value) });
-    if (master) master.gain.setTargetAtTime(Number(volumeInput.value) / 100 * 0.16, audioContext.currentTime, 0.03);
+    audio.volume = getOutputGain();
+    if (master) master.gain.setTargetAtTime(getOutputGain(), audioContext.currentTime, 0.03);
   });
 
   recordWrap.addEventListener("pointermove", (event) => {
@@ -582,12 +687,32 @@
         cancelAnimationFrame(progressFrame);
         progressFrame = 0;
       }
-      if (isPlaying) await audioContext?.suspend();
+      if (isPlaying) {
+        if (usingFallback) {
+          try { await audioContext?.suspend(); } catch (_) {}
+        } else {
+          audio.pause();
+        }
+      }
     } else if (isPlaying) {
-      await audioContext?.resume();
-      startedAt = performance.now();
-      if (!progressFrame) progressFrame = requestAnimationFrame(tickProgress);
-      vinylController.wake();
+      try {
+        if (usingFallback) {
+          await ensureAudio();
+          startedAt = performance.now();
+          if (!progressFrame) progressFrame = requestAnimationFrame(tickProgress);
+        } else {
+          await audio.play();
+        }
+        vinylController.wake();
+      } catch (_) {
+        isPlaying = false;
+        audio.pause();
+        stopTone();
+        dock.dataset.state = "error";
+        updatePlayUi();
+        status.textContent = "Tap play to resume";
+        announce("音频恢复失败，请再次点击播放");
+      }
     }
   });
   reducedQuery.addEventListener?.("change", (event) => (event.matches ? vinylController.sleep() : vinylController.wake()));
@@ -618,6 +743,8 @@
     applySurface("paper");
   }
 
+  audio.volume = getOutputGain();
+  loadCurrentTrack();
   renderPlaylist();
   renderTrack();
   updatePlayUi();
