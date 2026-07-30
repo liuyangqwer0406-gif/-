@@ -36,7 +36,45 @@
   window.addEventListener("resize", updateProgress, { passive: true });
   updateProgress();
 
-  const revealItems = [...document.querySelectorAll("[data-reveal]")];
+  const chapterNav = document.querySelector(".chapter-map");
+  const chapterMap = chapterNav?.querySelector(".chapter-map-inner");
+  const chapterStatus = document.querySelector("[data-chapter-status]");
+  const chapterLinks = [...document.querySelectorAll("[data-section-link]")];
+  const chapterSections = chapterLinks
+    .map((link) => document.getElementById(link.dataset.sectionLink))
+    .filter(Boolean);
+
+  const setActiveChapter = (sectionId) => {
+    const activeIndex = chapterLinks.findIndex((link) => link.dataset.sectionLink === sectionId);
+    if (activeIndex < 0) return;
+
+    chapterLinks.forEach((link, index) => {
+      if (index === activeIndex) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
+    });
+
+    if (chapterStatus) {
+      const activeLink = chapterLinks[activeIndex];
+      const label = activeLink.textContent.trim().replace(/^(\d{2})/, "$1 / ");
+      chapterStatus.textContent = label;
+    }
+
+    chapterMap?.style.setProperty("--chapter-progress", String(activeIndex / Math.max(1, chapterLinks.length - 1)));
+    const activeSection = chapterSections.find((section) => section.id === sectionId);
+    chapterNav?.setAttribute("data-surface", activeSection?.dataset.surface === "paper" ? "paper" : "dark");
+  };
+
+  if (chapterSections.length && "IntersectionObserver" in window) {
+    const chapterObserver = new IntersectionObserver((entries) => {
+      const current = entries
+        .filter((entry) => entry.isIntersecting)
+        .sort((a, b) => Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top))[0];
+      if (current) setActiveChapter(current.target.id);
+    }, { rootMargin: "-26% 0px -64%", threshold: 0 });
+    chapterSections.forEach((section) => chapterObserver.observe(section));
+  }
+
+  const revealItems = [...document.querySelectorAll("[data-reveal], [data-section-reveal]")];
   if (reduceMotion.matches || !("IntersectionObserver" in window)) {
     revealItems.forEach((item) => item.classList.add("is-visible"));
   } else {
@@ -62,12 +100,55 @@
   if (!context) return;
 
   const particles = [];
-  const pointer = { x: 0, y: 0, active: false };
+  const groups = [];
+  const pointer = { x: 0, y: 0, activeUntil: 0 };
   let width = 1;
   let height = 1;
   let visible = false;
   let frame = 0;
-  let lastFrame = 0;
+  let lastTime = 0;
+  let motionPending = false;
+  const frameInterval = 1000 / 60;
+
+  const rootStyle = getComputedStyle(document.documentElement);
+  const particleWhite = rootStyle.getPropertyValue("--white").trim() || "#f4f3ef";
+  const particleOrange = rootStyle.getPropertyValue("--orange").trim() || "#ff5125";
+  const groupStyles = [
+    { color: particleWhite, alpha: .24 },
+    { color: particleWhite, alpha: .38 },
+    { color: particleWhite, alpha: .54 },
+    { color: particleWhite, alpha: .7 },
+    { color: particleOrange, alpha: .94 }
+  ];
+
+  const setMotionState = (state) => {
+    stage.dataset.particleState = state;
+  };
+
+  const stopAnimation = (state = "idle") => {
+    if (frame) cancelAnimationFrame(frame);
+    frame = 0;
+    lastTime = 0;
+    setMotionState(state);
+  };
+
+  const drawParticles = () => {
+    context.clearRect(0, 0, width, height);
+    groups.forEach((group, index) => {
+      if (!group.length) return;
+      context.fillStyle = groupStyles[index].color;
+      context.globalAlpha = groupStyles[index].alpha;
+      group.forEach((particle) => {
+        context.fillRect(
+          particle.x - particle.size * .5,
+          particle.y - particle.size * .5,
+          particle.size,
+          particle.size
+        );
+      });
+    });
+    context.globalAlpha = 1;
+  };
 
   const buildParticles = () => {
     const rect = stage.getBoundingClientRect();
@@ -86,6 +167,7 @@
     const sampleContext = sampleCanvas.getContext("2d", { willReadFrequently: true });
     if (!sampleContext) return;
 
+    if (!image.naturalWidth || !image.naturalHeight) return;
     const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
     const drawWidth = image.naturalWidth * scale;
     const drawHeight = image.naturalHeight * scale;
@@ -94,8 +176,12 @@
     sampleContext.filter = "grayscale(1) contrast(1.08)";
     sampleContext.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
     const pixels = sampleContext.getImageData(0, 0, width, height).data;
-    const step = Math.max(7, Math.ceil(Math.sqrt((width * height) / 7200)));
+    const targetCount = Math.min(3600, Math.max(3000, Math.round((width * height) / 150)));
+    const step = Math.max(7, Math.ceil(Math.sqrt((width * height) / (targetCount * 1.55))));
     particles.length = 0;
+    groups.length = groupStyles.length;
+    groups.fill(null);
+    for (let index = 0; index < groups.length; index += 1) groups[index] = [];
 
     for (let y = step / 2; y < height; y += step) {
       for (let x = step / 2; x < width; x += step) {
@@ -108,88 +194,142 @@
         const luminance = red * .2126 + green * .7152 + blue * .0722;
         const hash = ((Math.floor(x) * 17 + Math.floor(y) * 29) % 100) / 100;
         if (luminance > 236 && hash > .22) continue;
-        const tone = Math.round(74 + (255 - luminance) * .7);
         const orange = hash < .045 && luminance < 180;
-        particles.push({
+        const group = orange ? 4 : luminance < 84 ? 3 : luminance < 148 ? 2 : luminance < 208 ? 1 : 0;
+        const particle = {
           baseX: x,
           baseY: y,
-          x: x + (hash - .5) * 22,
-          y: y + (.5 - hash) * 22,
+          x: x + (hash - .5) * 18,
+          y: y + (.5 - hash) * 18,
           vx: 0,
           vy: 0,
-          radius: .7 + ((Math.floor(x + y) % 4) * .22),
-          color: orange ? "rgba(255,81,37,.94)" : `rgba(${tone},${tone},${tone},${.42 + (255 - luminance) / 510})`
-        });
+          size: 1.2 + ((Math.floor(x + y) % 3) * .38),
+          group
+        };
+        particles.push(particle);
       }
     }
-    stage.classList.add("is-particle-ready");
-    draw(true);
-  };
 
-  const draw = (staticFrame = false) => {
-    context.clearRect(0, 0, width, height);
-    particles.forEach((particle) => {
-      if (!staticFrame) {
-        if (pointer.active) {
-          const dx = particle.x - pointer.x;
-          const dy = particle.y - pointer.y;
-          const distance = Math.hypot(dx, dy) || 1;
-          const radius = 78;
-          if (distance < radius) {
-            const force = ((radius - distance) / radius) ** 2 * 3.8;
-            particle.vx += (dx / distance) * force;
-            particle.vy += (dy / distance) * force;
-          }
-        }
-        particle.vx += (particle.baseX - particle.x) * .025;
-        particle.vy += (particle.baseY - particle.y) * .025;
-        particle.vx *= .86;
-        particle.vy *= .86;
-        particle.x += particle.vx;
-        particle.y += particle.vy;
+    if (particles.length > 3600) {
+      const sampledParticles = [];
+      const sampleStep = particles.length / 3600;
+      for (let index = 0; index < 3600; index += 1) {
+        sampledParticles.push(particles[Math.floor(index * sampleStep)]);
       }
-      context.beginPath();
-      context.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-      context.fillStyle = particle.color;
-      context.fill();
-    });
+      particles.length = 0;
+      sampledParticles.forEach((particle) => particles.push(particle));
+    }
+    particles.forEach((particle) => groups[particle.group].push(particle));
+
+    stage.classList.add("is-particle-ready");
+    stage.dataset.particleCount = String(particles.length);
+    motionPending = particles.length > 0;
+    drawParticles();
+    ensureAnimation();
   };
 
   const animate = (time) => {
     frame = 0;
-    if (!visible || document.hidden || reduceMotion.matches) return;
-    if (time - lastFrame >= 1000 / 30) {
-      draw();
-      lastFrame = time;
+    if (!visible || document.hidden || reduceMotion.matches || !motionPending) {
+      setMotionState(document.hidden || !visible ? "paused" : "idle");
+      return;
     }
-    frame = requestAnimationFrame(animate);
+    const elapsed = lastTime ? time - lastTime : frameInterval;
+    if (elapsed < frameInterval - .5) {
+      frame = requestAnimationFrame(animate);
+      return;
+    }
+    const delta = Math.min(2, Math.max(.5, elapsed / frameInterval));
+    const pointerActive = time < pointer.activeUntil;
+    let moving = false;
+    lastTime = time - (elapsed % frameInterval);
+
+    particles.forEach((particle) => {
+      if (pointerActive) {
+        const dx = particle.x - pointer.x;
+        const dy = particle.y - pointer.y;
+        const distanceSquared = dx * dx + dy * dy;
+        const radius = 86;
+        if (distanceSquared < radius * radius) {
+          const distance = Math.sqrt(distanceSquared) || 1;
+          const force = ((radius - distance) / radius) ** 2 * 4.2 * delta;
+          particle.vx += (dx / distance) * force;
+          particle.vy += (dy / distance) * force;
+        }
+      }
+
+      particle.vx += (particle.baseX - particle.x) * .028 * delta;
+      particle.vy += (particle.baseY - particle.y) * .028 * delta;
+      const drag = Math.pow(.82, delta);
+      particle.vx *= drag;
+      particle.vy *= drag;
+      particle.x += particle.vx * delta;
+      particle.y += particle.vy * delta;
+
+      if (
+        Math.abs(particle.baseX - particle.x) +
+        Math.abs(particle.baseY - particle.y) +
+        Math.abs(particle.vx) +
+        Math.abs(particle.vy) > .08
+      ) moving = true;
+    });
+
+    drawParticles();
+    motionPending = pointerActive || moving;
+    if (motionPending) {
+      frame = requestAnimationFrame(animate);
+    } else {
+      particles.forEach((particle) => {
+        particle.x = particle.baseX;
+        particle.y = particle.baseY;
+        particle.vx = 0;
+        particle.vy = 0;
+      });
+      drawParticles();
+      setMotionState("idle");
+    }
   };
 
-  const ensureAnimation = () => {
-    if (visible && !document.hidden && !frame) frame = requestAnimationFrame(animate);
+  function ensureAnimation() {
+    if (!motionPending || !visible || document.hidden || reduceMotion.matches || frame) return;
+    setMotionState("running");
+    frame = requestAnimationFrame(animate);
   };
 
   stage.addEventListener("pointermove", (event) => {
     const rect = stage.getBoundingClientRect();
     pointer.x = event.clientX - rect.left;
     pointer.y = event.clientY - rect.top;
-    pointer.active = true;
+    pointer.activeUntil = performance.now() + 110;
+    motionPending = true;
     ensureAnimation();
   }, { passive: true });
   stage.addEventListener("pointerleave", () => {
-    pointer.active = false;
+    pointer.activeUntil = 0;
+    motionPending = true;
+    ensureAnimation();
   });
 
   const visibilityObserver = new IntersectionObserver((entries) => {
     visible = entries[0]?.isIntersecting ?? false;
     if (visible) ensureAnimation();
-    else if (frame) {
-      cancelAnimationFrame(frame);
-      frame = 0;
-    }
+    else stopAnimation("paused");
   }, { threshold: .04 });
   visibilityObserver.observe(stage);
-  document.addEventListener("visibilitychange", ensureAnimation);
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stopAnimation("paused");
+    else ensureAnimation();
+  });
+
+  reduceMotion.addEventListener?.("change", (event) => {
+    if (event.matches) {
+      stopAnimation("reduced");
+      stage.classList.remove("is-particle-ready");
+      context.clearRect(0, 0, width, height);
+    } else {
+      buildParticles();
+    }
+  });
 
   let resizeTimer = 0;
   const resizeObserver = new ResizeObserver(() => {

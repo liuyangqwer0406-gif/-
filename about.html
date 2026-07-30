@@ -23,8 +23,8 @@
         <span>温一帆</span><sup>©26</sup>
       </a>
       <span class="top-role">Profile / Brand · 3D · AIGC · Digital Experience</span>
-      <button class="menu-button" type="button" aria-label="打开导航" aria-expanded="false"><span></span><span></span></button>
-      <nav class="nav" aria-label="主导航">
+      <button class="menu-button" type="button" aria-label="打开导航" aria-expanded="false" aria-controls="primary-nav"><span></span><span></span></button>
+      <nav class="nav" id="primary-nav" aria-label="主导航">
         <a class="current" href="about.html" aria-current="page">About *</a>
         <a href="index.html#work">Works //</a>
         <a href="#experience">Experience</a>
@@ -37,37 +37,56 @@
     <section class="hero" id="top" aria-labelledby="hero-title">
       <div class="hero-grid">
         <div class="hero-copy" data-reveal>
-          <p class="micro hero-index">Personal file / 00</p>
-          <h1 id="hero-title"><span>温一帆</span><span>WEN YIFAN</span></h1>
-          <p class="hero-role">品牌活动视觉设计师<br><em>3D · AIGC · Digital Experience</em></p>
+          <p class="micro hero-index">Independent visual designer / 2026</p>
+          <h1 id="hero-title">
+            <span class="hero-line"><span>温一帆</span></span>
+            <span class="hero-line hero-line-latin"><span>WEN YIFAN</span></span>
+          </h1>
+          <p class="hero-role">品牌活动视觉设计师<span>让概念从画面走向可进入的体验。</span></p>
           <div class="hero-actions">
-            <a class="command command-primary" href="assets/Wen-Yifan-Resume.pdf" download>Download résumé <span aria-hidden="true">↓</span></a>
-            <a class="command" href="index.html#work">View selected work <span aria-hidden="true">↗</span></a>
+            <a class="command command-primary" href="index.html#work">Selected work <span aria-hidden="true">↗</span></a>
+            <a class="command" href="assets/Wen-Yifan-Resume.pdf" download>Résumé <span aria-hidden="true">↓</span></a>
           </div>
         </div>
 
         <figure class="portrait-stage" data-particle-portrait data-reveal>
           <img src="assets/about-portrait.webp" alt="温一帆在户外骑马的黑白照片" fetchpriority="high">
           <canvas aria-hidden="true"></canvas>
-          <figcaption class="micro"><span>Portrait field / live</span><span>Move pointer to disturb</span></figcaption>
+          <figcaption class="micro"><span>Portrait / field 01</span><span>60fps / adaptive</span></figcaption>
           <div class="portrait-crosshair" aria-hidden="true"><i></i><i></i></div>
         </figure>
 
-        <div class="hero-status micro" aria-label="个人状态">
-          <span><i></i> Available for visual design opportunities</span>
-          <span>China · GMT+8</span>
-          <span>Graduation / 2026.06</span>
-        </div>
+        <dl class="hero-status" aria-label="个人状态">
+          <div><dt>Currently</dt><dd><i aria-hidden="true"></i>Available for visual design opportunities</dd></div>
+          <div><dt>Based</dt><dd>China · GMT+8</dd></div>
+          <div><dt>Education</dt><dd>Digital Media Art · 2026.06</dd></div>
+        </dl>
       </div>
     </section>
 
-    <section class="profile paper-section" id="profile" aria-labelledby="profile-title" data-surface="paper">
+    <nav class="chapter-map" aria-label="个人介绍章节">
+      <div class="chapter-map-inner">
+        <p class="chapter-map-state" aria-hidden="true"><span>Reading position</span><strong data-chapter-status>01 / Profile</strong></p>
+        <ol>
+          <li><a href="#profile" data-section-link="profile" aria-current="location"><span>01</span>Profile</a></li>
+          <li><a href="#method" data-section-link="method"><span>02</span>Method</a></li>
+          <li><a href="#experience" data-section-link="experience"><span>03</span>Experience</a></li>
+          <li><a href="#toolkit" data-section-link="toolkit"><span>04</span>Toolkit</a></li>
+          <li><a href="#proof" data-section-link="proof"><span>05</span>Proof</a></li>
+          <li><a href="#contact" data-section-link="contact"><span>06</span>Contact</a></li>
+        </ol>
+        <span class="chapter-map-progress" aria-hidden="true"><i></i></span>
+      </div>
+    </nav>
+
+    <section class="profile paper-section" id="profile" aria-labelledby="profile-title" data-surface="paper" data-route-section>
       <div class="shell profile-grid">
-        <div class="profile-lead">
-          <h2 id="profile-title">数字媒体不是<br>一门孤立的技术，<br>而是一种<em>世界语言</em>。</h2>
+        <div class="profile-lead" data-section-reveal>
+          <p class="section-index">01 / Profile</p>
+          <h2 id="profile-title">媒介会变化，<br>判断必须清晰。</h2>
         </div>
         <div class="profile-copy">
-          <p>你好，我是温一帆，一名数字媒体艺术专业的视觉创作者。我在平面系统、三维空间与动态叙事之间工作，希望让概念不只停在画面里，而是成为可被理解、进入和记住的体验。</p>
+          <p class="profile-opening">你好，我是温一帆，一名数字媒体艺术专业的视觉创作者。我在平面系统、三维空间与动态叙事之间工作，希望让概念不只停在画面里，而是成为可被理解、进入和记住的体验。</p>
           <p>我相信，好的视觉设计不只是悦目的形式，更是精准的沟通与情感的共鸣。面对不同媒介，我会先确认问题与受众，再决定结构、材质、运动和技术。</p>
           <dl class="profile-facts">
             <div><dt>Focus</dt><dd>Brand campaign / 3D visual / Digital experience</dd></div>
@@ -78,48 +97,53 @@
       </div>
     </section>
 
-    <section class="capabilities" id="capabilities" aria-labelledby="capabilities-title">
-      <div class="shell">
-        <div class="section-head">
-          <div>
-            <h2 id="capabilities-title">从平面到动态，<br>让同一个概念持续成立。</h2>
-            <p>三种能力不是分开的软件清单，而是一条从识别、空间到时间的完整工作链路。</p>
-          </div>
-        </div>
-        <div class="capability-list">
-          <article>
-            <span class="micro">A / Motion narrative</span>
-            <h3>动态叙事</h3>
-            <p>从动态版式、镜头节奏到声音基础处理，完成由平面视觉向完整影像表达的延展。</p>
-            <p class="tool-line">After Effects · Premiere · Audition</p>
-          </article>
-          <article>
-            <span class="micro">B / Brand shaping</span>
-            <h3>品牌塑造</h3>
-            <p>把识别、包装与传播应用组织为可落地的视觉系统，在商业限制中保持清晰层级。</p>
-            <p class="tool-line">Photoshop · Illustrator · Packaging</p>
-          </article>
-          <article>
-            <span class="micro">C / Spatial thinking</span>
-            <h3>空间思维</h3>
-            <p>用建模、材质、灯光与交互原型连接虚拟和现实，让主视觉拥有可进入的空间感。</p>
-            <p class="tool-line">Blender · Cinema 4D · TouchDesigner</p>
-          </article>
+    <section class="method" id="method" aria-labelledby="method-title" data-route-section>
+      <div class="shell method-heading">
+        <div data-section-reveal>
+          <p class="section-index">02 / Method</p>
+          <h2 id="method-title">把一个概念，<br>推进到可交付的成品。</h2>
+          <p>方法是一条连续链路，不是软件列表。每一步都为下一步减少模糊，让视觉系统在平面、空间与时间里保持同一个判断。</p>
         </div>
       </div>
+      <ol class="method-flow">
+        <li>
+          <span class="method-number">01</span>
+          <div class="method-action"><span class="micro">Define / 识别</span><h3>确认问题</h3></div>
+          <p>先识别传播场景、受众与交付限制，再建立内容优先级，避免形式先于问题。</p>
+          <small>Context · Audience · Brief</small>
+        </li>
+        <li>
+          <span class="method-number">02</span>
+          <div class="method-action"><span class="micro">Shape / 概念</span><h3>建立系统</h3></div>
+          <p>把核心概念组织为识别、版式、色彩和图像规则，让每一种触点都能被同一逻辑解释。</p>
+          <small>Identity · Typography · Image</small>
+        </li>
+        <li>
+          <span class="method-number">03</span>
+          <div class="method-action"><span class="micro">Build / 空间与动态</span><h3>构建体验</h3></div>
+          <p>通过建模、材质、灯光、镜头与动态节奏，让视觉从静态识别扩展为可进入的空间和时间。</p>
+          <small>3D · Motion · Interaction</small>
+        </li>
+        <li>
+          <span class="method-number">04</span>
+          <div class="method-action"><span class="micro">Deliver / 生产</span><h3>推进交付</h3></div>
+          <p>根据真实媒介整理尺寸、语言、格式与生产文件，保证概念在传播和落地阶段仍然成立。</p>
+          <small>Adaptation · Output · Production</small>
+        </li>
+      </ol>
     </section>
 
-    <section class="experience paper-section" id="experience" aria-labelledby="experience-title" data-surface="paper">
+    <section class="experience paper-section" id="experience" aria-labelledby="experience-title" data-surface="paper" data-route-section>
       <div class="shell experience-grid">
-        <div class="experience-intro">
+        <div class="experience-intro" data-section-reveal>
           <p class="section-index">03 / Experience</p>
-          <h2 id="experience-title">学习、组织与项目，<br>共同构成我的工作方法。</h2>
+          <h2 id="experience-title">时间、职责与结果，<br>共同构成工作证据。</h2>
           <p>经历按可核实的时间与职责整理。团队项目明确个人贡献，商业项目不公开敏感信息。</p>
         </div>
         <ol class="timeline">
           <li>
             <time>2022.09 — 2026.06</time>
-            <div><span class="micro">Education</span><h3>四川大学锦江学院 · 数字媒体艺术</h3><p>本科，GPA 3.5 / 4.0。课程覆盖动态图形设计、三维模型基础、UI设计、数据可视化、包装设计、计算机色彩原理与平面设计。</p></div>
+            <div><span class="micro">Education</span><h3>四川大学锦江学院 · 数字媒体艺术</h3><p>本科，GPA 3.5 / 4.0。课程覆盖动态图形设计、三维模型基础、UI 设计、数据可视化、包装设计、计算机色彩原理与平面设计。</p></div>
           </li>
           <li>
             <time>2023.09 — 2025.09</time>
@@ -127,66 +151,71 @@
           </li>
           <li>
             <time>2024.03 — 2024.05</time>
-            <div><span class="micro">Individual project</span><h3>眉山江口沉银博物馆文创设计</h3><p>围绕“江口沉银”历史主题，独立完成主视觉与文创包装系统；以“西王赏功”金币为核心进行三维建模、材质渲染与香炉展示，项目入围官方最终评选。</p><a href="projects/jiangkou.html">Read case study →</a></div>
+            <div><span class="micro">Individual project</span><h3>眉山江口沉银博物馆文创设计</h3><p>围绕“江口沉银”历史主题，独立完成主视觉与文创包装系统；以“西王赏功”金币为核心进行三维建模、材质渲染与香炉展示，项目入围官方最终评选。</p><a href="projects/jiangkou.html">Read case study <span aria-hidden="true">→</span></a></div>
           </li>
           <li>
             <time>2024.10 — 2024.12</time>
-            <div><span class="micro">Team competition</span><h3>D&amp;AD New Blood · ROKU IKITION</h3><p>负责品牌平面视觉、包装版式与三维主视觉，把产品建模、材质、灯光和户外传播连接为统一品牌世界。作品进入 Shortlisted 评选。</p><a href="projects/dad.html">Read case study →</a></div>
+            <div><span class="micro">Team competition</span><h3>D&amp;AD New Blood · ROKU IKITION</h3><p>负责品牌平面视觉、包装版式与三维主视觉，把产品建模、材质、灯光和户外传播连接为统一品牌世界。作品进入 Shortlisted 评选。</p><a href="projects/dad.html">Read case study <span aria-hidden="true">→</span></a></div>
           </li>
           <li>
             <time>2026</time>
-            <div><span class="micro">Commercial practice</span><h3>包装设计实习 · 生产落地</h3><p>面向海外零售场景处理家纺、宠物用品与卫浴包装；在多颜色、多尺寸和多语种内容之间建立版式结构，并推进腰封、吊牌、洗标与印前文件。</p><a href="projects/packaging.html">Read case study →</a></div>
+            <div><span class="micro">Commercial practice</span><h3>包装设计实习 · 生产落地</h3><p>面向海外零售场景处理家纺、宠物用品与卫浴包装；在多颜色、多尺寸和多语种内容之间建立版式结构，并推进腰封、吊牌、洗标与印前文件。</p><a href="projects/packaging.html">Read case study <span aria-hidden="true">→</span></a></div>
           </li>
         </ol>
       </div>
     </section>
 
-    <section class="skills" id="skills" aria-labelledby="skills-title">
-      <div class="shell skills-grid">
-        <div class="skills-heading">
-          <h2 id="skills-title">工具服务于判断，<br>不是替代判断。</h2>
+    <section class="toolkit" id="toolkit" aria-labelledby="toolkit-title" data-route-section>
+      <div class="shell toolkit-grid">
+        <div class="toolkit-heading" data-section-reveal>
+          <p class="section-index">04 / Toolkit</p>
+          <h2 id="toolkit-title">工具服务于判断，<br>不是替代判断。</h2>
           <p>熟练度采用工作语境描述，不用虚构百分比。</p>
         </div>
-        <div class="skill-groups">
+        <div class="tool-matrix">
           <article>
-            <div><span>3D / Motion</span><b>Primary</b></div>
-            <p>Blender · Cinema 4D · After Effects</p>
-            <small>产品可视化、IP角色、场景建模、材质灯光与动态合成</small>
+            <header><span>3D / Motion</span><b>Primary</b></header>
+            <h3>Blender · Cinema 4D · After Effects</h3>
+            <p>产品可视化、IP 角色、场景建模、材质灯光与动态合成</p>
           </article>
           <article>
-            <div><span>Brand / UI</span><b>Primary</b></div>
-            <p>Photoshop · Illustrator</p>
-            <small>品牌识别、商业包装、主视觉、版式与界面设计</small>
+            <header><span>Brand / UI</span><b>Primary</b></header>
+            <h3>Photoshop · Illustrator</h3>
+            <p>品牌识别、商业包装、主视觉、版式与界面设计</p>
           </article>
           <article>
-            <div><span>AIGC / Interactive</span><b>Working</b></div>
-            <p>Stable Diffusion · TouchDesigner</p>
-            <small>概念探索、纹理生成与交互视觉原型</small>
+            <header><span>AIGC / Interactive</span><b>Working</b></header>
+            <h3>Stable Diffusion · TouchDesigner</h3>
+            <p>概念探索、纹理生成与交互视觉原型</p>
           </article>
           <article>
-            <div><span>Post production</span><b>Working</b></div>
-            <p>Premiere · Audition</p>
-            <small>视频剪辑、调色与音频基础处理</small>
+            <header><span>Post production</span><b>Working</b></header>
+            <h3>Premiere · Audition</h3>
+            <p>视频剪辑、调色与音频基础处理</p>
           </article>
         </div>
       </div>
     </section>
 
-    <section class="recognition" aria-labelledby="recognition-title">
-      <div class="shell recognition-grid">
-        <h2 id="recognition-title">把成果说准确，<br>比说得夸张更重要。</h2>
-        <ul>
-          <li><span>2024</span><strong>眉山江口沉银博物馆文创设计大赛</strong><em>入围</em></li>
-          <li><span>2025</span><strong>四川大学锦江学院</strong><em>三等奖学金</em></li>
-          <li><span>—</span><strong>D&amp;AD New Blood Awards</strong><em>Shortlisted entry</em></li>
+    <section class="proof paper-section" id="proof" aria-labelledby="proof-title" data-surface="paper" data-route-section>
+      <div class="shell proof-grid">
+        <div data-section-reveal>
+          <p class="section-index">05 / Proof</p>
+          <h2 id="proof-title">成果说准确，<br>比说得夸张更重要。</h2>
+        </div>
+        <ul class="proof-list">
+          <li><time>2024</time><strong>眉山江口沉银博物馆文创设计大赛</strong><span>入围</span></li>
+          <li><time>2025</time><strong>四川大学锦江学院</strong><span>三等奖学金</span></li>
+          <li><time>—</time><strong>D&amp;AD New Blood Awards</strong><span>Shortlisted entry</span></li>
         </ul>
       </div>
     </section>
 
-    <section class="contact" id="contact" aria-labelledby="contact-title">
+    <section class="contact" id="contact" aria-labelledby="contact-title" data-route-section>
       <div class="shell contact-grid">
-        <div>
-          <h2 id="contact-title">如果你正在寻找<br>能把概念推进到成品的人，<br><em>我们可以聊聊。</em></h2>
+        <div data-section-reveal>
+          <p class="section-index">06 / Contact</p>
+          <h2 id="contact-title">如果你需要把概念<br>推进到成品，<br><span>我们可以聊聊。</span></h2>
         </div>
         <div class="contact-panel">
           <p>Brand campaign visual · 3D · AIGC · Digital experience</p>
