@@ -1,14 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="温一帆 WYF">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-labelledby="faviconTitle faviconDesc">
+  <title id="faviconTitle">温一帆签名标志</title>
+  <desc id="faviconDesc">从温一帆手写签名提取的回环 W 与橙色个人记号</desc>
   <rect width="32" height="32" rx="3" fill="#111111"/>
-  <g fill="none" stroke="#F4F3EF" stroke-linecap="round">
-    <circle cx="16" cy="16" r="12" stroke-opacity=".2" stroke-width=".9"/>
-    <circle cx="16" cy="16" r="8.6" stroke-opacity=".14" stroke-width=".65"/>
-    <circle cx="16" cy="16" r="5.6" stroke-opacity=".12" stroke-width=".55"/>
-    <path stroke-opacity=".4" stroke-width="1" d="M16 5.2v2.2M16 24.6v2.2M5.2 16h2.2M24.6 16h2.2"/>
-    <path stroke="#FF5125" stroke-width="1.15" d="M16 5.8v1.8"/>
+  <g transform="scale(.2666667)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M13 42C27 35 44 20 53 19c6-1 3 11-2 23L33 86c-4 10-6 17-1 18 6 1 14-11 19-22l19-45c-5 18-8 38-4 49 3 9 9 7 16-3 6-10 11-22 16-37" stroke="#F4F3EF" stroke-width="8.5"/>
+    <g stroke="#FF5125" stroke-width="4.5">
+      <path d="M91 25l-5 7M99 25l-4 8M86 38l7 4M98 38l-5 7"/>
+    </g>
   </g>
-  <!-- compact W -->
-  <path fill="#F4F3EF" d="M7.2 22.2h2.5l1.9-9.2 2.05 6.1h2.2l2.05-6.1 1.9 9.2h2.5L19.7 10.4h-2.85L14.9 16.4 13 10.4H10.1z"/>
-  <circle cx="16" cy="16" r="2.35" fill="#FF5125"/>
-  <circle cx="16" cy="16" r=".85" fill="#111111"/>
 </svg>
