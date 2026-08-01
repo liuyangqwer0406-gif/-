@@ -1,6 +1,6 @@
 /* Site Sound Deck — full-site ambient player
  * Visual DNA: DESIGN.md cinematic black / paper / signal orange
- * Interaction DNA: rainmorime side vinyl drawer (tonearm play, expand list)
+ * Interaction DNA: side vinyl calibration drawer (C-ring play, scan readout)
  * Motion: restrained, skippable, reduced-motion safe
  */
 .sound-dock {
@@ -82,7 +82,7 @@
 }
 .sound-dock .panel-count { color: var(--sd-muted); }
 
-/* Vinyl + tonearm stage (rainmorime-inspired) */
+/* Vinyl calibration stage */
 .sound-dock .record-stage {
   position: relative;
   width: 100%;
@@ -141,52 +141,76 @@
   animation: sd-fallback-spin 1.8s linear infinite;
 }
 
-/* Tonearm — play affordance */
-.sound-dock .tonearm {
+/* Scan rail — playback state */
+.sound-dock .sound-scan {
   position: absolute;
-  right: 28px;
-  top: 8px;
-  width: 78px;
+  right: 12px;
+  top: 12px;
+  width: 66px;
   height: 168px;
+  border-left: 1px solid var(--sd-line);
   pointer-events: none;
 }
-.sound-dock .tonearm-pivot {
+.sound-dock .sound-scan-scale {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -4px;
+  width: 8px;
+  background: repeating-linear-gradient(180deg, var(--sd-line) 0 1px, transparent 1px 17px);
+}
+.sound-dock .sound-scan-track {
   position: absolute;
   top: 10px;
-  right: 8px;
-  width: 14px;
-  height: 14px;
-  border: 1px solid var(--sd-line);
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--sd-bg) 70%, var(--sd-ink));
+  bottom: 10px;
+  left: 14px;
+  width: 1px;
+  background: var(--sd-line);
 }
-.sound-dock .tonearm-arm {
+.sound-dock .sound-scan-track::before {
+  content: "";
   position: absolute;
-  top: 16px;
-  right: 13px;
-  width: 3px;
-  height: 118px;
-  border-radius: 2px;
-  background: linear-gradient(180deg, var(--sd-ink), color-mix(in srgb, var(--sd-ink) 55%, transparent));
-  transform-origin: 50% 0;
-  transform: rotate(-28deg);
-  transition: transform var(--sd-med) var(--sd-ease), background var(--sd-fast) linear;
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--sd-line) 60%, transparent);
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 42%;
+  background: var(--sd-orange);
 }
-.sound-dock .tonearm-head {
+.sound-dock .sound-scan-head {
   position: absolute;
-  bottom: -2px;
-  left: 50%;
-  width: 10px;
-  height: 14px;
-  border: 1px solid var(--sd-line);
-  border-radius: 2px;
+  top: 7px;
+  left: 10px;
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--sd-orange);
   background: var(--sd-bg);
-  transform: translateX(-50%);
+  transform: translateY(0);
+  transition: transform var(--sd-med) var(--sd-ease), background var(--sd-fast) linear;
 }
-.sound-dock.is-playing .tonearm-arm {
-  transform: rotate(6deg);
-  background: linear-gradient(180deg, var(--sd-orange), color-mix(in srgb, var(--sd-orange) 40%, var(--sd-ink)));
+.sound-dock .sound-scan-head::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background: var(--sd-orange);
+}
+.sound-dock .sound-scan-readout {
+  position: absolute;
+  top: 8px;
+  right: 0;
+  display: grid;
+  gap: 18px;
+  color: var(--sd-muted);
+  font-size: 7px;
+  letter-spacing: .05em;
+  line-height: 1;
+  text-align: right;
+  text-transform: uppercase;
+}
+.sound-dock .sound-scan-readout b { color: var(--sd-ink); font-weight: 400; }
+.sound-dock.is-playing .sound-scan-head { transform: translateY(112px); }
+.sound-dock[data-state="loading"] .sound-scan-head { animation: sd-status-tick .72s steps(2, end) infinite; }
+.sound-dock[data-state="error"] .sound-scan-track {
+  background: repeating-linear-gradient(180deg, var(--sd-orange) 0 4px, transparent 4px 8px);
 }
 .sound-dock .record-play {
   position: absolute;
@@ -208,11 +232,12 @@
   inset: 50% auto auto 50%;
   width: 44px;
   height: 44px;
-  border: 1px solid var(--sd-line);
+  border: 1px solid currentColor;
+  border-right-color: transparent;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--sd-bg), transparent 12%);
-  transform: translate(-50%, -50%);
-  transition: background var(--sd-fast) var(--sd-ease), border-color var(--sd-fast) var(--sd-ease), transform var(--sd-fast) var(--sd-ease);
+  background: color-mix(in srgb, var(--sd-bg), transparent 8%);
+  transform: translate(-50%, -50%) rotate(-8deg);
+  transition: transform var(--sd-med) var(--sd-ease);
 }
 .sound-dock .record-play::after {
   content: "";
@@ -232,15 +257,11 @@
   background: linear-gradient(90deg, currentColor 0 34%, transparent 34% 66%, currentColor 66%);
   transform: translate(-50%, -50%);
 }
-.sound-dock .record-play:hover::before,
-.sound-dock .record-play:focus-visible::before {
-  border-color: var(--sd-orange);
-  background: var(--sd-orange);
-  color: #f4f3ef;
-}
+.sound-dock.is-playing .record-play::before { transform: translate(-50%, -50%) rotate(28deg); }
 .sound-dock .record-play:hover,
-.sound-dock .record-play:focus-visible { color: #f4f3ef; }
-.sound-dock .record-play:active::before { transform: translate(-50%, -50%) scale(.96); }
+.sound-dock .record-play:focus-visible,
+.sound-dock.is-playing .record-play { color: var(--sd-orange); }
+.sound-dock .record-play:active::before { transform: translate(-50%, -50%) rotate(-8deg) scale(.96); }
 .sound-dock .record-play:disabled { cursor: wait; opacity: .5; }
 .sound-dock .record-play:focus-visible { outline: none; }
 .sound-dock .record-play:focus-visible::before {
@@ -552,16 +573,19 @@
 
 @media (max-width: 560px) {
   .sound-dock {
-    width: min(332px, calc(100vw - 12px));
-    transform: translate3d(calc(-100% + 42px), -50%, 0);
+    width: min(332px, calc(100% - 12px));
   }
-  .sound-dock.is-open { transform: translate3d(0, -50%, 0); }
+  .sound-dock:not(.is-open) { top: auto; bottom: 16px; transform: translate3d(calc(-100% + 42px), 0, 0); }
+  .sound-dock:not(.is-open) .dock-handle { top: auto; bottom: 0; }
+  .sound-dock.is-open { top: 50%; bottom: auto; transform: translate3d(0, -50%, 0); }
+  .sound-dock.is-open .dock-handle { top: 0; bottom: auto; }
   .sound-dock .dock-shell { width: calc(100% - 42px); min-height: 540px; }
   .sound-dock .dock-handle { left: calc(100% - 42px); }
   .sound-dock .record-wrap,
   .sound-dock .record-play { width: 152px; height: 152px; }
   .sound-dock .record-stage { height: 180px; }
-  .sound-dock .tonearm { height: 152px; right: 18px; }
+  .sound-dock .sound-scan { height: 152px; right: 10px; }
+  .sound-dock.is-playing .sound-scan-head { transform: translateY(96px); }
 }
 
 @media (hover: none), (pointer: coarse) {
@@ -573,15 +597,16 @@
   .sound-dock .record-viewport,
   .sound-dock .handle-arrow,
   .sound-dock .playlist,
-  .sound-dock .tonearm-arm,
+  .sound-dock .sound-scan-head,
+  .sound-dock .record-play::before,
   .sound-dock .progress-fill {
     transition: none !important;
   }
   .sound-dock .record-fallback,
-  .sound-dock .dock-status::before {
+  .sound-dock .dock-status::before,
+  .sound-dock .sound-scan-head {
     animation: none !important;
   }
-  .sound-dock.is-playing .tonearm-arm { transform: rotate(6deg); }
 }
 
 /* Hide on print */
