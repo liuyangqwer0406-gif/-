@@ -90,9 +90,15 @@
               <div class="record-canvas-host" id="recordCanvasHost"></div>
             </div>
           </div>
-          <div class="tonearm" aria-hidden="true">
-            <div class="tonearm-pivot"></div>
-            <div class="tonearm-arm"><span class="tonearm-head"></span></div>
+          <div class="sound-scan" aria-hidden="true">
+            <span class="sound-scan-scale"></span>
+            <span class="sound-scan-track"></span>
+            <span class="sound-scan-head"></span>
+            <div class="sound-scan-readout">
+              <span>Phase <b>00</b></span>
+              <span>Rate <b>33.3</b></span>
+              <span>Side <b>A</b></span>
+            </div>
           </div>
           <button class="record-play" type="button" data-action="toggle" aria-label="播放" aria-pressed="false"></button>
         </div>
