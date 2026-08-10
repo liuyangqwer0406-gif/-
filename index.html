@@ -1448,7 +1448,7 @@
         </div>
         <div class="work-grid">
           <figure class="preview" data-reveal>
-            <img id="preview-image" src="assets/dad-cover.jpg" alt="ROKU IKITION D&AD入围项目户外视觉预览">
+            <img id="preview-image" src="assets/dad-cover.jpg" alt="ROKU IKITION D&AD入围项目户外视觉预览" loading="lazy" decoding="async" fetchpriority="low">
             <pre class="preview-ascii" id="preview-ascii" aria-hidden="true"></pre>
             <div class="preview-mode" role="group" aria-label="作品预览模式">
               <button class="active" type="button" data-preview-mode="image" aria-pressed="true">IMAGE</button>
@@ -1606,7 +1606,7 @@
     </section>
 
     <section class="showcase" id="spatial" aria-labelledby="showcase-title">
-      <div class="showcase-fallback" aria-hidden="true"><img src="assets/jiangkou-renders.jpg" alt=""></div>
+      <div class="showcase-fallback" aria-hidden="true"><img src="assets/jiangkou-renders.jpg" alt="" loading="lazy" decoding="async" fetchpriority="low"></div>
       <div class="showcase-webgl" aria-hidden="true"><canvas id="showcase-canvas"></canvas></div>
       <p class="showcase-statement">好看的画面只是结果。<br>每一个形状、材质与运动，<br>都必须为概念提供理由。</p>
       <span class="showcase-side micro">温一帆 / WEN YIFAN</span>
@@ -1756,7 +1756,7 @@
         </div>
         <div class="contact-signature" data-signature-particles role="button" tabindex="0" aria-label="温一帆粒子签名，悬停或点击查看" aria-pressed="false" data-reveal>
           <canvas class="contact-signature-canvas" aria-hidden="true"></canvas>
-          <img class="contact-signature-image" src="assets/wenyifan-signature-vector.svg" alt="温一帆签名">
+          <img class="contact-signature-image" src="assets/wenyifan-signature-vector.svg" alt="温一帆签名" loading="lazy" decoding="async">
           <span class="contact-signature-hint" aria-hidden="true">Hover to resolve / Tap to replay</span>
         </div>
       </div>
@@ -1794,7 +1794,7 @@
           <h2 id="drawer-title">Project index</h2>
           <p>快速检查核心项目、职责和媒介。选择项目后将进入对应案例。</p>
           <figure class="drawer-preview">
-            <img id="drawer-preview-image" src="assets/dad-cover.jpg" alt="ROKU IKITION D&AD入围项目预览">
+            <img id="drawer-preview-image" data-src="assets/dad-cover.jpg" alt="ROKU IKITION D&AD入围项目预览" decoding="async">
             <figcaption class="micro"><span id="drawer-preview-name">ROKU IKITION / D&AD</span><span id="drawer-preview-year">2025</span></figcaption>
           </figure>
           <div class="drawer-project-list">
@@ -1914,6 +1914,7 @@
       setIntroProgress(100);
       intro.classList.add('intro-exit');
       document.documentElement.classList.remove('intro-pending');
+      document.dispatchEvent(new CustomEvent('portfolio:intro-complete'));
       window.setTimeout(() => intro.remove(), introReducedMotion ? 20 : 580);
     };
     const updateIntro = (time) => {
@@ -2537,6 +2538,9 @@
       .filter((element) => element.offsetParent !== null);
     const openProjectDrawer = () => {
       drawerReturnFocus = document.activeElement;
+      if (!drawerPreviewImage.getAttribute('src')) {
+        drawerPreviewImage.src = drawerPreviewImage.dataset.src;
+      }
       projectDrawer.classList.add('open');
       document.body.classList.add('drawer-open');
       indexLauncher.setAttribute('aria-expanded', 'true');
@@ -2661,16 +2665,27 @@
         if (button.dataset.asciiState === 'ready') button.dataset.asciiState = 'dirty';
       }).observe(button);
 
-      button.addEventListener('pointermove', (event) => {
+      let pointerFrame = 0;
+      let pointerX = 0;
+      let pointerY = 0;
+      const renderMediaPointer = () => {
+        pointerFrame = 0;
         const bounds = button.getBoundingClientRect();
-        const x = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
-        const y = Math.max(0, Math.min(1, (event.clientY - bounds.top) / bounds.height));
+        const x = Math.max(0, Math.min(1, (pointerX - bounds.left) / bounds.width));
+        const y = Math.max(0, Math.min(1, (pointerY - bounds.top) / bounds.height));
         button.style.setProperty('--scan-x', `${Math.round(x * 100)}%`);
         button.style.setProperty('--media-x', `${((x - .5) * -8).toFixed(1)}px`);
         button.style.setProperty('--media-y', `${((y - .5) * -8).toFixed(1)}px`);
         inspector.lastElementChild.textContent = `XY ${String(Math.round(x * 99)).padStart(2, '0')} / ${String(Math.round(y * 99)).padStart(2, '0')}`;
+      };
+      button.addEventListener('pointermove', (event) => {
+        pointerX = event.clientX;
+        pointerY = event.clientY;
+        if (!pointerFrame) pointerFrame = window.requestAnimationFrame(renderMediaPointer);
       }, { passive: true });
       button.addEventListener('pointerleave', () => {
+        if (pointerFrame) window.cancelAnimationFrame(pointerFrame);
+        pointerFrame = 0;
         button.style.setProperty('--scan-x', '50%');
         button.style.setProperty('--media-x', '0px');
         button.style.setProperty('--media-y', '0px');
@@ -3438,14 +3453,27 @@
     document.getElementById('year').textContent = String(new Date().getFullYear());
   </script>
   <script type="module">
-    import * as THREE from './assets/vendor/three/three.module.js';
-    import { GLTFLoader } from './assets/vendor/three/addons/loaders/GLTFLoader.js';
+    const waitForVisualIdle = () => new Promise((resolve) => {
+      const schedule = () => {
+        if ('requestIdleCallback' in window) requestIdleCallback(resolve, { timeout: 1400 });
+        else window.setTimeout(resolve, 320);
+      };
+      if (!document.documentElement.classList.contains('intro-pending')) schedule();
+      else document.addEventListener('portfolio:intro-complete', schedule, { once: true });
+    });
+    await waitForVisualIdle();
+    const [THREE, loaderModule] = await Promise.all([
+      import('./assets/vendor/three/three.module.js'),
+      import('./assets/vendor/three/addons/loaders/GLTFLoader.js'),
+    ]);
+    const { GLTFLoader } = loaderModule;
 
     const globalPrism = document.getElementById('global-prism');
     const globalPrismCanvas = document.getElementById('global-prism-canvas');
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (globalPrism && globalPrismCanvas) {
+      const initializePrism = () => {
       let prismRenderer;
       try {
         prismRenderer = new THREE.WebGLRenderer({
@@ -3683,6 +3711,21 @@
         resizePrism();
         globalPrism.dataset.renderState = reducedMotion ? 'static' : 'paused';
       }
+      };
+
+      const prismActivationTarget = document.querySelector('.skills, .contact, .footer');
+      if (prismActivationTarget && 'IntersectionObserver' in window) {
+        const prismActivationObserver = new IntersectionObserver(([entry]) => {
+          if (!entry.isIntersecting) return;
+          prismActivationObserver.disconnect();
+          initializePrism();
+        }, { rootMargin: '900px 0px', threshold: 0 });
+        prismActivationObserver.observe(prismActivationTarget);
+      } else if ('requestIdleCallback' in window) {
+        requestIdleCallback(initializePrism, { timeout: 3200 });
+      } else {
+        window.setTimeout(initializePrism, 1400);
+      }
     }
 
     const hero = document.querySelector('.hero');
@@ -3874,6 +3917,7 @@
     const showcaseCanvas = document.getElementById('showcase-canvas');
 
     if (showcase && showcaseCanvas) {
+      const initializeShowcase = () => {
       let showcaseRenderer;
       try {
         showcaseRenderer = new THREE.WebGLRenderer({
@@ -4060,7 +4104,14 @@
           );
         }, { passive: true });
         showcase.addEventListener('pointerleave', () => targetPointer.set(0, 0), { passive: true });
-        window.addEventListener('scroll', () => { targetScroll = getScrollProgress(); }, { passive: true });
+        let showcaseScrollFrame = 0;
+        window.addEventListener('scroll', () => {
+          if (!visible || showcaseScrollFrame) return;
+          showcaseScrollFrame = window.requestAnimationFrame(() => {
+            showcaseScrollFrame = 0;
+            targetScroll = getScrollProgress();
+          });
+        }, { passive: true });
         window.addEventListener('resize', resizeShowcase, { passive: true });
         showcaseCanvas.addEventListener('webglcontextlost', (event) => {
           event.preventDefault();
@@ -4070,6 +4121,20 @@
         });
         targetScroll = getScrollProgress();
         resizeShowcase();
+      }
+      };
+
+      if ('IntersectionObserver' in window) {
+        const showcaseActivationObserver = new IntersectionObserver(([entry]) => {
+          if (!entry.isIntersecting) return;
+          showcaseActivationObserver.disconnect();
+          initializeShowcase();
+        }, { rootMargin: '800px 0px', threshold: 0 });
+        showcaseActivationObserver.observe(showcase);
+      } else if ('requestIdleCallback' in window) {
+        requestIdleCallback(initializeShowcase, { timeout: 3600 });
+      } else {
+        window.setTimeout(initializeShowcase, 1600);
       }
     }
   </script>
