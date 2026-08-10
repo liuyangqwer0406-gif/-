@@ -42,6 +42,8 @@
       --radius-control: 3px;
       --radius-media: 4px;
       --radius-panel: 6px;
+      --identity-overlap: clamp(48px, 8svh, 80px);
+      --identity-fade: clamp(160px, 24svh, 260px);
       --max: 1360px;
     }
 
@@ -515,6 +517,7 @@
 
     .hero { position: relative; min-height: 100svh; overflow: hidden; background-color: var(--black); background-image: url("assets/digital-scene.jpg"); background-position: center; background-size: cover; isolation: isolate; }
     .hero::before { position: absolute; z-index: 1; inset: 0; background: rgba(8, 8, 8, .43); content: ""; pointer-events: none; }
+    .hero::after { position: absolute; z-index: 1; right: 0; bottom: 0; left: 0; height: var(--identity-fade); background: linear-gradient(to bottom, transparent, var(--black)); content: ""; pointer-events: none; }
     .hero-webgl { position: absolute; z-index: 0; inset: 0; opacity: 0; pointer-events: none; transition: opacity 1.2s var(--ease); }
     .hero.model-ready .hero-webgl { opacity: 1; }
     .hero-webgl canvas { width: 100%; height: 100%; display: block; }
@@ -1165,8 +1168,34 @@
     }
     /* Narrative restructure: preserve the visual system, move core evidence forward. */
     main { display: flex; flex-direction: column; }
-    .hero { order: 1; }
+    .identity-stage { position: relative; order: 1; overflow: clip; color: var(--white); background: var(--black); isolation: isolate; }
+    .hero { min-height: 100svh; padding-bottom: 0; background-color: transparent; }
     .signal-strip { display: none; }
+    .profile-intro { position: relative; z-index: 2; margin-top: calc(var(--identity-overlap) * -1); padding: 0 0 clamp(116px, 11vw, 170px); border-bottom: 1px solid var(--line-dark); color: var(--white); background: transparent; }
+    .profile-intro-grid { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr); gap: clamp(56px, 8vw, 128px); align-items: start; }
+    .profile-intro-copy { min-width: 0; padding-top: clamp(56px, 6vw, 88px); }
+    .profile-intro-label { margin: 0 0 28px; color: var(--orange); }
+    .profile-intro h2 { min-width: 0; max-width: 9ch; margin: 0; overflow-wrap: anywhere; font-family: var(--display); font-size: clamp(54px, 6.4vw, 92px); font-style: normal; font-weight: 600; letter-spacing: 0; line-height: .98; }
+    .profile-intro-opening { max-width: 45ch; margin: 52px 0 0; font-size: clamp(22px, 2.1vw, 31px); line-height: 1.42; }
+    .profile-intro-actions { display: flex; flex-wrap: wrap; gap: 10px 28px; margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--line-dark); }
+    .profile-intro-actions a { min-height: 44px; display: inline-flex; align-items: center; gap: 12px; padding-bottom: 2px; border-bottom: 1px solid currentColor; color: var(--orange); font-family: var(--mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; transition: color .2s var(--ease), transform .12s var(--ease); }
+    .profile-intro-actions a:hover, .profile-intro-actions a:focus-visible { color: var(--white); }
+    .profile-intro-actions a:active { transform: translateY(1px); }
+    .profile-intro-evidence { min-width: 0; }
+    .profile-intro-media { min-width: 0; margin: 0; }
+    .profile-intro-image-field { position: relative; display: block; overflow: clip; border-radius: var(--radius-media); background: var(--black); isolation: isolate; }
+    .profile-intro-image-field::before { position: absolute; z-index: 1; inset: 0; background: var(--black); content: ""; opacity: .04; pointer-events: none; }
+    .profile-intro-image-field::after { position: absolute; z-index: 2; inset: 10px; border: 1px solid var(--white); content: ""; opacity: .2; pointer-events: none; }
+    .profile-intro-media img { display: block; width: 100%; height: auto; aspect-ratio: 1706 / 1279; border-radius: inherit; object-fit: cover; object-position: 50% 42%; filter: brightness(.9) contrast(1.08) saturate(.78); }
+    .profile-intro-media figcaption { display: flex; justify-content: space-between; gap: 20px; margin-top: 12px; color: var(--white); opacity: .54; }
+    .profile-intro-detail { display: grid; grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr); gap: clamp(34px, 5vw, 72px); margin-top: 58px; }
+    .profile-intro-note { max-width: 45ch; margin: 0; color: var(--gray); font-size: 16px; line-height: 1.72; }
+    .profile-intro-facts { margin: 0; border-top: 1px solid var(--line-dark); font-variant-numeric: tabular-nums; }
+    .profile-intro-facts div { display: grid; grid-template-columns: 118px minmax(0, 1fr); gap: 20px; padding: 16px 0 17px; border-bottom: 1px solid var(--line-dark); }
+    .profile-intro-facts dt { color: var(--orange); font-family: var(--mono); font-size: 10px; letter-spacing: .08em; line-height: 1.5; text-transform: uppercase; }
+    .profile-intro-facts dd { min-width: 0; margin: 0; font-size: 16px; line-height: 1.55; }
+    .profile-availability { display: inline-flex; align-items: center; gap: 9px; }
+    .profile-availability::before { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: var(--orange); content: ""; }
     .work-index { order: 2; }
     .cases { display: contents; background: transparent; }
     .cases .shell { display: contents; }
@@ -1213,14 +1242,15 @@
     .contact { order: 12; }
     .footer-marquee { order: 13; }
     #packaging, #keep, #vitrolume { display: none; }
-    .hero-content { grid-template-columns: minmax(0, 1fr); grid-template-rows: 1fr auto; padding-top: 126px; }
-    .hero-copy { width: min(860px, 74vw); align-self: end; padding-bottom: clamp(84px, 9vh, 132px); }
+    .hero-content { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; padding-top: 126px; }
+    .hero-copy { grid-row: 2; width: min(860px, 74vw); align-self: end; padding-bottom: clamp(136px, 16svh, 190px); }
     .hero-label { margin-bottom: 18px; color: rgba(244,243,239,.62); }
     .hero h1 { max-width: none; font-size: clamp(68px, 7.7vw, 118px); line-height: .88; }
     .hero h1 span { display: block; margin-top: 16px; font-size: .52em; line-height: .98; }
     .hero-specialism { margin: 20px 0 0; color: var(--orange); font-family: var(--display); font-size: clamp(30px, 3.1vw, 48px); font-weight: 580; letter-spacing: -.05em; line-height: 1; }
     .hero-specialism em { font-style: normal; }
-    .hero-meta { grid-column: 1 / -1; padding-top: 16px; border-top: 1px solid rgba(244,243,239,.34); }
+    .hero-meta { grid-row: 1; grid-column: 1 / -1; width: min(860px, 68vw); grid-template-columns: 1fr 1fr auto; align-self: start; padding-top: 16px; border-top: 1px solid rgba(244,243,239,.34); }
+    .hero-meta span:nth-child(2) { justify-self: center; }
     .preview-mode { opacity: .42; }
     .preview:hover .preview-mode, .preview:focus-within .preview-mode { opacity: 1; }
     .page-minimap { opacity: .62; }
@@ -1230,15 +1260,46 @@
     .case-media button:hover .media-inspector, .case-media button:focus-visible .media-inspector { opacity: .62; }
     .case-media button:hover::after, .case-media button:focus-visible::after { opacity: .42; }
 
+    @media (min-width: 921px) {
+      :root { --identity-overlap: clamp(140px, 18svh, 220px); --identity-fade: clamp(220px, 30svh, 360px); }
+    }
+    @media (min-width: 921px) and (max-height: 560px) {
+      :root { --identity-overlap: clamp(96px, 28svh, 140px); --identity-fade: clamp(140px, 45svh, 220px); }
+      .hero-content { min-height: 100svh; padding-top: 86px; padding-bottom: 20px; }
+      .hero-meta { width: min(860px, 68vw); padding-top: 10px; }
+      .hero-copy { padding-bottom: 24px; }
+      .hero h1 { font-size: clamp(56px, 16svh, 84px); line-height: .9; }
+      .hero h1 span { margin-top: 8px; font-size: .5em; }
+      .hero-specialism { margin-top: 12px; font-size: clamp(24px, 7svh, 32px); }
+    }
     @media (max-width: 920px) {
       .case { padding-right: 30px; padding-left: 30px; }
+      .profile-intro { padding-bottom: 120px; }
+      .profile-intro-grid { display: flex; flex-direction: column; gap: 56px; }
+      .profile-intro-copy { order: 2; padding-top: 0; }
+      .profile-intro-evidence { display: contents; }
+      .profile-intro-media { order: 1; }
+      .profile-intro-detail { order: 3; margin-top: 0; }
+      .profile-intro h2 { max-width: 10ch; }
+      .profile-intro-opening { max-width: 45ch; }
       .manifesto, .manifesto-frame, .manifesto-stage { min-height: 280px; }
       .manifesto-stage { padding: 66px 0 40px; }
       .archive-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .hero-copy { width: min(780px, 100%); padding-bottom: 0; }
+      .hero-content { grid-template-rows: 1fr auto; }
+      .hero-copy { grid-row: 1; width: min(780px, 100%); padding-bottom: 72px; }
+      .hero-meta { grid-row: 2; width: 100%; grid-template-columns: 1fr 1fr auto; }
     }
     @media (max-width: 560px) {
       .case { padding: 82px 15px; }
+      .profile-intro { padding: 0 0 104px; }
+      .profile-intro-grid { gap: 56px; }
+      .profile-intro-label { margin-bottom: 22px; }
+      .profile-intro h2 { font-size: clamp(44px, 13vw, 58px); line-height: 1.04; }
+      .profile-intro-opening { margin-top: 38px; font-size: 21px; line-height: 1.5; }
+      .profile-intro-actions { align-items: flex-start; flex-direction: column; margin-top: 34px; }
+      .profile-intro-media figcaption { font-size: 9px; }
+      .profile-intro-detail { grid-template-columns: minmax(0, 1fr); gap: 42px; margin-top: 42px; }
+      .profile-intro-facts div { grid-template-columns: 92px minmax(0, 1fr); gap: 14px; }
       .hero h1 { font-size: clamp(52px, 14vw, 72px); }
       .hero h1 span { margin-top: 12px; font-size: .58em; }
       .hero-specialism { margin-top: 15px; font-size: 28px; }
@@ -1317,22 +1378,56 @@
   </div>
 
   <main>
+    <div class="identity-stage" data-nav-theme="dark">
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-webgl" aria-hidden="true"><canvas id="hero-canvas"></canvas></div>
       <span class="model-stamp" aria-hidden="true">Jiangkou / object 01</span>
       <div class="shell hero-content">
         <div class="hero-copy" data-reveal>
-          <p class="hero-label">Brand Campaign Visual Designer</p>
-          <h1 id="hero-title">温一帆<br><span>品牌活动视觉设计师</span></h1>
+          <p class="hero-label">Brand &amp; Campaign Visual Designer</p>
+          <h1 id="hero-title">温一帆<br><span>品牌与活动视觉设计师</span></h1>
           <p class="hero-specialism"><em>3D · AIGC · 数字体验</em></p>
         </div>
         <div class="hero-meta micro">
           <span>Selected Work 2024–2026</span>
-          <span>Brand Campaign / 3D / Digital</span>
+          <span>Brand &amp; Campaign / 3D / Digital</span>
           <a class="hero-cta" href="#work">View selected work <span aria-hidden="true">↗</span></a>
         </div>
       </div>
     </section>
+
+    <section class="profile-intro" id="profile" aria-labelledby="profile-intro-title" data-nav-theme="dark">
+      <div class="shell profile-intro-grid" data-reveal>
+        <div class="profile-intro-copy">
+          <p class="profile-intro-label micro">Profile / Available 2026</p>
+          <h2 id="profile-intro-title">先认识我，<br>再看我如何工作。</h2>
+          <p class="profile-intro-opening">你好，我是温一帆，数字媒体艺术本科毕业生，专注品牌与活动视觉、3D 和 AIGC。我的工作覆盖主视觉、包装、空间延展与数字呈现，让同一个想法在不同媒介里保持清晰。</p>
+          <nav class="profile-intro-actions" aria-label="个人资料操作">
+            <a href="about.html">Full profile <span aria-hidden="true">↗</span></a>
+            <a href="assets/Wen-Yifan-Resume.pdf" download>Download résumé <span aria-hidden="true">↗</span></a>
+            <a href="mailto:2742733283@qq.com">Email me <span aria-hidden="true">↗</span></a>
+          </nav>
+        </div>
+        <div class="profile-intro-evidence">
+          <figure class="profile-intro-media">
+            <span class="profile-intro-image-field">
+              <img src="assets/about-portrait.webp?v=20260809a" width="1122" height="1402" alt="温一帆在侧光中的个人肖像" loading="eager" fetchpriority="high" decoding="async">
+            </span>
+            <figcaption class="micro"><span>Portrait / field 01</span><span>Personal archive</span></figcaption>
+          </figure>
+          <div class="profile-intro-detail">
+          <p class="profile-intro-note">现居青岛，求职杭州，2026 年 8 月 15 日起可到岗，也开放项目合作。我习惯先梳理受众、场景和交付限制，再决定版式、图像、材质与运动方式。</p>
+          <dl class="profile-intro-facts">
+              <div><dt>Currently</dt><dd><span class="profile-availability">Open to visual design roles in Hangzhou</span></dd></div>
+              <div><dt>Based</dt><dd>Qingdao · Available 2026.08.15</dd></div>
+              <div><dt>Education</dt><dd>数字媒体艺术 · 本科 · 2026.06</dd></div>
+              <div><dt>Focus</dt><dd>Brand &amp; campaign / 3D visual / Digital experience</dd></div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </section>
+    </div>
 
     <section class="signal-strip" aria-label="创作领域" data-reveal>
       <div class="shell">
