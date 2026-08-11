@@ -9,9 +9,13 @@
   --sd-muted: #8a8a86;
   --sd-line: rgba(244, 243, 239, .22);
   --sd-orange: #ff5125;
-  --sd-ease: cubic-bezier(.2, .75, .2, 1);
+  --sd-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --sd-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --sd-ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --sd-ease: var(--sd-ease-out);
   --sd-fast: 180ms;
-  --sd-med: 480ms;
+  --sd-med: 250ms;
+  --sd-drawer: 500ms;
   --sd-radius: 3px;
   position: fixed;
   z-index: 80;
@@ -21,12 +25,16 @@
   color: var(--sd-ink);
   font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
   transform: translate3d(calc(-100% + 42px), -50%, 0);
-  transition: transform var(--sd-med) var(--sd-ease), color var(--sd-fast) linear;
+  transition: transform var(--sd-drawer) var(--sd-ease-drawer), color var(--sd-fast) linear;
   contain: layout style;
   pointer-events: none;
 }
 .sound-dock * { box-sizing: border-box; }
 .sound-dock.is-open { transform: translate3d(0, -50%, 0); }
+.sound-dock.motion-instant,
+.sound-dock.motion-instant *,
+.sound-dock.motion-instant *::before,
+.sound-dock.motion-instant *::after { transition: none !important; }
 .sound-dock[data-surface="paper"] {
   --sd-bg: #ecebe6;
   --sd-ink: #111111;
@@ -248,11 +256,10 @@
   background: currentColor;
   clip-path: polygon(0 0, 100% 50%, 0 100%);
   transform: translate(-42%, -50%);
-  transition: clip-path var(--sd-fast) linear, width var(--sd-fast) linear, height var(--sd-fast) linear, transform var(--sd-fast) linear;
+  transition: clip-path var(--sd-fast) linear, transform var(--sd-fast) var(--sd-ease-out);
 }
 .sound-dock.is-playing .record-play::after {
   width: 12px;
-  height: 12px;
   clip-path: none;
   background: linear-gradient(90deg, currentColor 0 34%, transparent 34% 66%, currentColor 66%);
   transform: translate(-50%, -50%);
@@ -329,11 +336,11 @@
 }
 .sound-dock .progress-fill {
   display: block;
-  width: 0;
+  width: 100%;
   height: 100%;
   background: var(--sd-orange);
+  transform: scaleX(0);
   transform-origin: left center;
-  transition: width 80ms linear;
 }
 .sound-dock .time-row {
   display: flex;
@@ -363,7 +370,7 @@
   letter-spacing: .04em;
   text-transform: uppercase;
   white-space: nowrap;
-  transition: color var(--sd-fast) var(--sd-ease), background var(--sd-fast) var(--sd-ease), border-color var(--sd-fast) var(--sd-ease), transform var(--sd-fast) var(--sd-ease);
+  transition: color var(--sd-fast) ease, background var(--sd-fast) ease, border-color var(--sd-fast) ease, transform 160ms var(--sd-ease-out);
 }
 .sound-dock .control:hover,
 .sound-dock .control:focus-visible {
@@ -372,7 +379,7 @@
   border-color: var(--sd-orange);
   outline: none;
 }
-.sound-dock .control:active { transform: translateY(1px); }
+.sound-dock .control:active { transform: scale(.97); }
 .sound-dock .control:disabled { cursor: not-allowed; opacity: .38; }
 .sound-dock .control--accent {
   border-color: var(--sd-orange);
@@ -410,7 +417,7 @@
   background: var(--sd-bg);
   cursor: pointer;
   font: inherit;
-  transition: color var(--sd-fast) var(--sd-ease), background var(--sd-fast) var(--sd-ease), border-color var(--sd-fast) var(--sd-ease), transform var(--sd-fast) var(--sd-ease);
+  transition: color var(--sd-fast) ease, background var(--sd-fast) ease, border-color var(--sd-fast) ease, transform 160ms var(--sd-ease-out);
 }
 .sound-dock .dock-handle:hover,
 .sound-dock .dock-handle:focus-visible {
@@ -419,7 +426,7 @@
   border-color: var(--sd-orange);
   outline: none;
 }
-.sound-dock .dock-handle:active { transform: translateX(1px); }
+.sound-dock .dock-handle:active { transform: scale(.97); }
 .sound-dock .handle-led {
   width: 6px;
   height: 6px;
