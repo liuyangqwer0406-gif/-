@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#111111">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <title>404 / File Not Found — 温一帆</title>
+  <style>
+    /* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 */
+    /* Genre: editorial utility · macrostructure: edge-aligned error field · accent: signal orange */
+    @font-face { font-family: "Noto Sans SC"; src: url("assets/fonts/noto-sans-sc-subset.woff2") format("woff2"); font-style: normal; font-weight: 100 900; font-display: swap; }
+    :root {
+      --color-ink: #111111;
+      --color-paper: #f4f3ef;
+      --color-accent: #ff5a2f;
+      --line: rgba(244, 243, 239, .22);
+      --display: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      --mono: "Cascadia Mono", Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    html, body { overflow-x: clip; }
+    html { color: var(--color-paper); background: var(--color-ink); }
+    body { min-height: 100dvh; margin: 0; display: grid; grid-template-rows: auto 1fr; font-family: var(--display); }
+    a { color: inherit; text-decoration: none; }
+    a:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 5px; }
+    .topbar { min-height: 72px; display: flex; align-items: center; justify-content: space-between; padding: 0 clamp(20px, 4vw, 64px); border-bottom: 1px solid var(--line); font: 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    .brand { display: inline-flex; gap: 8px; align-items: flex-start; }
+    .brand sup { color: var(--color-accent); font-size: 8px; }
+    main { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(250px, .6fr); min-height: calc(100dvh - 72px); }
+    .error-field { padding: clamp(38px, 7vw, 104px) clamp(20px, 4vw, 64px); display: flex; flex-direction: column; justify-content: space-between; border-right: 1px solid var(--line); }
+    .kicker, .route-list span { font: 10px/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    h1 { min-width: 0; margin: 48px 0 24px; color: var(--color-paper); font-size: clamp(116px, 25vw, 390px); font-weight: 620; letter-spacing: -.09em; line-height: .82; overflow-wrap: anywhere; }
+    .statement { max-width: 45ch; margin: 0; font-size: clamp(24px, 3.4vw, 52px); font-weight: 350; letter-spacing: -.035em; line-height: 1.06; }
+    .route-list { display: grid; align-content: end; }
+    .route-list a { min-height: 92px; padding: 22px clamp(20px, 4vw, 48px); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); white-space: nowrap; transition: color 180ms ease, background-color 180ms ease; }
+    .route-list a:first-child { border-top: 1px solid var(--line); }
+    .route-list strong { font-size: clamp(22px, 3vw, 42px); font-weight: 420; letter-spacing: -.03em; }
+    .route-list a:hover { color: var(--color-ink); background: var(--color-accent); }
+    .route-list a:active { color: var(--color-ink); background: var(--color-paper); }
+    @media (max-width: 760px) {
+      main { grid-template-columns: 1fr; }
+      .error-field { min-height: 58dvh; border-right: 0; }
+      h1 { margin-top: 38px; }
+      .route-list a { min-height: 76px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .route-list a { transition: none; } }
+  </style>
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="index.html"><span>温一帆 / Wen Yifan</span><sup>026</sup></a><span>Portfolio archive</span></header>
+  <main>
+    <section class="error-field" aria-labelledby="error-title">
+      <div><p class="kicker">Error / File not found</p><h1 id="error-title">404</h1></div>
+      <p class="statement">这条路径没有对应的项目档案。你可以回到首页，或从完整作品与个人介绍继续浏览。</p>
+    </section>
+    <nav class="route-list" aria-label="返回网站">
+      <a href="index.html"><span>01 / Home</span><strong>首页 ↗</strong></a>
+      <a href="index.html#selected-work"><span>02 / Work</span><strong>主案例 ↗</strong></a>
+      <a href="about.html"><span>03 / Profile</span><strong>关于我 ↗</strong></a>
+    </nav>
+  </main>
+</body>
+</html>
