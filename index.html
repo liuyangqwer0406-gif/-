@@ -1358,7 +1358,7 @@
         --identity-profile-shift: 28px;
         --identity-portrait-scale: 1.035;
         --identity-facts-shift: 16px;
-        height: 178svh;
+        height: 280svh;
         overflow: visible;
       }
       .identity-morph-stage {
@@ -1371,7 +1371,8 @@
         isolation: isolate;
       }
       .identity-morph-stage > .hero,
-      .identity-morph-stage > .profile-intro {
+      .identity-morph-stage > .profile-intro,
+      .identity-morph-stage > .selected-work-heading {
         position: absolute;
         inset: 0;
         width: 100%;
@@ -1411,7 +1412,7 @@
       }
       .profile-intro { z-index: 2; border-bottom: 0; background: transparent; pointer-events: none; }
       .identity-stage[data-morph-phase="profile"] .profile-intro { pointer-events: auto; }
-      .identity-stage[data-morph-phase="profile"] .hero { pointer-events: none; }
+      .identity-stage:not([data-morph-phase="hero"]) .hero { pointer-events: none; }
       .profile-intro-grid {
         width: 100%;
         max-width: none;
@@ -1468,6 +1469,25 @@
       .profile-intro-facts div { grid-template-columns: 84px minmax(0, 1fr); gap: 12px; min-height: 66px; padding: 12px 14px; border-right: 1px solid var(--line-dark); }
       .profile-intro-facts dt { font-size: 8px; }
       .profile-intro-facts dd { font-size: 12px; line-height: 1.42; }
+      .identity-morph-stage > .selected-work-heading {
+        z-index: 3;
+        padding: 0;
+        border-bottom: 0;
+        clip-path: inset(100% 0 0 0);
+        pointer-events: none;
+        will-change: clip-path;
+      }
+      .identity-stage[data-morph-phase="work"] .selected-work-heading { pointer-events: auto; }
+      .identity-morph-stage > .selected-work-heading .shell {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding-top: clamp(76px, 10svh, 104px);
+        opacity: 0;
+        transform: translateY(12svh);
+      }
+      .identity-morph-stage > .selected-work-heading h2 { width: min(900px, 78vw); }
       .identity-morph-progress { position: absolute; z-index: 8; right: 0; bottom: 0; left: 0; height: 2px; display: block; overflow: hidden; pointer-events: none; }
       .identity-morph-progress::after { display: block; width: 100%; height: 100%; background: var(--orange); content: ""; transform: scaleX(var(--identity-progress)); transform-origin: left center; }
     }
@@ -1598,7 +1618,7 @@
       <button class="menu-button" type="button" aria-label="打开导航" aria-expanded="false"><span></span><span></span></button>
       <nav class="nav" aria-label="主导航">
         <a class="odo-link" href="about.html" data-odo="About *"><span class="sr-only">About *</span><span class="odo-link__visual" aria-hidden="true"></span></a>
-        <a class="odo-link" href="#selected-work" data-odo="Works //"><span class="sr-only">Works //</span><span class="odo-link__visual" aria-hidden="true"></span></a>
+        <a class="odo-link" href="#selected-work" data-scroll-special data-odo="Works //"><span class="sr-only">Works //</span><span class="odo-link__visual" aria-hidden="true"></span></a>
         <a class="odo-link" href="#skills" data-odo="Skills"><span class="sr-only">Skills</span><span class="odo-link__visual" aria-hidden="true"></span></a>
         <a class="odo-link" href="#contact" data-odo="Let's talk"><span class="sr-only">Let's talk</span><span class="odo-link__visual" aria-hidden="true"></span></a>
       </nav>
@@ -1623,7 +1643,7 @@
         <div class="hero-meta micro">
           <span>Selected Work 2024–2026</span>
           <span>Brand &amp; Campaign / 3D / Digital</span>
-          <a class="hero-cta" href="#selected-work">View selected work <span aria-hidden="true">↗</span></a>
+          <a class="hero-cta" href="#selected-work" data-scroll-special>View selected work <span aria-hidden="true">↗</span></a>
         </div>
       </div>
     </section>
@@ -1657,6 +1677,12 @@
             </dl>
           </div>
         </div>
+      </div>
+    </section>
+    <section class="selected-work-heading" id="selected-work" aria-labelledby="selected-work-title" data-nav-theme="light">
+      <div class="shell">
+        <h2 id="selected-work-title"><span class="sr-only">Selected Work</span><img src="assets/brand-type/valve-selected-work.png?v=20260811a" width="1547" height="131" alt="" aria-hidden="true" loading="eager" decoding="async"></h2>
+        <p class="micro">Case studies / 2024–2026</p>
       </div>
     </section>
     <span class="identity-morph-progress" aria-hidden="true"></span>
@@ -1821,13 +1847,6 @@
       <span class="showcase-year micro">/ 2026 /</span>
       <button class="showcase-toggle" type="button" aria-pressed="true"><span aria-hidden="true">−</span><span>结构收拢</span></button>
       <h2 id="showcase-title">Portfolio@26</h2>
-    </section>
-
-    <section class="selected-work-heading" id="selected-work" aria-labelledby="selected-work-title" data-nav-theme="light">
-      <div class="shell">
-        <h2 id="selected-work-title"><span class="sr-only">Selected Work</span><img src="assets/brand-type/valve-selected-work.png?v=20260811a" width="1547" height="131" alt="" aria-hidden="true" loading="lazy" decoding="async"></h2>
-        <p class="micro">Case studies / 2024–2026</p>
-      </div>
     </section>
 
     <section class="cases" aria-label="项目案例" data-nav-theme="light">
@@ -2549,6 +2568,7 @@
     const identityStage = document.querySelector('.identity-stage');
     const identityHero = identityStage?.querySelector('.hero');
     const identityProfile = identityStage?.querySelector('.profile-intro');
+    const identityWork = identityStage?.querySelector('.selected-work-heading');
     const identityMorphQuery = window.matchMedia('(min-width: 57.5625rem) and (min-height: 45rem) and (prefers-reduced-motion: no-preference)');
     let identityMorphPhase = '';
     const clampUnit = (value) => Math.max(0, Math.min(1, value));
@@ -2559,12 +2579,17 @@
       else panel.removeAttribute('aria-hidden');
     };
     const updateIdentityMorph = () => {
-      if (!identityStage || !identityHero || !identityProfile) return;
+      if (!identityStage || !identityHero || !identityProfile || !identityWork) return;
       if (!identityMorphQuery.matches) {
         identityStage.style.removeProperty('--identity-progress');
+        identityWork.style.removeProperty('clip-path');
+        identityWork.querySelector('.shell')?.style.removeProperty('opacity');
+        identityWork.querySelector('.shell')?.style.removeProperty('transform');
         identityStage.removeAttribute('data-morph-phase');
+        identityStage.dataset.navTheme = 'dark';
         setIdentityPanelState(identityHero, false);
         setIdentityPanelState(identityProfile, false);
+        setIdentityPanelState(identityWork, false);
         identityMorphPhase = '';
         return;
       }
@@ -2572,22 +2597,33 @@
       const bounds = identityStage.getBoundingClientRect();
       const travel = Math.max(1, bounds.height - window.innerHeight);
       const progress = clampUnit(-bounds.top / travel);
-      const phase = progress >= .54 ? 'profile' : 'hero';
+      const heroProgress = clampUnit((progress - .26) / .28);
+      const paperReveal = clampUnit((progress - .76) / .24);
+      const profileExit = clampUnit((progress - .8) / .16);
+      const phase = progress >= .92 ? 'work' : heroProgress >= .88 ? 'profile' : 'hero';
+      identityStage.dataset.navTheme = progress >= .98 ? 'light' : 'dark';
       const style = identityStage.style;
       style.setProperty('--identity-progress', progress.toFixed(4));
-      style.setProperty('--identity-hero-opacity', clampUnit(1.18 - progress * 1.55).toFixed(4));
-      style.setProperty('--identity-copy-opacity', clampUnit(1.22 - progress * 3).toFixed(4));
-      style.setProperty('--identity-portrait-opacity', clampUnit((progress - .16) * 1.8).toFixed(4));
-      style.setProperty('--identity-profile-opacity', clampUnit((progress - .38) * 2.1).toFixed(4));
-      style.setProperty('--identity-facts-opacity', clampUnit((progress - .66) * 3.3).toFixed(4));
-      style.setProperty('--identity-hero-scale', String(1.015 - progress * .015));
-      style.setProperty('--identity-hero-shift', `${progress * -24}px`);
-      style.setProperty('--identity-meta-shift', `${progress * -14}px`);
-      style.setProperty('--identity-profile-shift', `${(1 - progress) * 28}px`);
-      style.setProperty('--identity-portrait-scale', String(1.035 - progress * .035));
+      style.setProperty('--identity-hero-opacity', clampUnit(1 - heroProgress).toFixed(4));
+      style.setProperty('--identity-copy-opacity', clampUnit(1 - heroProgress * 1.08).toFixed(4));
+      style.setProperty('--identity-portrait-opacity', clampUnit((heroProgress - .12) / .64).toFixed(4));
+      style.setProperty('--identity-profile-opacity', (clampUnit((heroProgress - .78) / .22) * (1 - profileExit * .72)).toFixed(4));
+      style.setProperty('--identity-facts-opacity', (clampUnit((progress - .58) * 4.2) * (1 - profileExit)).toFixed(4));
+      identityWork.style.clipPath = `inset(${((1 - paperReveal) * 100).toFixed(3)}% 0 0 0)`;
+      const identityWorkShell = identityWork.querySelector('.shell');
+      if (identityWorkShell) {
+        identityWorkShell.style.opacity = clampUnit((paperReveal - .35) / .47).toFixed(4);
+        identityWorkShell.style.transform = `translateY(${((1 - paperReveal) * 12).toFixed(3)}svh)`;
+      }
+      style.setProperty('--identity-hero-scale', String(1.015 - heroProgress * .015));
+      style.setProperty('--identity-hero-shift', `${heroProgress * -24}px`);
+      style.setProperty('--identity-meta-shift', `${heroProgress * -14}px`);
+      style.setProperty('--identity-profile-shift', `${(1 - heroProgress) * 28 - profileExit * 12}px`);
+      style.setProperty('--identity-portrait-scale', String(1.035 - heroProgress * .035));
       style.setProperty('--identity-facts-shift', `${(1 - progress) * 16}px`);
-      setIdentityPanelState(identityHero, phase === 'profile');
-      setIdentityPanelState(identityProfile, phase === 'hero');
+      setIdentityPanelState(identityHero, phase !== 'hero');
+      setIdentityPanelState(identityProfile, phase !== 'profile');
+      setIdentityPanelState(identityWork, phase !== 'work');
       if (phase === identityMorphPhase) return;
       identityMorphPhase = phase;
       identityStage.dataset.morphPhase = phase;
@@ -2639,6 +2675,10 @@
       const marker = Math.min(190, window.innerHeight * .32);
       let active = null;
       navTargets.forEach((item) => {
+        if (item.target === identityWork && identityMorphQuery.matches) {
+          if (identityStage?.dataset.morphPhase === 'work') active = item;
+          return;
+        }
         const bounds = item.target.getBoundingClientRect();
         if (bounds.top <= marker && bounds.bottom > marker) active = item;
       });
@@ -2658,11 +2698,21 @@
     const updateInterfaceTheme = () => {
       const marker = Math.min(72, window.innerHeight * .12);
       let section = null;
-      for (const item of interfaceThemeSections) {
-        const bounds = item.getBoundingClientRect();
-        if (bounds.top <= marker && bounds.bottom > marker) {
-          section = item;
-          break;
+      const workHeadingBounds = !identityMorphQuery.matches
+        ? identityWork?.querySelector('.shell')?.getBoundingClientRect()
+        : null;
+      const workAtMarker = identityMorphQuery.matches
+        ? identityStage?.dataset.navTheme === 'light'
+        : Boolean(workHeadingBounds && workHeadingBounds.top <= marker && workHeadingBounds.bottom > marker);
+      if (workAtMarker) {
+        section = identityWork;
+      } else {
+        for (const item of interfaceThemeSections) {
+          const bounds = item.getBoundingClientRect();
+          if (bounds.top <= marker && bounds.bottom > marker) {
+            section = item;
+            break;
+          }
         }
       }
       if (!section) {
@@ -2707,11 +2757,30 @@
       if (window.location.hash !== '#profile' || !identityMorphQuery.matches || !identityStage) return;
       const stageTop = window.scrollY + identityStage.getBoundingClientRect().top;
       const travel = Math.max(1, identityStage.offsetHeight - window.innerHeight);
-      window.scrollTo({ top: stageTop + travel * .84, behavior: 'auto' });
+      window.scrollTo({ top: stageTop + travel * .72, behavior: 'auto' });
     };
-    window.addEventListener('hashchange', () => window.requestAnimationFrame(revealProfileAnchor));
+    const revealWorkAnchor = () => {
+      if (window.location.hash !== '#selected-work' || !identityMorphQuery.matches || !identityStage) return;
+      const stageTop = window.scrollY + identityStage.getBoundingClientRect().top;
+      const travel = Math.max(1, identityStage.offsetHeight - window.innerHeight);
+      window.scrollTo({ top: stageTop + travel, behavior: 'auto' });
+    };
+    const revealIdentityAnchor = () => {
+      revealProfileAnchor();
+      revealWorkAnchor();
+    };
+    document.querySelectorAll('a[data-scroll-special][href="#selected-work"]').forEach((link) => link.addEventListener('click', (event) => {
+      if (!identityMorphQuery.matches || !identityStage) return;
+      event.preventDefault();
+      const stageTop = window.scrollY + identityStage.getBoundingClientRect().top;
+      const travel = Math.max(1, identityStage.offsetHeight - window.innerHeight);
+      window.history.replaceState(null, '', '#selected-work');
+      if (typeof window.__siteScrollTo === 'function') window.__siteScrollTo(stageTop + travel);
+      else window.scrollTo({ top: stageTop + travel, behavior: reducedMotionPreference ? 'auto' : 'smooth' });
+    }));
+    window.addEventListener('hashchange', () => window.requestAnimationFrame(revealIdentityAnchor));
     runStageScroll();
-    window.requestAnimationFrame(revealProfileAnchor);
+    window.requestAnimationFrame(revealIdentityAnchor);
 
     document.querySelectorAll('.skill-heading').forEach((button) => button.addEventListener('click', () => {
       const group = button.closest('.skill-group');
@@ -4005,7 +4074,7 @@
       const pointer = new THREE.Vector2();
       const targetPointer = new THREE.Vector2();
       let isVisible = true;
-      let heroPhaseActive = identityStage?.dataset.morphPhase !== 'profile';
+      let heroPhaseActive = identityStage?.dataset.morphPhase === 'hero';
       let modelLoaded = false;
       let frameId = 0;
       const clock = new THREE.Clock();
@@ -4102,7 +4171,7 @@
       }, { threshold: 0 });
       visibilityObserver.observe(hero);
       identityStage?.addEventListener('identityphasechange', (event) => {
-        heroPhaseActive = event.detail.phase !== 'profile';
+        heroPhaseActive = event.detail.phase === 'hero';
         if (heroPhaseActive) startRender();
         else stopRender();
       });
@@ -4355,6 +4424,7 @@
       }
     }
   </script>
+  <script src="assets/site-scroll.js?v=20260813a" defer></script>
   <script src="assets/site-sound.js?v=20260808a" data-root="" data-surface="dark" data-three="assets/vendor/three/three.module.js" defer></script>
 </body>
 </html>
