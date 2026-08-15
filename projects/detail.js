@@ -96,7 +96,7 @@ if (!reducedMotion && window.matchMedia('(hover: hover) and (pointer: fine) and 
     const target = event.target;
     cursor.classList.toggle('interactive', Boolean(target.closest('a, button')));
     cursor.classList.toggle('is-media', Boolean(target.closest('.media-button')));
-    cursor.classList.toggle('on-dark', Boolean(target.closest('.chapter, .lightbox')));
+    cursor.classList.toggle('on-dark', Boolean(target.closest('.chapter, .rv-dark, .lightbox')));
   }, { passive: true });
   window.addEventListener('pointerdown', () => cursor.classList.add('pressed'), { passive: true });
   window.addEventListener('pointerup', () => cursor.classList.remove('pressed'), { passive: true });
@@ -113,31 +113,38 @@ if (!reducedMotion && window.matchMedia('(hover: hover) and (pointer: fine) and 
 
 /* Short paper case boot — not the home black theatre intro */
 (() => {
-  if (sessionStorage.getItem('wyf-case-boot') === '1' || reducedMotion) {
+  const boot = document.querySelector('.case-boot');
+  const repeats = boot?.dataset.repeat === 'always';
+  if ((!repeats && sessionStorage.getItem('wyf-case-boot') === '1') || reducedMotion) {
     document.documentElement.classList.remove('case-booting');
-    document.querySelector('.case-boot')?.remove();
+    boot?.remove();
     return;
   }
-  const boot = document.querySelector('.case-boot');
   if (!boot) {
     document.documentElement.classList.remove('case-booting');
     return;
   }
   const bar = boot.querySelector('.case-boot-bar span');
+  const cssProgress = boot.hasAttribute('data-css-progress');
+  const duration = Number(boot.dataset.duration) || 720;
   const started = performance.now();
   let done = false;
   const finish = () => {
     if (done) return;
     done = true;
-    if (bar) bar.style.transform = 'scaleX(1)';
+    if (bar && !cssProgress) bar.style.transform = 'scaleX(1)';
     boot.classList.add('is-done');
     document.documentElement.classList.remove('case-booting');
     sessionStorage.setItem('wyf-case-boot', '1');
-    window.setTimeout(() => boot.remove(), 480);
+    window.setTimeout(() => boot.remove(), cssProgress ? 620 : 480);
   };
+  if (cssProgress) {
+    window.setTimeout(finish, duration);
+    return;
+  }
   const tick = (now) => {
     if (done) return;
-    const t = Math.min(1, (now - started) / 720);
+    const t = Math.min(1, (now - started) / duration);
     if (bar) bar.style.transform = `scaleX(${t})`;
     if (t >= 1) finish();
     else requestAnimationFrame(tick);
