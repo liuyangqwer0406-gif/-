@@ -123,6 +123,7 @@ figure { margin: 0; }
 .gallery .third { grid-column: span 4; }
 .gallery .offset-left { grid-column: 1 / span 8; }
 .gallery .offset-right { grid-column: 5 / -1; }
+.gallery-pair { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
 .media-button { width: 100%; display: block; overflow: hidden; border: 0; border-radius: var(--radius); padding: 0; background: #222; cursor: zoom-in; }
 .media-button img { aspect-ratio: var(--ratio, 16 / 9); object-fit: cover; transition: transform 250ms var(--ease-out), filter 180ms ease; }
 .media-button.contain img { object-fit: contain; background: #ecebe6; }
@@ -201,6 +202,7 @@ figcaption { display: flex; justify-content: space-between; gap: 20px; margin-to
   .principle b { margin: 28px 0 12px; }
   .chapter { padding: 88px 0; }
   .gallery { gap: 34px; }
+  .gallery-pair { grid-template-columns: 1fr; gap: 34px; }
   .gallery .wide, .gallery .half, .gallery .third, .gallery .offset-left, .gallery .offset-right { grid-column: 1 / -1; }
   .project-nav-inner { min-height: 240px; }
   .project-nav a { padding-top: 22px; }
