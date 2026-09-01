@@ -12,10 +12,12 @@ import {
 import { VgpuSignalField } from "@/components/vgpu/vgpu-signal-field";
 import { SylvaLivingWorldScene } from "./sylva-living-world-scene";
 import { TransitionLink } from "./transition-link";
+import { InstrumentCursor } from "./instrument-cursor";
+import { SmoothWheelScroll } from "./smooth-wheel-scroll";
 
 type RoutePhase = "idle" | "leaving" | "loading" | "entering";
 
-const ROUTE_ENTER_DURATION = 800;
+const ROUTE_ENTER_DURATION = 520;
 const ROUTE_BUFFER_DELAY = 2400;
 const ROUTE_RECOVERY_TIMEOUT = 8000;
 
@@ -50,7 +52,7 @@ export function SynthesisShell({ children }: { children: React.ReactNode }) {
   const [routeFieldActive, setRouteFieldActive] = useState(false);
   const [routeFieldOrigin, setRouteFieldOrigin] = useState<readonly [number, number]>([0.5, 0.5]);
   const [routeFieldPulse, setRouteFieldPulse] = useState(0);
-  const progressBar = useRef<HTMLElement>(null);
+  const [homeSceneActive, setHomeSceneActive] = useState(isHome);
   const primaryNav = useRef<HTMLElement>(null);
   const handoffNode = useRef<HTMLDivElement>(null);
   const handoffSource = useRef<SynthesisTransitionCover | null>(null);
@@ -138,6 +140,19 @@ export function SynthesisShell({ children }: { children: React.ReactNode }) {
     const timer = setTimeout(mount, 500);
     return () => clearTimeout(timer);
   }, [loaded, routeFieldMounted]);
+
+  useEffect(() => {
+    if (!isHome) return;
+
+    const hero = document.querySelector(".synthesis-hero");
+    if (!hero || typeof IntersectionObserver === "undefined") return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      setHomeSceneActive(entry?.isIntersecting ?? true);
+    });
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, [isHome]);
 
   useEffect(() => {
     const timers = [
@@ -230,29 +245,6 @@ export function SynthesisShell({ children }: { children: React.ReactNode }) {
       return () => window.cancelAnimationFrame(frame);
     }
   }, [pathname, applyRoutePhase, finishRouteTransition]);
-
-  useEffect(() => {
-    let frame = 0;
-    const paint = () => {
-      frame = 0;
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = max > 0 ? Math.min(1, window.scrollY / max) : 0;
-      if (progressBar.current) progressBar.current.style.transform = `scaleX(${progress})`;
-    };
-
-    const schedulePaint = () => {
-      if (!frame) frame = window.requestAnimationFrame(paint);
-    };
-
-    schedulePaint();
-    window.addEventListener("scroll", schedulePaint, { passive: true });
-    window.addEventListener("resize", schedulePaint);
-    return () => {
-      window.cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", schedulePaint);
-      window.removeEventListener("resize", schedulePaint);
-    };
-  }, [pathname]);
 
   useEffect(() => {
     const nav = primaryNav.current;
@@ -356,6 +348,8 @@ export function SynthesisShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className={`synthesis-site${loaded ? " is-loaded" : " is-loading"}`} aria-busy={routePhase === "loading"}>
+      <InstrumentCursor />
+      <SmoothWheelScroll />
       <a className="synthesis-skip" href="#content">Skip to content</a>
       <div className="synthesis-loader" aria-hidden="true">
         <div className="synthesis-loader__meta">
@@ -435,7 +429,7 @@ export function SynthesisShell({ children }: { children: React.ReactNode }) {
         <b className="route-transition__signal" aria-hidden="true" />
       </div>
       <div className={`synthesis-persistent-scene${isHome ? " is-active" : ""}`} aria-hidden="true">
-        {isHome ? <SylvaLivingWorldScene variant="black-ember" /> : null}
+        {isHome ? <SylvaLivingWorldScene variant="black-ember" active={homeSceneActive} /> : null}
       </div>
       <header className="synthesis-header">
         <TransitionLink className="synthesis-brand" href="/synthesis" aria-label="Wen Yifan synthesis portfolio home"><span>WEN</span> YIFAN<sup>026</sup></TransitionLink>
@@ -444,9 +438,8 @@ export function SynthesisShell({ children }: { children: React.ReactNode }) {
           <TransitionLink data-proximity-item href={isHome ? "#about" : "/synthesis#about"}><span data-proximity-label>ABOUT</span></TransitionLink>
           <a data-proximity-item href="mailto:2742733283@qq.com"><span data-proximity-label>CONTACT</span></a>
         </nav>
-        <span className="synthesis-header__place">HANGZHOU / CN</span>
       </header>
-      <div className="synthesis-progress" aria-hidden="true"><i ref={progressBar} style={{ transform: "scaleX(0)" }} /></div>
+      <div className="synthesis-progress" aria-hidden="true"><i /></div>
       {children}
     </div>
   );

@@ -40,12 +40,27 @@ export function LiquidLink({
   const hovered = useRef(false);
   const focused = useRef(false);
   const intersects = useRef(true);
-  const active = useRef(true);
+  const active = useRef(false);
+  const activityTimer = useRef(0);
   const [ready, setReady] = useState(false);
 
   const send = useCallback((message: ShaderMessage) => {
     frame.current?.contentWindow?.postMessage({ liquidMetalLink: message }, "*");
   }, []);
+
+  const syncActivity = useCallback((deferInactive = false) => {
+    window.clearTimeout(activityTimer.current);
+    const nextActive = !reducedMotion() && intersects.current && document.visibilityState !== "hidden" && (hovered.current || focused.current);
+    const apply = () => {
+      active.current = nextActive;
+      send({ type: "activity", value: nextActive });
+    };
+    if (!nextActive && deferInactive) {
+      activityTimer.current = window.setTimeout(apply, 320);
+    } else {
+      apply();
+    }
+  }, [send]);
 
   const pointerData = (event: ReactPointerEvent<HTMLAnchorElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -62,23 +77,20 @@ export function LiquidLink({
     const anchor = host.current;
     if (!anchor) return;
 
-    const sync = () => {
-      const nextActive = intersects.current && document.visibilityState !== "hidden";
-      active.current = nextActive;
-      send({ type: "activity", value: nextActive });
-    };
     const observer = new IntersectionObserver(([entry]) => {
       intersects.current = entry.isIntersecting;
-      sync();
+      syncActivity();
     }, { rootMargin: "120px" });
+    const onVisibilityChange = () => syncActivity();
 
     observer.observe(anchor);
-    document.addEventListener("visibilitychange", sync);
+    document.addEventListener("visibilitychange", onVisibilityChange);
     return () => {
+      window.clearTimeout(activityTimer.current);
       observer.disconnect();
-      document.removeEventListener("visibilitychange", sync);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [send]);
+  }, [syncActivity]);
 
   useEffect(() => {
     let probes = 0;
@@ -105,7 +117,8 @@ export function LiquidLink({
   }, [send]);
 
   const handlePointerEnter = (event: ReactPointerEvent<HTMLAnchorElement>) => {
-    hovered.current = true;
+    hovered.current = event.pointerType === "mouse";
+    syncActivity();
     if (!reducedMotion() && event.pointerType === "mouse") {
       send({ type: "hover", value: true, ...pointerData(event) });
     }
@@ -122,6 +135,7 @@ export function LiquidLink({
     if (!reducedMotion() && !focused.current && event.pointerType === "mouse") {
       send({ type: "hover", value: false });
     }
+    syncActivity(true);
   };
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLAnchorElement>) => {
@@ -143,12 +157,14 @@ export function LiquidLink({
 
   const handleFocus = () => {
     focused.current = true;
+    syncActivity();
     if (!reducedMotion()) send({ type: "hover", value: true });
   };
 
   const handleBlur = () => {
     focused.current = false;
     if (!reducedMotion() && !hovered.current) send({ type: "hover", value: false });
+    syncActivity(true);
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLAnchorElement>) => {
@@ -187,7 +203,7 @@ export function LiquidLink({
         aria-hidden="true"
         tabIndex={-1}
         sandbox="allow-scripts"
-        loading="eager"
+        loading="lazy"
         onLoad={() => {
           setReady(true);
           send({ type: "activity", value: active.current });

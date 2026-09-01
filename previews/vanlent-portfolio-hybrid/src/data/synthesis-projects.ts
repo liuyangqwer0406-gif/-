@@ -91,7 +91,7 @@ export const synthesisProjects: SynthesisProject[] = [
     chapters: [
       {
         title: "DESIGN THAT REACHES THE SHELF.",
-        titleCn: "在 2–3 天内完成，还要经得起生产与上架。",
+        titleCn: "在 2-3 天内完成，还要经得起生产与上架。",
         body: "Typical projects moved through two or three feedback rounds in two to three days. The task was to keep hierarchy and visual consistency intact while producing accurate multilingual files.",
         images: [
           image("packaging-mockup.jpg", "酒红色毛毯成品包装与纸质腰封", "Teddy blanket", "Finished package"),
@@ -113,7 +113,7 @@ export const synthesisProjects: SynthesisProject[] = [
         ],
       },
     ],
-    closing: "Accuracy, version control and readable product information were the design outcome—not invisible production chores.",
+    closing: "Accuracy, version control and readable product information were the design outcome, not invisible production chores.",
     closingCn: "从文件到货架，准确本身就是设计结果；公开页面已脱敏客户地址、条码与内部编号。",
   },
   {
@@ -270,7 +270,7 @@ export const synthesisProjects: SynthesisProject[] = [
     title: "VITROLUME",
     titleCn: "珀光",
     discipline: "Premium glassware identity",
-    year: "2025—2026",
+    year: "2025-2026",
     role: "Brand / Visual direction",
     scope: "Identity / Glassware / Packaging",
     status: "Personal concept",

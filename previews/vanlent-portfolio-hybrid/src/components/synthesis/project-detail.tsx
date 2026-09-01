@@ -8,74 +8,23 @@ import { LiquidLink } from "./liquid-link";
 import { announceSynthesisRouteReady } from "./route-events";
 import { TransitionLink } from "./transition-link";
 
-const CASE_TITLE_DECODE = {
-  duration: 560,
-  scrambleLength: 10,
-  preserveChance: 0.3,
-  tailChance: 0.18,
-} as const;
-const CASE_TITLE_DECODE_POOL = "#%&@$/\\<>*+=~ABCDEFGHKMNPRSTUVWXYZ0123456789";
-
-function DecodedCaseTitle({ text }: { text: string }) {
+function RevealedCaseTitle({ text }: { text: string }) {
   const root = useRef<HTMLHeadingElement>(null);
-  const revealed = useRef<HTMLSpanElement>(null);
-  const noise = useRef<HTMLSpanElement>(null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     const heading = root.current;
-    const revealedText = revealed.current;
-    const noiseText = noise.current;
-    if (!heading || !revealedText || !noiseText) return;
+    if (!heading) return;
 
     let frame = 0;
     let started = false;
     let loadObserver: MutationObserver | null = null;
     let routeObserver: MutationObserver | null = null;
 
-    const renderFinal = () => {
-      revealedText.textContent = text;
-      noiseText.textContent = "";
-    };
-
-    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      revealedText.textContent = "";
-      noiseText.textContent = text;
-    }
-
     const start = () => {
       if (started) return;
       started = true;
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        renderFinal();
-        return;
-      }
-
-      const startTime = performance.now();
-      const draw = (now: number) => {
-        const progress = Math.min(1, Math.max(0, (now - startTime) / CASE_TITLE_DECODE.duration));
-        const eased = 1 - Math.pow(1 - progress, 2);
-        const visibleLength = Math.floor(eased * text.length);
-        const scrambleEnd = Math.min(text.length, visibleLength + CASE_TITLE_DECODE.scrambleLength);
-        let unsettled = "";
-
-        for (let index = visibleLength; index < text.length; index += 1) {
-          const character = text[index];
-          if (character === " " || Math.random() < CASE_TITLE_DECODE.preserveChance) {
-            unsettled += character;
-          } else if (index < scrambleEnd || Math.random() < CASE_TITLE_DECODE.tailChance) {
-            unsettled += CASE_TITLE_DECODE_POOL[(Math.random() * CASE_TITLE_DECODE_POOL.length) | 0];
-          } else {
-            unsettled += character;
-          }
-        }
-
-        revealedText.textContent = text.slice(0, visibleLength);
-        noiseText.textContent = unsettled;
-        if (progress < 1) frame = window.requestAnimationFrame(draw);
-        else renderFinal();
-      };
-
-      frame = window.requestAnimationFrame(draw);
+      frame = window.requestAnimationFrame(() => setVisible(true));
     };
 
     const waitForRoute = () => {
@@ -114,11 +63,8 @@ function DecodedCaseTitle({ text }: { text: string }) {
   }, [text]);
 
   return (
-    <h1 ref={root} id="case-title" aria-label={text}>
-      <span className="case-title-decode" aria-hidden="true">
-        <span ref={revealed}>{text}</span>
-        <span ref={noise} className="case-title-decode__noise" />
-      </span>
+    <h1 ref={root} id="case-title">
+      <span className={`case-title-reveal${visible ? " is-visible" : ""}`}>{text}</span>
     </h1>
   );
 }
@@ -243,11 +189,8 @@ export function ProjectDetail({ project }: { project: SynthesisProject }) {
     <main id="content" className="case-page">
       <section className="case-hero" aria-labelledby="case-title">
         <div className="case-hero__heading">
-          <div className="case-hero__meta">
-            <p>{project.discipline}</p>
-            <span>{String(currentIndex + 1).padStart(2, "0")} / {String(synthesisProjects.length).padStart(2, "0")}</span>
-          </div>
-          <DecodedCaseTitle text={project.title} />
+          <div className="case-hero__meta"><p>{project.discipline}</p></div>
+          <RevealedCaseTitle text={project.title} />
           {project.titleCn && <h2>{project.titleCn}</h2>}
         </div>
         <figure className={`case-hero__media${project.cover.shape === "board" ? " case-hero__media--board" : ""}`} data-transition-cover>
@@ -281,7 +224,6 @@ export function ProjectDetail({ project }: { project: SynthesisProject }) {
         <section className="case-chapter" key={chapter.title} aria-labelledby={`${project.slug}-chapter-${chapterIndex}`}>
           <header>
             <div>
-              <span>{String(chapterIndex + 1).padStart(2, "0")}</span>
               <h2 id={`${project.slug}-chapter-${chapterIndex}`}>{chapter.title}</h2>
               <h3>{chapter.titleCn}</h3>
             </div>

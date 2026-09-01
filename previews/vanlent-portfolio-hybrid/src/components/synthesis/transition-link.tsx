@@ -11,7 +11,7 @@ import {
 
 type TransitionLinkProps = ComponentProps<typeof Link>;
 
-const ROUTE_LEAVE_DURATION = 2200;
+const ROUTE_LEAVE_DURATION = 720;
 
 export function TransitionLink({ href, onClick, ...props }: TransitionLinkProps) {
   const router = useRouter();

@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const project = getSynthesisProject(slug);
   if (!project) return {};
   return {
-    title: `${project.title} — Wen Yifan`,
+    title: `${project.title} - Wen Yifan`,
     description: project.intro,
   };
 }

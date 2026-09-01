@@ -9,6 +9,7 @@ export type SylvaLivingWorldSceneProps = {
   variant?: SylvaLivingWorldVariant;
   className?: string;
   style?: CSSProperties;
+  active?: boolean;
 };
 
 const SCENE_ONLY_MARKUP = (label: string) => `<main class="hero" id="hero">
@@ -1640,6 +1641,27 @@ function buildSceneDocument(reducedMotion: boolean, variant: SylvaLivingWorldVar
   if (variant === "maple-autumn") documentSource = applyMapleAutumnVariant(documentSource);
   if (variant === "sequoia-mist") documentSource = applySequoiaMistVariant(documentSource);
 
+  documentSource = replaceRequired(
+    documentSource,
+    "  var pointer = { x: 0, y: 0 }, smooth = { x: 0, y: 0 };",
+    `  var hostActive = true;
+  window.addEventListener('message', function (event) {
+    if (event.data && event.data.type === 'synthesis:scene-activity') {
+      hostActive = event.data.active !== false;
+      if (hostActive) lastTick = performance.now();
+    }
+  });
+
+  var pointer = { x: 0, y: 0 }, smooth = { x: 0, y: 0 };`,
+    "scene activity bridge",
+  );
+  documentSource = replaceRequired(
+    documentSource,
+    "    if (renderer && clock) renderFrame();",
+    "    if (hostActive && !document.hidden && renderer && clock) renderFrame();",
+    "scene render activity gate",
+  );
+
   if (reducedMotion) {
     documentSource = documentSource.replace(
       "(function loop() { requestAnimationFrame(loop); tick(); })();",
@@ -1654,9 +1676,11 @@ export function SylvaLivingWorldScene({
   variant = "living-green",
   className = "",
   style,
+  active = true,
 }: SylvaLivingWorldSceneProps) {
   const safeVariant = SYLVA_LIVING_WORLD_VARIANTS.includes(variant) ? variant : "living-green";
   const hostRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLIFrameElement>(null);
   const [hostVisible, setHostVisible] = useState(true);
   const [documentVisible, setDocumentVisible] = useState(() => (
     typeof document === "undefined" || !document.hidden
@@ -1690,7 +1714,7 @@ export function SylvaLivingWorldScene({
   }, []);
 
   const source = useMemo(() => buildSceneDocument(reducedMotion, safeVariant), [reducedMotion, safeVariant]);
-  const sceneActive = hostVisible && documentVisible;
+  const sceneActive = active && hostVisible && documentVisible;
   const mounted = true;
   const label = VARIANT_LABELS[safeVariant];
   const background = VARIANT_BACKGROUNDS[safeVariant];
@@ -1698,6 +1722,13 @@ export function SylvaLivingWorldScene({
   useEffect(() => {
     setReady(false);
   }, [mounted, reducedMotion, safeVariant]);
+
+  useEffect(() => {
+    frameRef.current?.contentWindow?.postMessage({
+      type: "synthesis:scene-activity",
+      active: sceneActive,
+    }, "*");
+  }, [sceneActive]);
 
   return (
     <div
@@ -1712,12 +1743,19 @@ export function SylvaLivingWorldScene({
     >
       {mounted ? (
         <iframe
+          ref={frameRef}
           key={`${safeVariant}-${reducedMotion ? "reduced" : "motion"}`}
           title={label}
           srcDoc={source}
           sandbox="allow-scripts"
           loading="eager"
-          onLoad={() => setReady(true)}
+          onLoad={() => {
+            setReady(true);
+            frameRef.current?.contentWindow?.postMessage({
+              type: "synthesis:scene-activity",
+              active: sceneActive,
+            }, "*");
+          }}
           style={{
             position: "absolute",
             inset: 0,

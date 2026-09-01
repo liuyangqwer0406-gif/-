@@ -106,10 +106,6 @@ export function SynthesisHome() {
     <main id="content" className="synthesis-main">
       <section className="synthesis-hero" aria-labelledby="synthesis-title">
         <div className="synthesis-hero__sticky">
-          <div className="synthesis-hero__coordinates" aria-hidden="true">
-            <span>30.2741° N / 120.1551° E</span>
-            <span>SELECTED PRACTICE / 2024—2026</span>
-          </div>
           <div className="synthesis-hero__copy">
             <p>VISUAL DESIGN PORTFOLIO / 视觉设计作品集</p>
             <h1 id="synthesis-title"><span>VISUAL SYSTEMS</span><span>WITH A PULSE.</span></h1>
@@ -118,7 +114,6 @@ export function SynthesisHome() {
               <LiquidLink href="#work">VIEW SELECTED WORK</LiquidLink>
             </div>
           </div>
-          <a className="synthesis-hero__scroll" href="#work"><span>SCROLL / ROTATE</span><i aria-hidden="true" /></a>
         </div>
       </section>
 
@@ -133,7 +128,6 @@ export function SynthesisHome() {
             {outgoingProject && (
               <div className={`synthesis-work__image-layer is-outgoing${outgoingProject.cover.shape === "board" ? " is-board" : ""}`} key={outgoingProject.slug} aria-hidden="true">
                 <Image src={outgoingProject.cover.src} alt="" fill sizes="(max-width: 800px) 100vw, 68vw" />
-                <span>{String((outgoing ?? 0) + 1).padStart(2, "0")} / {String(synthesisProjects.length).padStart(2, "0")}</span>
               </div>
             )}
             <div className={`synthesis-work__image-layer is-current${project.cover.shape === "board" ? " is-board" : ""}`} key={project.slug} data-transition-cover>
@@ -146,7 +140,6 @@ export function SynthesisHome() {
                 onLoad={() => setCriticalCoverReady(true)}
                 onError={() => setCriticalCoverReady(true)}
               />
-              <span>{String(active + 1).padStart(2, "0")} / {String(synthesisProjects.length).padStart(2, "0")}</span>
             </div>
           </div>
           <div className="synthesis-work__card">
@@ -207,9 +200,8 @@ export function SynthesisHome() {
           <p>Three working fields, one visual method: reduce noise, define a rule, then test it across formats.</p>
         </header>
         <div className="synthesis-capabilities__grid">
-          {capabilities.map(([title, cn, body], index) => (
+          {capabilities.map(([title, cn, body]) => (
             <article key={title}>
-              <span>0{index + 1}</span>
               <h3>{title}</h3>
               <h4>{cn}</h4>
               <p>{body}</p>
