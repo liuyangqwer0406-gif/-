@@ -2,6 +2,8 @@
 
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import {
   SYNTHESIS_NAVIGATION_START,
   SYNTHESIS_ROUTE_READY,
@@ -14,6 +16,8 @@ import { SylvaLivingWorldScene } from "./sylva-living-world-scene";
 import { TransitionLink } from "./transition-link";
 import { InstrumentCursor } from "./instrument-cursor";
 import { SmoothWheelScroll } from "./smooth-wheel-scroll";
+
+gsap.registerPlugin(useGSAP);
 
 type RoutePhase = "idle" | "leaving" | "loading" | "entering";
 
@@ -42,6 +46,7 @@ const ignoreRouteFieldStatus = () => undefined;
 export function SynthesisShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isHome = pathname === "/synthesis";
+  const isAbout = pathname === "/synthesis/about";
   const [loaded, setLoaded] = useState(false);
   const [loaderPhase, setLoaderPhase] = useState(0);
   const [routePhase, setRoutePhase] = useState<RoutePhase>("idle");
@@ -53,10 +58,15 @@ export function SynthesisShell({ children }: { children: React.ReactNode }) {
   const [routeFieldOrigin, setRouteFieldOrigin] = useState<readonly [number, number]>([0.5, 0.5]);
   const [routeFieldPulse, setRouteFieldPulse] = useState(0);
   const [homeSceneActive, setHomeSceneActive] = useState(isHome);
+  const loaderNode = useRef<HTMLDivElement>(null);
+  const loaderIntroTimeline = useRef<gsap.core.Timeline | null>(null);
+  const loaderExitTimeline = useRef<gsap.core.Timeline | null>(null);
+  const loaderStartedAt = useRef(0);
   const primaryNav = useRef<HTMLElement>(null);
+  const routeTransitionNode = useRef<HTMLDivElement>(null);
   const handoffNode = useRef<HTMLDivElement>(null);
   const handoffSource = useRef<SynthesisTransitionCover | null>(null);
-  const handoffAnimation = useRef<Animation | null>(null);
+  const handoffAnimation = useRef<gsap.core.Timeline | null>(null);
   const pathnameRef = useRef(pathname);
   const previousPathname = useRef(pathname);
   const phaseRef = useRef<RoutePhase>("idle");
@@ -67,6 +77,7 @@ export function SynthesisShell({ children }: { children: React.ReactNode }) {
   const enterTimer = useRef(0);
   const visibleLoaderPhase = loaded ? LOADER_PHASES.length - 1 : loaderPhase;
   const loaderStage = LOADER_PHASES[visibleLoaderPhase];
+  const { contextSafe } = useGSAP({ scope: routeTransitionNode });
 
   const applyRoutePhase = useCallback((next: RoutePhase) => {
     phaseRef.current = next;
@@ -77,6 +88,143 @@ export function SynthesisShell({ children }: { children: React.ReactNode }) {
     root.classList.toggle("is-route-loading", next === "loading");
     root.classList.toggle("is-route-entering", next === "entering");
   }, []);
+
+  useGSAP(() => {
+    const loader = loaderNode.current;
+    if (!loader) return;
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const verticalLine = loader.querySelector<HTMLElement>(".synthesis-loader__line--vertical");
+    const horizontalLine = loader.querySelector<HTMLElement>(".synthesis-loader__line--horizontal");
+    const meta = loader.querySelector<HTMLElement>(".synthesis-loader__meta");
+    const axis = loader.querySelector<HTMLElement>(".synthesis-loader__axis");
+    const status = loader.querySelector<HTMLElement>(".synthesis-loader__status");
+    const footer = loader.querySelector<HTMLElement>(".synthesis-loader__footer");
+    const scan = loader.querySelector<HTMLElement>(".synthesis-loader__rail i");
+    const beacon = loader.querySelector<HTMLElement>(".synthesis-loader__meta i");
+    const chrome = [meta, axis, status, footer].filter((item): item is HTMLElement => Boolean(item));
+
+    loaderStartedAt.current = performance.now();
+    gsap.set(loader, { autoAlpha: 1, clipPath: "inset(0 0 0% 0)" });
+
+    if (reduced) {
+      gsap.set(chrome, { autoAlpha: 1, y: 0 });
+      if (verticalLine) gsap.set(verticalLine, { scaleY: 1 });
+      if (horizontalLine) gsap.set(horizontalLine, { scaleX: 1 });
+      return;
+    }
+
+    gsap.set(chrome, { autoAlpha: 0, y: 10 });
+    if (verticalLine) gsap.set(verticalLine, { scaleY: 0, transformOrigin: "top center" });
+    if (horizontalLine) gsap.set(horizontalLine, { scaleX: 0, transformOrigin: "left center" });
+    if (scan) gsap.set(scan, { xPercent: -120 });
+
+    loaderIntroTimeline.current = gsap.timeline({ defaults: { ease: "power3.out" } });
+    if (verticalLine) loaderIntroTimeline.current.to(verticalLine, { scaleY: 1, duration: .72 }, 0);
+    if (horizontalLine) loaderIntroTimeline.current.to(horizontalLine, { scaleX: 1, duration: .66 }, .06);
+    if (meta) loaderIntroTimeline.current.to(meta, { autoAlpha: 1, y: 0, duration: .42 }, .1);
+    loaderIntroTimeline.current
+      .to([axis, status, footer].filter(Boolean), { autoAlpha: 1, y: 0, duration: .46, stagger: .055 }, .2)
+      .call(() => setLoaderPhase(1), [], .56)
+      .call(() => setLoaderPhase(2), [], 1.08);
+
+    if (scan) gsap.to(scan, { xPercent: 520, duration: .9, ease: "none", repeat: -1 });
+    if (beacon) gsap.to(beacon, { autoAlpha: .24, scale: .72, duration: .46, ease: "sine.inOut", repeat: -1, yoyo: true });
+
+    return () => {
+      loaderIntroTimeline.current?.kill();
+      loaderIntroTimeline.current = null;
+      gsap.killTweensOf([loader, ...loader.querySelectorAll("*")]);
+    };
+  }, { scope: loaderNode });
+
+  useGSAP(() => {
+    const loader = loaderNode.current;
+    if (!loader) return;
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const titleParts = Array.from(loader.querySelectorAll<HTMLElement>(".synthesis-loader__title b"));
+    const titleNote = loader.querySelector<HTMLElement>(".synthesis-loader__title em");
+    const statusValue = loader.querySelector<HTMLElement>(".synthesis-loader__status span:last-child");
+    const progress = loader.querySelector<HTMLElement>(".synthesis-loader__rail b");
+    const steps = Array.from(loader.querySelectorAll<HTMLElement>(".synthesis-loader__axis i"));
+    const progressValue = (visibleLoaderPhase + 1) / LOADER_PHASES.length;
+
+    if (reduced) {
+      gsap.set(titleParts, { autoAlpha: 1, yPercent: 0 });
+      if (titleNote) gsap.set(titleNote, { autoAlpha: 1, x: 0 });
+      if (statusValue) gsap.set(statusValue, { autoAlpha: 1, x: 0 });
+      if (progress) gsap.set(progress, { scaleX: progressValue });
+      steps.forEach((step, index) => gsap.set(step, {
+        scaleY: index <= visibleLoaderPhase ? 1 : .28,
+        backgroundColor: index <= visibleLoaderPhase ? "var(--color-signal)" : "var(--color-line-dark)",
+      }));
+      return;
+    }
+
+    gsap.killTweensOf([...titleParts, titleNote, statusValue, progress, ...steps].filter(Boolean));
+    const phaseTimeline = gsap.timeline({ defaults: { ease: "power3.out", overwrite: "auto" } });
+    phaseTimeline.fromTo(titleParts,
+      { autoAlpha: 0, yPercent: 112, rotate: .7 },
+      { autoAlpha: 1, yPercent: 0, rotate: 0, duration: .5, stagger: .055 },
+      0,
+    );
+    if (titleNote) phaseTimeline.fromTo(titleNote, { autoAlpha: 0, x: -10 }, { autoAlpha: 1, x: 0, duration: .34 }, .16);
+    if (statusValue) phaseTimeline.fromTo(statusValue, { autoAlpha: 0, x: 14 }, { autoAlpha: 1, x: 0, duration: .34 }, .12);
+    if (progress) phaseTimeline.to(progress, { scaleX: progressValue, duration: .5, ease: "power2.inOut" }, 0);
+    steps.forEach((step, index) => phaseTimeline.to(step, {
+      scaleY: index <= visibleLoaderPhase ? 1 : .28,
+      backgroundColor: index <= visibleLoaderPhase ? "var(--color-signal)" : "var(--color-line-dark)",
+      duration: .38,
+    }, index * .035));
+  }, { scope: loaderNode, dependencies: [visibleLoaderPhase], revertOnUpdate: false });
+
+  useGSAP(() => {
+    if (!loaded) return;
+    const loader = loaderNode.current;
+    if (!loader) return;
+
+    loaderIntroTimeline.current?.kill();
+    loaderIntroTimeline.current = null;
+    loaderExitTimeline.current?.kill();
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      gsap.set(loader, { autoAlpha: 0, visibility: "hidden" });
+      return;
+    }
+
+    const titleParts = Array.from(loader.querySelectorAll<HTMLElement>(".synthesis-loader__title b"));
+    const titleNote = loader.querySelector<HTMLElement>(".synthesis-loader__title em");
+    const meta = loader.querySelector<HTMLElement>(".synthesis-loader__meta");
+    const status = loader.querySelector<HTMLElement>(".synthesis-loader__status");
+    const footer = loader.querySelector<HTMLElement>(".synthesis-loader__footer");
+    const progress = loader.querySelector<HTMLElement>(".synthesis-loader__rail b");
+    const scan = loader.querySelector<HTMLElement>(".synthesis-loader__rail i");
+    const beacon = loader.querySelector<HTMLElement>(".synthesis-loader__meta i");
+    const verticalLine = loader.querySelector<HTMLElement>(".synthesis-loader__line--vertical");
+    const horizontalLine = loader.querySelector<HTMLElement>(".synthesis-loader__line--horizontal");
+    const supportingCopy = [titleNote, meta, status, footer].filter((item): item is HTMLElement => Boolean(item));
+    const elapsed = (performance.now() - loaderStartedAt.current) / 1000;
+    const hold = Math.max(0, .82 - elapsed);
+
+    gsap.killTweensOf([scan, beacon].filter(Boolean));
+    loaderExitTimeline.current = gsap.timeline({ delay: hold, defaults: { overwrite: "auto" } });
+    if (progress) loaderExitTimeline.current.to(progress, { scaleX: 1, duration: .22, ease: "power2.inOut" }, 0);
+    loaderExitTimeline.current
+      .to(titleParts, { autoAlpha: 0, yPercent: -118, duration: .32, stagger: .035, ease: "power3.in" }, .14)
+      .to(supportingCopy, { autoAlpha: 0, y: -9, duration: .24, stagger: .025, ease: "power2.in" }, .16);
+    if (verticalLine) loaderExitTimeline.current.to(verticalLine, { scaleY: 0, transformOrigin: "bottom center", duration: .34, ease: "power2.inOut" }, .22);
+    if (horizontalLine) loaderExitTimeline.current.to(horizontalLine, { scaleX: 0, transformOrigin: "right center", duration: .34, ease: "power2.inOut" }, .22);
+    loaderExitTimeline.current
+      .to(loader, { clipPath: "inset(0 0 100% 0)", duration: .68, ease: "expo.inOut" }, .34)
+      .set(loader, { autoAlpha: 0, visibility: "hidden" });
+
+    return () => {
+      loaderExitTimeline.current?.kill();
+      loaderExitTimeline.current = null;
+    };
+  }, { scope: loaderNode, dependencies: [loaded], revertOnUpdate: false });
 
   const finishRouteTransition = useCallback(() => {
     window.clearTimeout(bufferTimer.current);
@@ -89,41 +237,65 @@ export function SynthesisShell({ children }: { children: React.ReactNode }) {
     const source = handoffSource.current;
     const node = handoffNode.current;
     const target = document.querySelector<HTMLElement>("[data-transition-cover]");
-    if (!reduced && source && node && target) {
-      const rect = target.getBoundingClientRect();
-      const scaleX = rect.width / source.width;
-      const scaleY = rect.height / source.height;
-      handoffAnimation.current?.cancel();
-      handoffAnimation.current = node.animate([
-        {
-          opacity: 1,
-          transform: `translate3d(${source.left}px, ${source.top}px, 0) scale(1.015)`,
-        },
-        {
-          opacity: 1,
-          offset: 0.76,
-          transform: `translate3d(${rect.left}px, ${rect.top}px, 0) scale(${scaleX}, ${scaleY})`,
-        },
-        {
-          opacity: 0,
-          transform: `translate3d(${rect.left}px, ${rect.top}px, 0) scale(${scaleX}, ${scaleY})`,
-        },
-      ], {
-        duration: ROUTE_ENTER_DURATION,
-        easing: "cubic-bezier(0.77, 0, 0.175, 1)",
-        fill: "forwards",
-      });
-    }
-
-    enterTimer.current = window.setTimeout(() => {
+    const finish = () => {
       setBufferVisible(false);
       setHandoffCover(null);
       setRouteFieldActive(false);
       handoffSource.current = null;
       handoffAnimation.current = null;
       applyRoutePhase("idle");
-    }, reduced ? 140 : ROUTE_ENTER_DURATION);
-  }, [applyRoutePhase]);
+    };
+
+    if (!reduced && source && node && target) {
+      const rect = target.getBoundingClientRect();
+      const scaleX = rect.width / source.width;
+      const scaleY = rect.height / source.height;
+      handoffAnimation.current?.kill();
+      const playHandoff = contextSafe(() => {
+        const transition = routeTransitionNode.current;
+        if (!transition) return false;
+        const meta = transition.querySelector<HTMLElement>(".route-transition__meta");
+        const label = transition.querySelector<HTMLElement>(":scope > p");
+        const buffer = transition.querySelector<HTMLElement>(".route-transition__buffer");
+        const field = transition.querySelector<HTMLElement>(".route-transition__field");
+        const signal = transition.querySelector<HTMLElement>(".route-transition__signal");
+        const textNodes = [meta, label, buffer].filter((item): item is HTMLElement => Boolean(item));
+
+        handoffAnimation.current = gsap.timeline({
+          defaults: { ease: "power3.out", overwrite: "auto" },
+          onComplete: () => {
+            textNodes.forEach((element) => gsap.set(element, { clearProps: "all" }));
+            if (field) gsap.set(field, { clearProps: "all" });
+            if (signal) gsap.set(signal, { clearProps: "all" });
+            finish();
+          },
+        });
+        const timeline = handoffAnimation.current
+          .fromTo(node, {
+            opacity: 1,
+            x: source.left,
+            y: source.top,
+            scale: 1.015,
+          }, {
+            opacity: 1,
+            x: rect.left,
+            y: rect.top,
+            scaleX,
+            scaleY,
+            duration: ROUTE_ENTER_DURATION / 1000,
+            ease: "expo.inOut",
+          }, 0)
+          .to(node, { opacity: 0, duration: .08, ease: "power2.out" }, .44);
+        if (textNodes.length) timeline.fromTo(textNodes, { autoAlpha: 1, y: 0 }, { autoAlpha: 0, y: -8, duration: .2 }, .26);
+        if (signal) timeline.fromTo(signal, { scaleX: 0, transformOrigin: "left center" }, { scaleX: 1, duration: .38, ease: "power2.inOut" }, .1);
+        if (field) timeline.to(field, { autoAlpha: 0, scale: 1.018, duration: .35 }, .1);
+        return true;
+      });
+      if (!playHandoff()) enterTimer.current = window.setTimeout(finish, ROUTE_ENTER_DURATION);
+    } else {
+      enterTimer.current = window.setTimeout(finish, reduced ? 140 : ROUTE_ENTER_DURATION);
+    }
+  }, [applyRoutePhase, contextSafe]);
 
   useEffect(() => {
     const fallback = window.setTimeout(() => setLoaded(true), 2600);
@@ -155,14 +327,6 @@ export function SynthesisShell({ children }: { children: React.ReactNode }) {
   }, [isHome]);
 
   useEffect(() => {
-    const timers = [
-      window.setTimeout(() => setLoaderPhase(1), 360),
-      window.setTimeout(() => setLoaderPhase(2), 920),
-    ];
-    return () => timers.forEach(window.clearTimeout);
-  }, []);
-
-  useEffect(() => {
     const onNavigationStart = (event: Event) => {
       const detail = (event as CustomEvent<SynthesisNavigationDetail>).detail;
       targetPathname.current = detail.pathname;
@@ -182,7 +346,8 @@ export function SynthesisShell({ children }: { children: React.ReactNode }) {
       window.clearTimeout(bufferTimer.current);
       window.clearTimeout(recoveryTimer.current);
       window.clearTimeout(enterTimer.current);
-      handoffAnimation.current?.cancel();
+      handoffAnimation.current?.kill();
+      handoffAnimation.current = null;
 
       bufferTimer.current = window.setTimeout(() => {
         if (phaseRef.current === "leaving" || phaseRef.current === "loading") setBufferVisible(true);
@@ -215,7 +380,8 @@ export function SynthesisShell({ children }: { children: React.ReactNode }) {
       window.clearTimeout(bufferTimer.current);
       window.clearTimeout(recoveryTimer.current);
       window.clearTimeout(enterTimer.current);
-      handoffAnimation.current?.cancel();
+      handoffAnimation.current?.kill();
+      handoffAnimation.current = null;
       const root = document.documentElement;
       delete root.dataset.routeState;
       root.classList.remove("is-route-leaving", "is-route-loading", "is-route-entering");
@@ -347,11 +513,13 @@ export function SynthesisShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <div className={`synthesis-site${loaded ? " is-loaded" : " is-loading"}`} aria-busy={routePhase === "loading"}>
+    <div className={`synthesis-site${loaded ? " is-loaded" : " is-loading"}`} aria-busy={!loaded || routePhase === "loading"}>
       <InstrumentCursor />
       <SmoothWheelScroll />
       <a className="synthesis-skip" href="#content">Skip to content</a>
-      <div className="synthesis-loader" aria-hidden="true">
+      <div ref={loaderNode} className="synthesis-loader" aria-hidden="true">
+        <span className="synthesis-loader__line synthesis-loader__line--vertical" />
+        <span className="synthesis-loader__line synthesis-loader__line--horizontal" />
         <div className="synthesis-loader__meta">
           <span><i />WEN YIFAN / 026</span>
           <span>VISUAL ARCHIVE / 2026</span>
@@ -374,11 +542,12 @@ export function SynthesisShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         <div className="synthesis-loader__footer">
-          <div className="synthesis-loader__rail"><i /><b style={{ transform: `scaleX(${(visibleLoaderPhase + 1) / LOADER_PHASES.length})` }} /></div>
+          <div className="synthesis-loader__rail"><i /><b /></div>
           <div><span>LOADING / PHASE {loaderStage.id}</span><span>30.2741° N / 120.1551° E</span></div>
         </div>
       </div>
       <div
+        ref={routeTransitionNode}
         className="route-transition"
         data-phase={routePhase}
         data-buffer-visible={bufferVisible || undefined}
@@ -435,7 +604,7 @@ export function SynthesisShell({ children }: { children: React.ReactNode }) {
         <TransitionLink className="synthesis-brand" href="/synthesis" aria-label="Wen Yifan synthesis portfolio home"><span>WEN</span> YIFAN<sup>026</sup></TransitionLink>
         <nav ref={primaryNav} aria-label="Primary navigation">
           <TransitionLink data-proximity-item href={isHome ? "#work" : "/synthesis#work"}><span data-proximity-label>WORK</span></TransitionLink>
-          <TransitionLink data-proximity-item href={isHome ? "#about" : "/synthesis#about"}><span data-proximity-label>ABOUT</span></TransitionLink>
+          <TransitionLink data-proximity-item href="/synthesis/about" aria-current={isAbout ? "page" : undefined}><span data-proximity-label>ABOUT</span></TransitionLink>
           <a data-proximity-item href="mailto:2742733283@qq.com"><span data-proximity-label>CONTACT</span></a>
         </nav>
       </header>

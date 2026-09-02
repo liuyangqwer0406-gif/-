@@ -1,6 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+
+gsap.registerPlugin(useGSAP);
 
 type CursorMode = "default" | "interactive" | "media" | "mail" | "select" | "native";
 
@@ -23,7 +27,7 @@ export function InstrumentCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const labelRef = useRef<HTMLSpanElement>(null);
 
-  useEffect(() => {
+  useGSAP(() => {
     const cursor = cursorRef.current;
     const label = labelRef.current;
     if (!cursor || !label) return;
@@ -32,6 +36,10 @@ export function InstrumentCursor() {
     const precisePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
     let enabled = precisePointer.matches;
     const pointerOffset = cursor.getBoundingClientRect().width / 2;
+    const moveX = gsap.quickTo(cursor, "x", { duration: 0.14, ease: "power3.out", overwrite: "auto" });
+    const moveY = gsap.quickTo(cursor, "y", { duration: 0.14, ease: "power3.out", overwrite: "auto" });
+
+    gsap.set(cursor, { x: -80, y: -80 });
 
     const hide = () => cursor.classList.remove("is-visible", "is-pressed");
     const setMode = (target: EventTarget | null) => {
@@ -52,7 +60,8 @@ export function InstrumentCursor() {
     };
     const onPointerMove = (event: PointerEvent) => {
       if (!enabled || event.pointerType !== "mouse") return;
-      cursor.style.transform = `translate3d(${event.clientX - pointerOffset}px, ${event.clientY - pointerOffset}px, 0)`;
+      moveX(event.clientX - pointerOffset);
+      moveY(event.clientY - pointerOffset);
       setMode(event.target);
       if (cursor.dataset.mode !== "native") cursor.classList.add("is-visible");
     };
@@ -76,6 +85,7 @@ export function InstrumentCursor() {
     precisePointer.addEventListener("change", syncCapability);
 
     return () => {
+      gsap.killTweensOf(cursor);
       root.classList.remove("has-syn-instrument-cursor");
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerdown", onPointerDown);
@@ -85,7 +95,7 @@ export function InstrumentCursor() {
       document.removeEventListener("visibilitychange", onVisibilityChange);
       precisePointer.removeEventListener("change", syncCapability);
     };
-  }, []);
+  }, { scope: cursorRef });
 
   return (
     <div ref={cursorRef} className="syn-instrument-cursor" data-mode="default" aria-hidden="true">

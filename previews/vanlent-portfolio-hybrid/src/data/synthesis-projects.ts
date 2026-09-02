@@ -13,6 +13,22 @@ export type ProjectChapter = {
   images: ProjectImage[];
 };
 
+export type ProjectMotionPoster = {
+  src: string;
+  poster: string;
+  alt: string;
+  caption: string;
+  note: string;
+  placement: "lead" | "portrait" | "stack";
+};
+
+export type ProjectMotionSection = {
+  title: string;
+  titleCn: string;
+  body: string;
+  posters: ProjectMotionPoster[];
+};
+
 export type SynthesisProject = {
   slug: string;
   title: string;
@@ -25,6 +41,7 @@ export type SynthesisProject = {
   intro: string;
   introCn: string;
   cover: ProjectImage;
+  motion?: ProjectMotionSection;
   chapters: ProjectChapter[];
   closing: string;
   closingCn: string;
@@ -38,6 +55,20 @@ const image = (
   shape?: ProjectImage["shape"],
 ): ProjectImage => ({ src: `/portfolio-assets/${src}`, alt, caption, note, shape });
 
+const motionPoster = (
+  src: string,
+  alt: string,
+  caption: string,
+  placement: ProjectMotionPoster["placement"],
+): ProjectMotionPoster => ({
+  src: `/portfolio-assets/dad/motion/${src}.mp4`,
+  poster: `/portfolio-assets/dad/motion/${src}-poster.jpg`,
+  alt,
+  caption,
+  note: "Digital motion study / 10 sec loop",
+  placement,
+});
+
 export const synthesisProjects: SynthesisProject[] = [
   {
     slug: "roku-ikition",
@@ -50,6 +81,17 @@ export const synthesisProjects: SynthesisProject[] = [
     intro: "A shared strategy translated into one recognisable system for six botanical flavours, packaging, campaign imagery and product worlds.",
     introCn: "四人团队共同确定概念、命名和六种植物风味方向；随后由我独立完成标志、包装、海报、产品主图、户外广告和三维产品场景。",
     cover: image("dad-cover.jpg", "ROKU IKITION 品牌主视觉与无酒精饮品瓶体", "Identity overview", "D&AD New Blood brief"),
+    motion: {
+      title: "MOTION POSTER STUDIES.",
+      titleCn: "让瓶体、材质与版式进入十秒循环。",
+      body: "Four short loops extend the bottle identity through rotation, material and editorial composition. The motion stays compact so the product remains the subject.",
+      posters: [
+        motionPoster("kinetic-sculpture", "银灰色 ROKU IKITION 瓶体在技术网格与线框结构中旋转", "01 / Kinetic sculpture", "lead"),
+        motionPoster("green-industrial", "绿色 ROKU IKITION 瓶体在黑色工业海报版式中旋转", "02 / Acid industrialism", "portrait"),
+        motionPoster("holographic-surface", "镭射材质 ROKU IKITION 瓶体与环形结构旋转", "03 / Holographic surface", "stack"),
+        motionPoster("metallic-legacy", "金属质感 ROKU IKITION 瓶体悬浮在米白编辑版式中", "04 / Metallic legacy", "stack"),
+      ],
+    },
     chapters: [
       {
         title: "ONE SYSTEM, SIX FLAVOURS.",

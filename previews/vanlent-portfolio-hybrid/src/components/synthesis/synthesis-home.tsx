@@ -2,11 +2,15 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { synthesisProjects } from "@/data/synthesis-projects";
 import { LiquidLink } from "./liquid-link";
 import { announceSynthesisRouteReady } from "./route-events";
 import { createThreeUiDockController } from "./threeui-motion";
 import { TransitionLink } from "./transition-link";
+
+gsap.registerPlugin(useGSAP);
 
 const capabilities = [
   ["BRAND SYSTEMS", "品牌视觉", "Identity, campaign and packaging built from one clear visual rule."],
@@ -26,13 +30,48 @@ export function SynthesisHome() {
   const [sceneFallback, setSceneFallback] = useState(false);
   const routeReadyAnnounced = useRef(false);
   const activeRef = useRef(0);
+  const workStage = useRef<HTMLDivElement>(null);
   const workIndex = useRef<HTMLDivElement>(null);
-  const switchFrame = useRef(0);
-  const settleFrame = useRef(0);
-  const cleanupTimer = useRef(0);
+  const switchTimeline = useRef<gsap.core.Timeline | null>(null);
   const project = synthesisProjects[active];
   const outgoingProject = outgoing === null ? null : synthesisProjects[outgoing];
   const markSceneReady = useCallback(() => setSceneReady(true), []);
+
+  useGSAP(() => {
+    if (outgoing === null || !workStage.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const currentImage = workStage.current.querySelector<HTMLElement>(".synthesis-work__image-layer.is-current");
+    const outgoingImage = workStage.current.querySelector<HTMLElement>(".synthesis-work__image-layer.is-outgoing");
+    const currentCopy = workStage.current.querySelector<HTMLElement>(".synthesis-work__copy.is-current");
+    const outgoingCopy = workStage.current.querySelector<HTMLElement>(".synthesis-work__copy.is-outgoing");
+    if (!currentImage || !outgoingImage || !currentCopy || !outgoingCopy) return;
+
+    switchTimeline.current?.kill();
+    const sign = direction === "forward" ? 1 : -1;
+    gsap.set(currentImage, {
+      autoAlpha: 0,
+      x: sign * 26,
+      scale: 1.035,
+      clipPath: sign > 0 ? "inset(0 0 0 12%)" : "inset(0 12% 0 0)",
+    });
+    gsap.set(outgoingImage, { autoAlpha: 1, x: 0, scale: 1, clipPath: "inset(0)" });
+    gsap.set(currentCopy, { autoAlpha: 0, x: sign * 22 });
+    gsap.set(outgoingCopy, { autoAlpha: 1, x: 0 });
+
+    switchTimeline.current = gsap.timeline({
+      defaults: { ease: "power3.out", overwrite: "auto" },
+      onComplete: () => {
+        switchTimeline.current = null;
+        setEntering(false);
+        setOutgoing(null);
+      },
+    });
+    switchTimeline.current
+      .to(outgoingImage, { autoAlpha: 0, x: -sign * 18, scale: .985, duration: .34 }, 0)
+      .to(outgoingCopy, { autoAlpha: 0, x: -sign * 16, duration: .28 }, 0)
+      .to(currentImage, { autoAlpha: 1, x: 0, scale: 1, clipPath: "inset(0)", duration: .54 }, .08)
+      .to(currentCopy, { autoAlpha: 1, x: 0, duration: .42 }, .16);
+  }, { scope: workStage, dependencies: [active, direction, outgoing], revertOnUpdate: false });
 
   useEffect(() => {
     window.addEventListener("sylva:ready", markSceneReady);
@@ -54,9 +93,8 @@ export function SynthesisHome() {
   const selectProject = useCallback((index: number, animate = true) => {
     if (index === activeRef.current) return;
 
-    window.cancelAnimationFrame(switchFrame.current);
-    window.cancelAnimationFrame(settleFrame.current);
-    window.clearTimeout(cleanupTimer.current);
+    switchTimeline.current?.kill();
+    switchTimeline.current = null;
 
     const previous = activeRef.current;
     activeRef.current = index;
@@ -74,10 +112,6 @@ export function SynthesisHome() {
     setDirection(index > previous ? "forward" : "backward");
     setEntering(true);
     setActive(index);
-    switchFrame.current = window.requestAnimationFrame(() => {
-      settleFrame.current = window.requestAnimationFrame(() => setEntering(false));
-    });
-    cleanupTimer.current = window.setTimeout(() => setOutgoing(null), 520);
   }, []);
 
   useEffect(() => {
@@ -91,9 +125,7 @@ export function SynthesisHome() {
   }, [selectProject]);
 
   useEffect(() => () => {
-    window.cancelAnimationFrame(switchFrame.current);
-    window.cancelAnimationFrame(settleFrame.current);
-    window.clearTimeout(cleanupTimer.current);
+    switchTimeline.current?.kill();
   }, []);
 
   useEffect(() => {
@@ -123,7 +155,7 @@ export function SynthesisHome() {
           <p>Seven cases across identity, production, spatial image and interactive experience.</p>
         </header>
 
-        <div className="synthesis-work__stage">
+        <div ref={workStage} className="synthesis-work__stage">
           <div className={`synthesis-work__image${entering ? " is-entering" : ""} is-${direction}`}>
             {outgoingProject && (
               <div className={`synthesis-work__image-layer is-outgoing${outgoingProject.cover.shape === "board" ? " is-board" : ""}`} key={outgoingProject.slug} aria-hidden="true">
@@ -228,6 +260,7 @@ export function SynthesisHome() {
             <div><dt>FOCUS</dt><dd>Brand / Visual / 3D</dd></div>
             <div><dt>METHOD</dt><dd>System first, image led</dd></div>
           </dl>
+          <TransitionLink className="synthesis-about__link" href="/synthesis/about">FULL PROFILE / 查看完整介绍 <span>↗</span></TransitionLink>
         </div>
       </section>
 

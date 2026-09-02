@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
-import type { ProjectImage, SynthesisProject } from "@/data/synthesis-projects";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import type { ProjectImage, ProjectMotionPoster, ProjectMotionSection, SynthesisProject } from "@/data/synthesis-projects";
 import { synthesisProjects } from "@/data/synthesis-projects";
 import { LiquidLink } from "./liquid-link";
 import { announceSynthesisRouteReady } from "./route-events";
@@ -84,6 +84,142 @@ function ProjectFigure({ item, onOpen }: { item: ProjectImage; onOpen: (item: Pr
   );
 }
 
+function MotionPoster({ item }: { item: ProjectMotionPoster }) {
+  const root = useRef<HTMLElement>(null);
+  const video = useRef<HTMLVideoElement>(null);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const [inView, setInView] = useState(false);
+  const [playing, setPlaying] = useState(false);
+  const [manualPaused, setManualPaused] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [unavailable, setUnavailable] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReducedMotion(query.matches);
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    const node = root.current;
+    if (!node || !("IntersectionObserver" in window)) {
+      const frame = window.requestAnimationFrame(() => {
+        setInView(true);
+        if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) setShouldLoad(true);
+      });
+      return () => window.cancelAnimationFrame(frame);
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      setInView(entry.isIntersecting);
+      if (entry.isIntersecting && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) setShouldLoad(true);
+    }, { rootMargin: "18% 0px", threshold: 0.05 });
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  const syncPlayback = useCallback(() => {
+    const media = video.current;
+    if (!media || !shouldLoad || unavailable) return;
+
+    if (inView && !document.hidden && !manualPaused && !reducedMotion) {
+      void media.play().catch(() => setPlaying(false));
+    } else {
+      media.pause();
+    }
+  }, [inView, manualPaused, reducedMotion, shouldLoad, unavailable]);
+
+  useEffect(() => {
+    if (shouldLoad) video.current?.load();
+  }, [shouldLoad]);
+
+  useEffect(() => {
+    syncPlayback();
+    document.addEventListener("visibilitychange", syncPlayback);
+    return () => document.removeEventListener("visibilitychange", syncPlayback);
+  }, [syncPlayback]);
+
+  const togglePlayback = () => {
+    const media = video.current;
+    if (!media || unavailable) return;
+    setShouldLoad(true);
+
+    if (!media.paused) {
+      setManualPaused(true);
+      media.pause();
+      return;
+    }
+
+    setManualPaused(false);
+    void media.play().catch(() => setPlaying(false));
+  };
+
+  return (
+    <figure ref={root} className={`motion-poster motion-poster--${item.placement}`}>
+      <button
+        type="button"
+        onClick={togglePlayback}
+        aria-label={`${playing ? "Pause" : "Play"} motion poster: ${item.caption}`}
+        aria-pressed={playing}
+        disabled={unavailable}
+      >
+        <span className="motion-poster__media">
+          <video
+            ref={video}
+            poster={item.poster}
+            muted
+            loop
+            playsInline
+            preload="none"
+            aria-hidden="true"
+            onCanPlay={syncPlayback}
+            onPlay={() => setPlaying(true)}
+            onPause={() => setPlaying(false)}
+            onError={() => setUnavailable(true)}
+          >
+            {shouldLoad && <source src={item.src} type="video/mp4" />}
+          </video>
+        </span>
+        <span className="motion-poster__control" aria-hidden="true">
+          {unavailable ? "STILL" : playing ? "PAUSE" : "PLAY"}
+        </span>
+      </button>
+      <figcaption><b>{item.caption}</b><span>{item.note}</span></figcaption>
+    </figure>
+  );
+}
+
+function MotionSection({ section }: { section: ProjectMotionSection }) {
+  const lead = section.posters.find((item) => item.placement === "lead");
+  const portrait = section.posters.find((item) => item.placement === "portrait");
+  const stack = section.posters.filter((item) => item.placement === "stack");
+
+  return (
+    <section className="case-motion" aria-labelledby="case-motion-title">
+      <header>
+        <div>
+          <p>MOTION / 10 SEC LOOPS</p>
+          <h2 id="case-motion-title">{section.title}</h2>
+          <h3>{section.titleCn}</h3>
+        </div>
+        <p>{section.body}</p>
+      </header>
+      <div className="case-motion__gallery">
+        {lead && <MotionPoster item={lead} />}
+        <div className="case-motion__split">
+          {portrait && <MotionPoster item={portrait} />}
+          <div className="case-motion__stack">
+            {stack.map((item) => <MotionPoster item={item} key={item.src} />)}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export function ProjectDetail({ project }: { project: SynthesisProject }) {
   const [lightbox, setLightbox] = useState<ProjectImage | null>(null);
   const [lightboxClosing, setLightboxClosing] = useState(false);
@@ -155,7 +291,7 @@ export function ProjectDetail({ project }: { project: SynthesisProject }) {
   }, []);
 
   useEffect(() => {
-    const nodes = Array.from(document.querySelectorAll<HTMLElement>(".case-page .case-chapter, .case-page .case-closing"));
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>(".case-page .case-chapter, .case-page .case-motion, .case-page .case-closing"));
     if (!nodes.length) return;
 
     nodes.forEach((node) => { node.dataset.reveal = "true"; });
@@ -221,18 +357,21 @@ export function ProjectDetail({ project }: { project: SynthesisProject }) {
       </section>
 
       {project.chapters.map((chapter, chapterIndex) => (
-        <section className="case-chapter" key={chapter.title} aria-labelledby={`${project.slug}-chapter-${chapterIndex}`}>
-          <header>
-            <div>
-              <h2 id={`${project.slug}-chapter-${chapterIndex}`}>{chapter.title}</h2>
-              <h3>{chapter.titleCn}</h3>
+        <Fragment key={chapter.title}>
+          <section className="case-chapter" aria-labelledby={`${project.slug}-chapter-${chapterIndex}`}>
+            <header>
+              <div>
+                <h2 id={`${project.slug}-chapter-${chapterIndex}`}>{chapter.title}</h2>
+                <h3>{chapter.titleCn}</h3>
+              </div>
+              <p>{chapter.body}</p>
+            </header>
+            <div className="case-gallery">
+              {chapter.images.map((item) => <ProjectFigure item={item} onOpen={openLightbox} key={item.src} />)}
             </div>
-            <p>{chapter.body}</p>
-          </header>
-          <div className="case-gallery">
-            {chapter.images.map((item) => <ProjectFigure item={item} onOpen={openLightbox} key={item.src} />)}
-          </div>
-        </section>
+          </section>
+          {chapterIndex === 0 && project.motion && <MotionSection section={project.motion} />}
+        </Fragment>
       ))}
 
       <section className="case-closing" aria-labelledby="case-closing-title">
