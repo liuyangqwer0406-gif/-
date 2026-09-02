@@ -5,22 +5,34 @@
   const nav = document.querySelector(".nav");
   const progress = document.querySelector(".page-progress span");
 
-  const setMenu = (open) => {
+  const setMenu = (open, instant = false) => {
     if (!menuButton || !nav) return;
-    menuButton.setAttribute("aria-expanded", String(open));
-    menuButton.setAttribute("aria-label", open ? "关闭导航" : "打开导航");
-    nav.classList.toggle("is-open", open);
-    document.body.classList.toggle("menu-open", open);
+    const update = () => {
+      menuButton.setAttribute("aria-expanded", String(open));
+      menuButton.setAttribute("aria-label", open ? "关闭导航" : "打开导航");
+      nav.classList.toggle("is-open", open);
+      document.body.classList.toggle("menu-open", open);
+    };
+    if (!instant) {
+      update();
+      return;
+    }
+    nav.classList.add("motion-instant");
+    update();
+    requestAnimationFrame(() => requestAnimationFrame(() => nav.classList.remove("motion-instant")));
   };
 
-  menuButton?.addEventListener("click", () => {
-    setMenu(menuButton.getAttribute("aria-expanded") !== "true");
+  menuButton?.addEventListener("click", (event) => {
+    setMenu(menuButton.getAttribute("aria-expanded") !== "true", event.detail === 0);
   });
   nav?.addEventListener("click", (event) => {
     if (event.target.closest("a")) setMenu(false);
   });
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") setMenu(false);
+    if (event.key !== "Escape") return;
+    const wasOpen = menuButton?.getAttribute("aria-expanded") === "true";
+    setMenu(false, true);
+    if (wasOpen) menuButton?.focus();
   });
 
   let scrollTick = 0;
@@ -43,10 +55,12 @@
   const chapterSections = chapterLinks
     .map((link) => document.getElementById(link.dataset.sectionLink))
     .filter(Boolean);
+  let activeChapterId = "";
 
   const setActiveChapter = (sectionId) => {
     const activeIndex = chapterLinks.findIndex((link) => link.dataset.sectionLink === sectionId);
-    if (activeIndex < 0) return;
+    if (activeIndex < 0 || activeChapterId === sectionId) return;
+    activeChapterId = sectionId;
 
     chapterLinks.forEach((link, index) => {
       if (index === activeIndex) link.setAttribute("aria-current", "location");
@@ -62,6 +76,15 @@
     chapterMap?.style.setProperty("--chapter-progress", String(activeIndex / Math.max(1, chapterLinks.length - 1)));
     const activeSection = chapterSections.find((section) => section.id === sectionId);
     chapterNav?.setAttribute("data-surface", activeSection?.dataset.surface === "paper" ? "paper" : "dark");
+
+    if (chapterNav && window.innerWidth <= 920) {
+      const activeLink = chapterLinks[activeIndex];
+      const targetLeft = activeLink.offsetLeft - (chapterNav.clientWidth - activeLink.offsetWidth) / 2;
+      chapterNav.scrollTo({
+        left: Math.max(0, targetLeft),
+        behavior: reduceMotion.matches ? "auto" : "smooth"
+      });
+    }
   };
 
   if (chapterSections.length && "IntersectionObserver" in window) {
@@ -171,8 +194,8 @@
     const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight);
     const drawWidth = image.naturalWidth * scale;
     const drawHeight = image.naturalHeight * scale;
-    const offsetX = (width - drawWidth) * .58;
-    const offsetY = (height - drawHeight) * .5;
+    const offsetX = (width - drawWidth) * .5;
+    const offsetY = (height - drawHeight) * .44;
     sampleContext.filter = "grayscale(1) contrast(1.08)";
     sampleContext.drawImage(image, offsetX, offsetY, drawWidth, drawHeight);
     const pixels = sampleContext.getImageData(0, 0, width, height).data;

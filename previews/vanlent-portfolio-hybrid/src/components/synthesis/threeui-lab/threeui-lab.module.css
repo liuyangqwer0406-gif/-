@@ -1,0 +1,315 @@
+.root {
+  position: relative;
+  z-index: 2;
+  min-height: 100svh;
+  padding: 72px var(--syn-frame) 0;
+  color: var(--color-paper);
+  background: var(--color-black);
+}
+
+.labHeader,
+.labFooter,
+.specimenMeta {
+  color: var(--color-muted-dark);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: .12em;
+}
+
+.labHeader {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  min-height: 64px;
+  border-bottom: var(--rule-dark);
+}
+
+.labHeader > div {
+  display: flex;
+  gap: var(--space-8);
+}
+
+.labHeader p { color: var(--color-signal); }
+
+.specimen {
+  position: relative;
+  border-right: var(--rule-dark);
+  border-bottom: var(--rule-dark);
+  border-left: var(--rule-dark);
+  overflow: hidden;
+}
+
+.specimenMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 50px;
+  padding-inline: var(--space-5);
+  border-bottom: var(--rule-dark);
+}
+
+.specimenMeta button {
+  min-width: 92px;
+  min-height: 34px;
+  border: var(--rule-dark);
+  color: var(--color-paper);
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  letter-spacing: inherit;
+  transition: color var(--dur-fast) ease, background-color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out);
+}
+
+.decodeSpecimen { min-height: calc(100svh - 136px); }
+
+.decodeField {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 30%);
+  min-height: calc(100svh - 186px);
+}
+
+.decodeField h1 {
+  align-self: center;
+  padding: var(--space-12) var(--space-8);
+  font-size: clamp(62px, 9.2vw, 148px);
+  font-weight: 260;
+  letter-spacing: -.07em;
+  line-height: .78;
+  text-wrap: balance;
+}
+
+.decodeField h1 span { display: block; }
+
+.decodeAside {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--space-5);
+  padding: var(--space-8);
+  border-left: var(--rule-dark);
+  color: var(--color-muted-dark);
+  font-family: var(--font-body-synthesis);
+  font-size: var(--text-body);
+  line-height: 1.72;
+}
+
+.decodeAside span {
+  margin-bottom: auto;
+  color: var(--color-signal);
+  font-family: var(--font-display-synthesis);
+  font-size: var(--text-micro);
+  letter-spacing: .12em;
+}
+
+.dockSpecimen { padding-bottom: var(--space-12); }
+
+.dockCopy {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 32%);
+  gap: var(--space-8);
+  align-items: end;
+  padding: var(--space-12) var(--space-8);
+}
+
+.dockCopy h2,
+.loaderField h2,
+.liquidField h2 {
+  font-size: clamp(38px, 5vw, 78px);
+  font-weight: 280;
+  letter-spacing: -.05em;
+  line-height: .92;
+  text-wrap: balance;
+}
+
+.dockCopy p,
+.loaderField p,
+.liquidField p {
+  color: var(--color-muted-dark);
+  font-family: var(--font-body-synthesis);
+  font-size: var(--text-body);
+  line-height: 1.72;
+  text-wrap: pretty;
+}
+
+.dock {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-inline: var(--space-8);
+  border-top: var(--rule-dark);
+  border-left: var(--rule-dark);
+}
+
+.dock button {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-width: 0;
+  min-height: 144px;
+  padding: var(--space-4);
+  border: 0;
+  border-right: var(--rule-dark);
+  border-bottom: var(--rule-dark);
+  color: var(--color-muted-dark);
+  background: var(--color-black);
+  cursor: pointer;
+  text-align: left;
+  transform-origin: 50% 100%;
+  will-change: transform;
+  transition: color var(--dur-fast) ease, background-color var(--dur-ui) var(--ease-out);
+}
+
+.dock button > span { font-size: var(--text-micro); letter-spacing: .12em; }
+.dock button strong { align-self: end; font-size: clamp(12px, 1.2vw, 18px); font-weight: 400; letter-spacing: -.01em; }
+.dock button i { position: absolute; top: var(--space-4); right: var(--space-4); color: var(--color-signal); font-style: normal; opacity: 0; transition: opacity var(--dur-fast) var(--ease-out); }
+.dock button[data-near="true"] { color: var(--color-paper); }
+.dock button[data-near="true"] i { opacity: 1; }
+.dock button[data-active="true"] { color: var(--color-accent-ink); background: var(--color-signal); }
+.dock button[data-active="true"] i { color: var(--color-accent-ink); opacity: 1; }
+
+.lowerGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.lowerGrid .specimen + .specimen { border-left: 0; }
+
+.loaderSpecimen,
+.liquidSpecimen { min-height: 620px; }
+
+.loaderField,
+.liquidField {
+  display: grid;
+  min-height: 510px;
+  padding: var(--space-8);
+}
+
+.loaderField {
+  grid-template-columns: minmax(0, 1fr) 40px;
+  gap: var(--space-8);
+  align-items: end;
+}
+
+.loaderField > div:first-child {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.loaderIndex {
+  color: var(--color-signal);
+  font-size: var(--text-micro);
+  letter-spacing: .12em;
+}
+
+.loaderAxis {
+  align-self: stretch;
+  display: grid;
+  gap: 1px;
+}
+
+.loaderAxis i {
+  display: block;
+  border: var(--rule-dark);
+  background: transparent;
+  transform: scaleY(.28);
+  transition: background-color var(--dur-fast) ease, transform var(--dur-stage) var(--ease-out);
+}
+
+.loaderAxis i[data-complete="true"] { background: var(--color-signal); transform: scaleY(1); }
+
+.loaderRail {
+  position: absolute;
+  right: var(--space-8);
+  bottom: var(--space-8);
+  left: var(--space-8);
+  height: 2px;
+  background: var(--color-line-dark);
+}
+
+.loaderRail i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--color-signal);
+  transform-origin: left;
+  transition: transform var(--dur-stage) linear;
+}
+
+.liquidField {
+  grid-template-rows: 1fr auto;
+  gap: var(--space-10);
+}
+
+.liquidField > div:first-child {
+  display: grid;
+  align-content: end;
+  gap: var(--space-5);
+}
+
+.liquidActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+}
+
+.liquidPill { width: min(100%, 360px); }
+.liquidOrb { flex: 0 0 88px; width: 88px; height: 88px; min-height: 88px; }
+
+.labFooter {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  min-height: 92px;
+  border-inline: var(--rule-dark);
+}
+
+.labFooter span { padding-inline: var(--space-5); }
+.labFooter span:nth-child(2) { text-align: center; }
+.labFooter span:last-child { text-align: right; }
+
+@media (hover: hover) and (pointer: fine) {
+  .specimenMeta button:hover { color: var(--color-accent-ink); background: var(--color-signal); }
+}
+
+.specimenMeta button:active { transform: scale(.97); }
+
+@media (max-width: 900px) {
+  .decodeField,
+  .dockCopy,
+  .lowerGrid { grid-template-columns: 1fr; }
+  .decodeAside { min-height: 280px; border-top: var(--rule-dark); border-left: 0; }
+  .dock { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dock button:last-child { grid-column: 1 / -1; }
+  .lowerGrid .specimen + .specimen { border-left: var(--rule-dark); }
+  .labFooter { grid-template-columns: 1fr auto; }
+  .labFooter span:nth-child(2) { display: none; }
+}
+
+@media (max-width: 600px) {
+  .root { padding-top: 64px; }
+  .labHeader { grid-template-columns: 1fr; align-content: center; gap: var(--space-2); padding-block: var(--space-3); }
+  .labHeader > div { display: grid; gap: var(--space-2); }
+  .decodeSpecimen { min-height: auto; }
+  .decodeField { min-height: 660px; }
+  .decodeField h1 { padding: var(--space-10) var(--space-5); font-size: clamp(54px, 18vw, 88px); }
+  .decodeAside,
+  .dockCopy,
+  .loaderField,
+  .liquidField { padding: var(--space-5); }
+  .dock { margin-inline: var(--space-5); }
+  .dock button { min-height: 112px; }
+  .loaderSpecimen,
+  .liquidSpecimen { min-height: 560px; }
+  .loaderField,
+  .liquidField { min-height: 450px; }
+  .liquidActions { align-items: stretch; flex-direction: column; }
+  .liquidPill { width: 100%; }
+  .liquidOrb { align-self: flex-end; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock button { transform: none !important; will-change: auto; }
+  .loaderAxis i,
+  .loaderRail i,
+  .specimenMeta button { transition-duration: var(--dur-fast); }
+}

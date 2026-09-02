@@ -12,6 +12,9 @@
     powerPreference: 'high-performance',
   });
   if (!gl) return;
+  window.__vortexReplicaActive = true;
+
+  const initialize = () => {
 
   // Ring atlas: manifesto + method language (matches Principles / index mono voice).
   // First "." is the hover/dot glyph slot; remaining periods act as separators.
@@ -514,9 +517,22 @@ void main() {
   if (state.motion) ripples.push({ start: 0, strength: 1 }); else state.time = 2.3;
   // Live instrument bridge for paper-side method HUD (must remain writable)
   window.__methodDisc = { mode: 'idle', charge: 0, gather: 0, motion: state.motion };
-  window.__vortexReplicaActive = true;
   resize();
   setMode('idle');
   render();
   ensureLoop();
+  };
+
+  if ('IntersectionObserver' in window) {
+    const activationObserver = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      activationObserver.disconnect();
+      initialize();
+    }, { rootMargin: '800px 0px', threshold: 0 });
+    activationObserver.observe(stage);
+  } else if ('requestIdleCallback' in window) {
+    requestIdleCallback(initialize, { timeout: 2400 });
+  } else {
+    window.setTimeout(initialize, 900);
+  }
 })();

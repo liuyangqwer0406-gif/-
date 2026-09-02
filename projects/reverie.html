@@ -5,48 +5,155 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="../assets/favicon.svg">
-  <meta name="theme-color" content="#ecebe6">
-  <link rel="stylesheet" href="../assets/site-sound.css">
-  <meta name="description" content="温一帆个人网页项目REVERIE案例，展示沉浸式艺术机构网站、响应式设计与交互叙事。">
+  <meta name="theme-color" content="#0a0608">
+  <link rel="canonical" href="https://wenyifan.netlify.app/projects/reverie.html">
+  <meta property="og:type" content="article">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="温一帆作品集">
+  <meta property="og:title" content="REVERIE / Immersive Web Experience — 温一帆">
+  <meta property="og:description" content="一座以 WebGL 森林为入口、由作品世界与档案共同构成的线上艺术机构。">
+  <meta property="og:url" content="https://wenyifan.netlify.app/projects/reverie.html">
+  <meta property="og:image" content="https://wenyifan.netlify.app/assets/reverie-cover.jpg">
+  <meta property="og:image:alt" content="REVERIE 沉浸式艺术机构森林入口">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="REVERIE / Immersive Web Experience — 温一帆">
+  <meta name="twitter:description" content="温一帆独立设计与实现的沉浸式艺术机构网站。">
+  <meta name="twitter:image" content="https://wenyifan.netlify.app/assets/reverie-cover.jpg">
+  <link rel="stylesheet" href="../assets/site-sound.css?v=20260808a">
+  <meta name="description" content="温一帆独立设计与实现的 REVERIE 艺术机构网站案例，包含 WebGL 森林入口、作品索引、双语内容与移动端重排。">
   <title>REVERIE / Immersive Web Experience — 温一帆</title>
-  <link rel="stylesheet" href="detail.css">
-  <script src="detail.js" defer></script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork",
+      "name": "REVERIE",
+      "url": "https://wenyifan.netlify.app/projects/reverie.html",
+      "image": "https://wenyifan.netlify.app/assets/reverie-cover.jpg",
+      "dateCreated": "2026",
+      "creator": { "@type": "Person", "name": "温一帆", "alternateName": "Wen Yifan" },
+      "description": "独立设计与实现的沉浸式艺术机构网站，包含 WebGL 森林入口、作品索引、双语内容与移动端重排。",
+      "sameAs": "https://mythre.netlify.app/"
+    }
+  </script>
+  <link rel="stylesheet" href="detail.css?v=20260809a">
+  <link rel="stylesheet" href="reverie.css?v=20260815c">
+  <script src="detail.js?v=20260814b" defer></script>
+  <script src="reverie.js?v=20260815d" defer></script>
 </head>
-<body>
-  <div class="case-boot" aria-hidden="true">
+<body class="reverie-case">
+  <div class="case-boot rv-case-boot" data-repeat="always" data-css-progress data-duration="1120" aria-hidden="true">
     <div class="case-boot-inner">
-      <p class="case-boot-kicker">Case study / loading</p>
-      <p class="case-boot-title">Opening file</p>
+      <p class="case-boot-kicker">05 / Immersive web experience</p>
+      <p class="case-boot-title"><span>Entering</span><strong>REVERIE</strong></p>
       <div class="case-boot-bar"><span></span></div>
+      <p class="rv-case-boot__status">Portal · Archive · Atelier · World</p>
     </div>
   </div>
   <div class="site-grid" aria-hidden="true"></div><div class="progress" aria-hidden="true"><span></span></div><div class="site-cursor" aria-hidden="true"><i></i></div>
-  <header class="topbar"><div class="topbar-inner"><a class="brand" href="../index.html#work" aria-label="返回温一帆作品集"><span>温一帆</span><sup>026</sup></a><span class="top-role micro">Case study / Web · Interaction · Worldbuilding</span><nav class="top-actions micro" aria-label="案例导航"><span class="project-count">04 / 04</span><a href="../index.html#work">Back to works ↗</a></nav></div></header>
+  <header class="topbar" data-surface="dark"><div class="topbar-inner"><a class="brand" href="../index.html#selected-work" aria-label="返回温一帆作品集"><span>温一帆</span><sup>026</sup></a><span class="top-role micro">Case study / Web · Interaction · Worldbuilding</span><nav class="top-actions micro" aria-label="案例导航"><span class="project-count">05 / 05</span><a href="../index.html#selected-work">Back to works ↗</a></nav></div></header>
 
   <main>
-    <section class="hero" aria-labelledby="project-title"><div class="shell">
-      <div class="hero-head" data-reveal><div><p class="eyebrow">Immersive web experience / Personal project</p><h1 id="project-title">REVERIE</h1></div><div><p class="hero-summary">为流动式实验艺术机构构建数字叙事体验，以森林入口、作品世界索引和中英双语内容建立一个可探索的品牌空间。</p><div class="meta-grid"><div><span>Role</span><span>Concept / Web / Interaction</span></div><div><span>Team</span><span>Personal project / Individual execution</span></div><div><span>Output</span><span>Responsive site / WebGL</span></div><div><span>Year</span><span>2026</span></div></div><a class="live-link" href="https://mythre.netlify.app/" target="_blank" rel="noreferrer">Open live website ↗</a></div></div>
-      <figure class="hero-media" data-reveal><img src="../assets/reverie-cover.jpg" alt="REVERIE沉浸式艺术机构森林入口首页"><span class="media-index micro">Live experience / 04</span></figure>
-    </div></section>
+    <section class="rv-hero rv-dark" data-rv-surface="dark" aria-labelledby="project-title">
+      <img class="rv-hero__image" src="../assets/reverie-case/immersions.jpg" alt="雾林与暖灯构成的 REVERIE 场景" fetchpriority="high">
+      <div class="rv-hero__rail rv-micro"><span>Nomadic experiential art institution</span><span>2018—2026 / 32 Patrons</span></div>
+      <div class="rv-hero__copy">
+        <p class="rv-hero__label rv-micro">Original concept / Creative direction / AI-assisted build</p>
+        <h1 id="project-title"><span class="rv-hero__title-cn">坠入 <span class="rv-hero__title-arrow" aria-hidden="true">›</span></span><span class="rv-hero__title-en">REVERIE</span></h1>
+        <p class="rv-hero__thesis">不是先展示网页，<br>而是先让人进入世界。</p>
+        <p class="rv-hero__note">源场景、世界索引与档案系统先建立观看语境；完整界面截图只在后段承担实现证明，不再承担全部视觉压力。</p>
+      </div>
+      <span class="rv-hero__index rv-micro">05 / Immersive web experience</span>
+    </section>
 
-    <section class="story"><div class="shell story-grid" data-reveal><p class="section-index">01 / Context</p><div class="story-copy"><div class="story-text"><h2>把网站做成入口，<br>而不是作品清单。</h2><p>REVERIE 的核心不是展示固定展厅，而是建立一个不断变化的艺术世界。首页以森林遗迹作为入口，用户通过“坠入”动作进入内容，随后在不同世界、工坊与档案之间探索。</p><p class="project-note">Designed and built as a personal web project / Live link available</p></div><div class="contribution micro"><div><span>Concept</span><span>品牌世界观与内容结构</span></div><div><span>Interface</span><span>桌面与移动端视觉设计</span></div><div><span>Interaction</span><span>入口、索引与滚动反馈</span></div><div><span>Build</span><span>响应式网页与WebGL体验</span></div></div></div></div></section>
+    <section class="rv-bridge" data-rv-surface="light" aria-labelledby="rv-bridge-title">
+      <div class="rv-shell rv-bridge__head case-reveal" data-reveal>
+        <h2 id="rv-bridge-title">先读懂<br>我做了什么。</h2>
+        <div class="rv-bridge__copy">
+          <p>我提出 REVERIE 的原创概念、品牌世界观、信息架构、视觉方向与交互细节，并通过 AI 辅助的 vibe coding 工作流持续判断、修改和统一实现结果。</p>
+          <dl class="rv-facts">
+            <div class="rv-facts__row"><dt class="rv-micro">Situation</dt><dd>让虚构艺术机构成为可进入、可浏览的数字场所。</dd></div>
+            <div class="rv-facts__row"><dt class="rv-micro">Task</dt><dd>组织森林入口、世界、工坊、沉浸体验与档案之间的访问路径。</dd></div>
+            <div class="rv-facts__row"><dt class="rv-micro">Ownership</dt><dd>原创概念、品牌世界观、内容架构、视觉方向、交互细节与最终判断。</dd></div>
+            <div class="rv-facts__row"><dt class="rv-micro">Boundary</dt><dd>Open Design / AI 辅助实现；网站已经上线，尚未进行正式用户体验测试。</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
 
-    <section class="principles"><div class="shell"><div class="principles-head" data-reveal><span class="section-index">02 / Experience</span><span class="micro">Three interaction decisions</span></div><div class="principle-grid" data-reveal>
-      <article class="principle"><span class="micro">01 / Portal</span><b>入口即叙事</b><p>用完整森林场景取代常规标题页，让第一屏直接建立机构的神秘感与世界观。</p></article>
-      <article class="principle"><span class="micro">02 / Archive</span><b>作品成为世界</b><p>将项目组织为可探索的“世界”与档案，而不是标准卡片列表，使内容结构与品牌概念一致。</p></article>
-      <article class="principle"><span class="micro">03 / Responsive</span><b>移动端重新编排</b><p>在窄屏上保留氛围与关键路径，同时重组导航、文字和图像比例，避免简单缩小桌面页面。</p></article>
-    </div></div></section>
+    <section class="rv-experience rv-dark" data-rv-surface="dark" aria-labelledby="rv-experience-title">
+      <div class="rv-shell">
+        <div class="rv-experience__intro case-reveal" data-reveal>
+          <h2 id="rv-experience-title">一个场景，<br>一种阅读任务。</h2>
+          <p>入口负责建立场所感，档案负责解释规则，工坊负责补足机构质感，世界场景负责证明这套视觉语言能够持续生长。</p>
+        </div>
+        <div class="rv-experience__grid">
+          <aside class="rv-experience__sticky" aria-live="polite" aria-atomic="true">
+            <div class="rv-experience__copy">
+              <div class="rv-experience__mask rv-experience__counter-mask"><span class="rv-experience__counter rv-micro">I / IV · Portal</span></div>
+              <div class="rv-experience__mask rv-experience__title-mask"><h3>先建立<br>进入感。</h3></div>
+              <div class="rv-experience__mask rv-experience__body-mask"><p>路径、灯光和雾气先定义观看情绪，让使用者感到自己正在靠近一个地点，而不是打开一张普通网页。</p></div>
+              <span class="rv-experience__shutter" aria-hidden="true"></span>
+            </div>
+            <div class="rv-experience__meter" aria-hidden="true"><span class="is-active"></span><span></span><span></span><span></span></div>
+          </aside>
+          <div class="rv-experience__frames">
+            <figure class="rv-frame case-reveal" data-reveal data-step="0" data-index="I / IV · Portal" data-title="先建立|进入感。" data-copy="路径、灯光和雾气先定义观看情绪，让使用者感到自己正在靠近一个地点，而不是打开一张普通网页。"><img src="../assets/reverie-case/forest.jpg" alt="森林中的暖灯入口" loading="lazy"><figcaption class="rv-micro"><span>Portal / Hollow Choir</span><span>Atmosphere before navigation</span></figcaption></figure>
+            <figure class="rv-frame case-reveal" data-reveal data-step="1" data-index="II / IV · Archive" data-title="让档案|解释规则。" data-copy="纸张、手稿与烛光把虚构机构的时间感具体化；档案不只是装饰，而是世界观继续成立的证据。"><img src="../assets/reverie-case/codex.jpg" alt="烛光、地图与档案手稿" loading="lazy"><figcaption class="rv-micro"><span>Codex / Archive</span><span>Worldbuilding through evidence</span></figcaption></figure>
+            <figure class="rv-frame case-reveal" data-reveal data-step="2" data-index="III / IV · Atelier" data-title="用材质|补足机构感。" data-copy="铜器、工具和暖光把工坊从菜单名变成可感知的工作场所，让世界观拥有日常和生产痕迹。"><img src="../assets/reverie-case/atelier.jpg" alt="暖光中的铜器工坊" loading="lazy"><figcaption class="rv-micro"><span>Atelier / Craft</span><span>Material language</span></figcaption></figure>
+            <figure class="rv-frame case-reveal" data-reveal data-step="3" data-index="IV / IV · World" data-title="最后进入|具体世界。" data-copy="洞穴壁画、潮汐与自然光形成独立场景；每个世界拥有自己的气候，同时服从同一套机构语言。"><img src="../assets/reverie-case/tide.jpg" alt="海蚀洞中的潮汐壁画" loading="lazy"><figcaption class="rv-micro"><span>Tide Atlas / World II</span><span>One world, one atmosphere</span></figcaption></figure>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <section class="chapter"><div class="shell"><div class="chapter-head" data-reveal><span class="chapter-label">03 / Interface</span><div><h2>图像、文字与交互<br>共同建立世界观。</h2><p>页面以大幅环境图像承担情绪，细小双语导航提供秩序，卡片与移动端模块则承接更具体的内容访问。</p></div></div><div class="gallery">
-      <figure class="wide" data-reveal><button class="media-button" type="button" data-lightbox="../assets/reverie-worlds.jpg" data-label="REVERIE / Worlds archive"><img src="../assets/reverie-worlds.jpg" alt="REVERIE作品世界索引页面" style="--ratio: 1.44"></button><figcaption><span>Worlds archive</span><span>Content architecture</span></figcaption></figure>
-      <figure class="offset-right" data-reveal><button class="media-button" type="button" data-lightbox="../assets/reverie-mobile.jpg" data-label="REVERIE / Mobile experience"><img src="../assets/reverie-mobile.jpg" alt="REVERIE手机端响应式体验" style="--ratio: 1.33"></button><figcaption><span>Mobile experience</span><span>Responsive layout</span></figcaption></figure>
-    </div></div></section>
+    <section class="rv-worlds" data-rv-surface="light" aria-labelledby="rv-worlds-title">
+      <div class="rv-shell">
+        <div class="rv-worlds__head case-reveal" data-reveal>
+          <h2 id="rv-worlds-title">世界不是卡片，<br>但需要一套索引。</h2>
+          <p>源图以不同高度进入，保留每个世界的气候差异；名称、时间和状态只承担索引，不再覆盖在复杂截图之上。</p>
+        </div>
+        <div class="rv-worlds__track">
+          <figure class="rv-world-card case-reveal" data-reveal><img src="../assets/reverie-case/card-hollow.jpg" alt="空之合唱森林场景" loading="lazy"><figcaption><strong>空之合唱</strong><span class="rv-micro">Hollow Choir · 2024</span></figcaption></figure>
+          <figure class="rv-world-card case-reveal" data-reveal><img src="../assets/reverie-case/card-tide.jpg" alt="潮汐图谱洞穴场景" loading="lazy"><figcaption><strong>潮汐图谱</strong><span class="rv-micro">Tide Atlas · 2025</span></figcaption></figure>
+          <figure class="rv-world-card case-reveal" data-reveal><img src="../assets/reverie-case/card-owl.jpg" alt="枭时雪林场景" loading="lazy"><figcaption><strong>枭时</strong><span class="rv-micro">Owl Hours · 2024</span></figcaption></figure>
+          <figure class="rv-world-card case-reveal" data-reveal><img src="../assets/reverie-case/card-loom.jpg" alt="织梦山谷织物场景" loading="lazy"><figcaption><strong>织梦</strong><span class="rv-micro">The Loom · 2025—2026</span></figcaption></figure>
+        </div>
+      </div>
+    </section>
 
-    <section class="reflection"><div class="shell reflection-grid" data-reveal><p class="section-index">04 / Reflection</p><div class="reflection-copy"><div><h2>设计语言需要<br>被交互真正承接。</h2><p>这个项目证明我不仅能完成静态视觉，也能把品牌气质转换为页面结构、滚动节奏和响应式体验。设计与实现同步推进，使概念不会在落地阶段被削弱。</p><a class="live-link" href="https://mythre.netlify.app/" target="_blank" rel="noreferrer">Visit REVERIE ↗</a></div><div class="takeaways"><p><b>Strength</b>品牌世界观与网页交互的一体化表达</p><p><b>Role fit</b>品牌互动、创意网页与数字体验岗位</p><p><b>Next iteration</b>继续优化资源加载与移动端场景性能</p></div></div></div></section>
+    <section class="rv-proof rv-dark" data-rv-surface="dark" aria-labelledby="rv-proof-title">
+      <div class="rv-shell">
+        <div class="rv-proof__head case-reveal" data-reveal>
+          <h2 id="rv-proof-title">截图只证明：<br>系统真的被组装出来。</h2>
+          <p>观看者先理解世界观和视觉材料，完整界面截图才拥有语境。它只负责证明导航、索引和响应式布局确实存在。</p>
+        </div>
+        <div class="rv-proof__stage">
+          <figure class="case-reveal" data-reveal><button class="media-button" type="button" data-lightbox="../assets/reverie-worlds.jpg" data-label="REVERIE / Worlds archive"><img src="../assets/reverie-worlds.jpg" alt="REVERIE Worlds 桌面端完整界面"></button><figcaption class="rv-micro"><span>Desktop / Worlds archive</span><span>Content architecture</span></figcaption></figure>
+          <figure class="rv-proof__mobile case-reveal" data-reveal><button class="media-button" type="button" data-lightbox="../assets/reverie-mobile.jpg" data-label="REVERIE / Mobile experience"><img src="../assets/reverie-mobile.jpg" alt="REVERIE 移动端完整界面" loading="lazy"></button><figcaption class="rv-micro"><span>Mobile / Portal</span><span>Responsive order</span></figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="rv-result" data-rv-surface="light" aria-labelledby="rv-result-title">
+      <div class="rv-shell rv-result__inner case-reveal" data-reveal>
+        <h2 id="rv-result-title">创意已上线，<br>体验仍待验证。</h2>
+        <div class="rv-result__copy">
+          <p>最终版本托管于 GitHub，并通过 Netlify 公开上线，形成包含多个世界详情、工坊、档案与联系页面的响应式网站。当前成果证明这套 AI 辅助工作流能够把创意方向推进为可运行产品，但尚未进行正式用户体验测试。</p>
+          <div class="rv-result__list"><p><b>Result</b><span>GitHub 托管并通过 Netlify 公开上线</span></p><p><b>Workflow</b><span>原创方向判断与 AI 辅助实现闭环</span></p><p><b>Next</b><span>验证入口理解、导航清晰度与加载性能</span></p></div>
+          <a class="live-link" href="https://mythre.netlify.app/" target="_blank" rel="noreferrer">Visit live REVERIE ↗</a>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <nav class="project-nav" aria-label="上下案例"><div class="shell project-nav-inner"><a href="runes.html"><span class="micro">← Previous / 03</span><strong>符文<br>攻防战</strong></a><a href="dad.html"><span class="micro">Next / 01 →</span><strong>ROKU<br>IKITION</strong></a></div></nav>
+  <footer class="rv-closing rv-dark" data-rv-surface="dark">
+    <p class="rv-closing__line">先让人相信这个世界，再让人检查这个网站。</p>
+    <div class="rv-closing__meta rv-micro"><span>REVERIE / Source-led case study</span><span>Original direction · AI-assisted build</span></div>
+  </footer>
+
+  <nav class="project-nav" data-rv-surface="dark" aria-label="上下案例"><div class="shell project-nav-inner"><a href="jiangkou.html"><span class="micro">← Previous / 04</span><strong>江口<br>沉银</strong></a><a href="dad.html"><span class="micro">Next / 01 →</span><strong>ROKU<br>IKITION</strong></a></div></nav>
   <div class="lightbox" role="dialog" aria-modal="true" aria-label="项目图片预览" aria-hidden="true"><button type="button" aria-label="关闭图片预览">×</button><img src="" alt=""><span class="lightbox-label micro"></span></div>
-  <script src="../assets/site-sound.js" data-root="../" data-surface="paper" data-three="../assets/vendor/three/three.module.js" defer></script>
+  <script src="../assets/site-scroll.js?v=20260813a" defer></script>
+  <script src="../assets/site-sound.js?v=20260808a" data-root="../" data-surface="paper" data-three="../assets/vendor/three/three.module.js" defer></script>
 </body>
 </html>

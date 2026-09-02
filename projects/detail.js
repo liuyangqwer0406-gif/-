@@ -20,9 +20,9 @@ if (!reducedMotion && 'IntersectionObserver' in window) {
       observer.unobserve(entry.target);
     });
   }, { threshold: .08, rootMargin: '0px 0px -8% 0px' });
-  document.querySelectorAll('[data-reveal]').forEach((element) => observer.observe(element));
+  document.querySelectorAll('[data-reveal].case-reveal').forEach((element) => observer.observe(element));
 } else {
-  document.querySelectorAll('[data-reveal]').forEach((element) => element.classList.add('visible'));
+  document.querySelectorAll('[data-reveal].case-reveal').forEach((element) => element.classList.add('visible'));
 }
 
 const lightbox = document.querySelector('.lightbox');
@@ -31,31 +31,45 @@ const lightboxLabel = lightbox.querySelector('.lightbox-label');
 const lightboxClose = lightbox.querySelector('button');
 let lastTrigger = null;
 
-const closeLightbox = () => {
-  lightbox.classList.remove('open');
-  lightbox.setAttribute('aria-hidden', 'true');
-  document.body.classList.remove('locked');
+const settleWithoutMotion = (element, update) => {
+  element.classList.add('motion-instant');
+  update();
+  window.requestAnimationFrame(() => window.requestAnimationFrame(() => element.classList.remove('motion-instant')));
+};
+
+const closeLightbox = (instant = false) => {
+  const update = () => {
+    lightbox.classList.remove('open');
+    lightbox.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('locked');
+  };
+  if (instant) settleWithoutMotion(lightbox, update);
+  else update();
   lastTrigger?.focus();
 };
 
 document.querySelectorAll('[data-lightbox]').forEach((trigger) => {
-  trigger.addEventListener('click', () => {
-    lastTrigger = trigger;
-    lightboxImage.src = trigger.dataset.lightbox;
-    lightboxImage.alt = trigger.querySelector('img')?.alt || '';
-    lightboxLabel.textContent = trigger.dataset.label || '';
-    lightbox.classList.add('open');
-    lightbox.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('locked');
+  trigger.addEventListener('click', (event) => {
+    const update = () => {
+      lastTrigger = trigger;
+      lightboxImage.src = trigger.dataset.lightbox;
+      lightboxImage.alt = trigger.querySelector('img')?.alt || '';
+      lightboxLabel.textContent = trigger.dataset.label || '';
+      lightbox.classList.add('open');
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('locked');
+    };
+    if (event.detail === 0) settleWithoutMotion(lightbox, update);
+    else update();
     lightboxClose.focus();
   });
 });
-lightboxClose.addEventListener('click', closeLightbox);
+lightboxClose.addEventListener('click', (event) => closeLightbox(event.detail === 0));
 lightbox.addEventListener('click', (event) => {
   if (event.target === lightbox) closeLightbox();
 });
 window.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && lightbox.classList.contains('open')) closeLightbox();
+  if (event.key === 'Escape' && lightbox.classList.contains('open')) closeLightbox(true);
 });
 
 const cursor = document.querySelector('.site-cursor');
@@ -82,7 +96,7 @@ if (!reducedMotion && window.matchMedia('(hover: hover) and (pointer: fine) and 
     const target = event.target;
     cursor.classList.toggle('interactive', Boolean(target.closest('a, button')));
     cursor.classList.toggle('is-media', Boolean(target.closest('.media-button')));
-    cursor.classList.toggle('on-dark', Boolean(target.closest('.chapter, .lightbox')));
+    cursor.classList.toggle('on-dark', Boolean(target.closest('.chapter, .rv-dark, .lightbox')));
   }, { passive: true });
   window.addEventListener('pointerdown', () => cursor.classList.add('pressed'), { passive: true });
   window.addEventListener('pointerup', () => cursor.classList.remove('pressed'), { passive: true });
@@ -99,32 +113,39 @@ if (!reducedMotion && window.matchMedia('(hover: hover) and (pointer: fine) and 
 
 /* Short paper case boot — not the home black theatre intro */
 (() => {
-  if (sessionStorage.getItem('wyf-case-boot') === '1' || reducedMotion) {
+  const boot = document.querySelector('.case-boot');
+  const repeats = boot?.dataset.repeat === 'always';
+  if ((!repeats && sessionStorage.getItem('wyf-case-boot') === '1') || reducedMotion) {
     document.documentElement.classList.remove('case-booting');
-    document.querySelector('.case-boot')?.remove();
+    boot?.remove();
     return;
   }
-  const boot = document.querySelector('.case-boot');
   if (!boot) {
     document.documentElement.classList.remove('case-booting');
     return;
   }
   const bar = boot.querySelector('.case-boot-bar span');
+  const cssProgress = boot.hasAttribute('data-css-progress');
+  const duration = Number(boot.dataset.duration) || 720;
   const started = performance.now();
   let done = false;
   const finish = () => {
     if (done) return;
     done = true;
-    if (bar) bar.style.width = '100%';
+    if (bar && !cssProgress) bar.style.transform = 'scaleX(1)';
     boot.classList.add('is-done');
     document.documentElement.classList.remove('case-booting');
     sessionStorage.setItem('wyf-case-boot', '1');
-    window.setTimeout(() => boot.remove(), 480);
+    window.setTimeout(() => boot.remove(), cssProgress ? 620 : 480);
   };
+  if (cssProgress) {
+    window.setTimeout(finish, duration);
+    return;
+  }
   const tick = (now) => {
     if (done) return;
-    const t = Math.min(1, (now - started) / 720);
-    if (bar) bar.style.width = `${Math.round(t * 100)}%`;
+    const t = Math.min(1, (now - started) / duration);
+    if (bar) bar.style.transform = `scaleX(${t})`;
     if (t >= 1) finish();
     else requestAnimationFrame(tick);
   };
