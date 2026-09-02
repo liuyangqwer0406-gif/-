@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-labelledby="wyfTitle wyfDesc">
+  <title id="wyfTitle">温一帆签名标志</title>
+  <desc id="wyfDesc">从温一帆手写签名提取的回环 W 与橙色个人记号</desc>
+  <rect width="120" height="120" rx="8" fill="#111111"/>
+  <path d="M13 42C27 35 44 20 53 19c6-1 3 11-2 23L33 86c-4 10-6 17-1 18 6 1 14-11 19-22l19-45c-5 18-8 38-4 49 3 9 9 7 16-3 6-10 11-22 16-37" fill="none" stroke="#F4F3EF" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="none" stroke="#FF5125" stroke-width="4.5" stroke-linecap="round">
+    <path d="M91 25l-5 7M99 25l-4 8M86 38l7 4M98 38l-5 7"/>
+  </g>
+</svg>

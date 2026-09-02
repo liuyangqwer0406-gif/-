@@ -1,0 +1,70 @@
+.field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #090807;
+  touch-action: none;
+}
+
+.canvas,
+.fallback {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas {
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 480ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.field[data-status="ready"] .canvas { opacity: 1; }
+
+.fallback {
+  z-index: 1;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 480ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.field[data-status="ready"] .fallback { opacity: 0; }
+
+.fallback::before,
+.fallback::after,
+.fallback span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  content: "";
+  border: 1px solid rgba(255, 90, 31, .62);
+  transform: translate(-50%, -50%);
+}
+
+.fallback::before { width: 22%; aspect-ratio: 1; }
+.fallback::after { width: 38%; aspect-ratio: 1; opacity: .34; transform: translate(-50%, -50%) rotate(45deg); }
+.fallback span { width: 5px; height: 5px; border: 0; background: #ff5a1f; box-shadow: 0 0 18px rgba(255, 90, 31, .72); }
+
+.fallback i {
+  position: absolute;
+  right: 8%;
+  bottom: 9%;
+  width: 18%;
+  height: 1px;
+  background: rgba(255, 90, 31, .62);
+  transform-origin: right;
+  animation: fallbackScan 1.8s cubic-bezier(.22, 1, .36, 1) infinite alternate;
+}
+
+@keyframes fallbackScan {
+  from { transform: scaleX(.2); opacity: .2; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .canvas,
+  .fallback { transition: none; }
+  .fallback i { animation: none; transform: scaleX(.64); }
+}
